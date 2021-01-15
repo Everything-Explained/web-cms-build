@@ -2,16 +2,10 @@ import { Page } from '@everything_explained/web-md-bundler/dist/core/md_page_bun
 import { mkdirSync, existsSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { getVideos } from '../services/api_videos';
-import config from '../config.json';
 import { dest, src } from 'gulp';
 import changed from 'gulp-changed';
 import gzip from 'gulp-gzip';
-
-
-
-const paths = config.paths;
-// library/videos/Philosophical reasoning/*
-// library/videos/Paranormal Abilities/*
+import paths from '../paths';
 
 const categories: {[key: string]: string|undefined} = {
   'AA': 'General Spirituality (Meta-Spirituality)',

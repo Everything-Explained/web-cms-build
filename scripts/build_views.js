@@ -11,18 +11,17 @@ const gulp_1 = require("gulp");
 const gulp_rename_1 = __importDefault(require("gulp-rename"));
 const web_md_bundler_1 = __importDefault(require("@everything_explained/web-md-bundler"));
 const fs_1 = require("fs");
-const config_json_1 = __importDefault(require("../config.json"));
 const api_blogposts_1 = require("../services/api_blogposts");
 const api_pages_1 = require("../services/api_pages");
 const api_videos_1 = require("../services/api_videos");
-const paths = config_json_1.default.paths;
+const paths_1 = __importDefault(require("../paths"));
 function createPageDirs(cb) {
-    if (!fs_1.existsSync(paths.dist.root))
-        fs_1.mkdirSync(paths.dist.root);
-    if (!fs_1.existsSync(paths.dist.pages))
-        fs_1.mkdirSync(paths.dist.pages);
-    if (!fs_1.existsSync(paths.release.pages))
-        fs_1.mkdirSync(paths.release.pages);
+    if (!fs_1.existsSync(paths_1.default.dist.root))
+        fs_1.mkdirSync(paths_1.default.dist.root);
+    if (!fs_1.existsSync(paths_1.default.dist.pages))
+        fs_1.mkdirSync(paths_1.default.dist.pages);
+    if (!fs_1.existsSync(paths_1.default.release.pages))
+        fs_1.mkdirSync(paths_1.default.release.pages);
     cb();
 }
 exports.createPageDirs = createPageDirs;
@@ -35,24 +34,24 @@ async function bundleMDPages() {
         sort_by: 'created_at:asc'
     });
     await web_md_bundler_1.default.bundlePageMaps([
-        { dir: `${paths.dist.pages}/blog.json`, pages: posts },
-        { dir: `${paths.dist.pages}/home.json`, pages: [pages.home] },
-        { dir: `${paths.dist.pages}/red33m.json`, pages: videos }
+        { dir: `${paths_1.default.dist.pages}/blog.json`, pages: posts },
+        { dir: `${paths_1.default.dist.pages}/home.json`, pages: [pages.home] },
+        { dir: `${paths_1.default.dist.pages}/red33m.json`, pages: videos }
     ], 'html');
 }
 exports.bundleMDPages = bundleMDPages;
 function releasePageData() {
-    return gulp_1.src(`${paths.dist.pages}/*.json`)
+    return gulp_1.src(`${paths_1.default.dist.pages}/*.json`)
         .pipe(gulp_rename_1.default(path => { path.dirname = ''; }))
-        .pipe(gulp_changed_1.default(paths.release.pages))
-        .pipe(gulp_1.dest(paths.release.pages));
+        .pipe(gulp_changed_1.default(paths_1.default.release.pages))
+        .pipe(gulp_1.dest(paths_1.default.release.pages));
 }
 exports.releasePageData = releasePageData;
 function compressToGzip() {
-    return gulp_1.src(`${paths.dist.pages}/*.json`)
-        .pipe(gulp_changed_1.default(paths.release.pages, { extension: `.json.gz` }))
+    return gulp_1.src(`${paths_1.default.dist.pages}/*.json`)
+        .pipe(gulp_changed_1.default(paths_1.default.release.pages, { extension: `.json.gz` }))
         .pipe(gulp_gzip_1.default({ gzipOptions: { level: 9 } }))
-        .pipe(gulp_1.dest(paths.release.pages));
+        .pipe(gulp_1.dest(paths_1.default.release.pages));
 }
 exports.compressToGzip = compressToGzip;
 // export function compressToBrotli() {

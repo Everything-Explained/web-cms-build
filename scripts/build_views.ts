@@ -5,12 +5,10 @@ import { src, dest } from 'gulp';
 import rename from 'gulp-rename';
 import bundler from '@everything_explained/web-md-bundler';
 import { mkdirSync, existsSync } from 'fs';
-import config from '../config.json';
 import { getBlogPosts } from '../services/api_blogposts';
 import { getPages } from '../services/api_pages';
 import { getVideos } from '../services/api_videos';
-
-const paths = config.paths;
+import paths from '../paths';
 
 
 
