@@ -1,12 +1,18 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getVideos = void 0;
+/* eslint-disable no-constant-condition */
+const md_page_bundler_1 = __importDefault(require("@everything_explained/web-md-bundler/dist/core/md_page_bundler"));
 const api_storyblok_1 = require("./api_storyblok");
 function mapVideos(stories) {
     return stories.map(story => {
         const page = api_storyblok_1.mapStoryDefaults(story);
         const video = {
             ...page,
+            content: page.content ? md_page_bundler_1.default.renderMDStr(page.content) : page.content,
             id: story.content.id,
             date: story.content.timestamp || page.date
         };

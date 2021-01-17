@@ -1,5 +1,5 @@
 /* eslint-disable no-constant-condition */
-import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
+import bundler, { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
 import { blok, ISODateString, mapStoryDefaults, StoryContent, Story } from "./api_storyblok";
 
 export interface Video extends Page {
@@ -28,6 +28,7 @@ function mapVideos(stories: VideoStory[]) {
     const page = mapStoryDefaults(story);
     const video: Video = {
       ...page,
+      content: page.content ? bundler.renderMDStr(page.content) : page.content,
       id: story.content.id,
       date: story.content.timestamp || page.date!
     };
