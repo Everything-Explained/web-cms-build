@@ -7,12 +7,14 @@ exports.getVideos = void 0;
 /* eslint-disable no-constant-condition */
 const md_page_bundler_1 = __importDefault(require("@everything_explained/web-md-bundler/dist/core/md_page_bundler"));
 const api_storyblok_1 = require("./api_storyblok");
-function mapVideos(stories) {
+function mapVideos(stories, renderType = 'MD') {
     return stories.map(story => {
         const page = api_storyblok_1.mapStoryDefaults(story);
         const video = {
             ...page,
-            content: page.content ? md_page_bundler_1.default.renderMDStr(page.content) : page.content,
+            content: (page.content && renderType == 'MD')
+                ? md_page_bundler_1.default.renderMDStr(page.content)
+                : page.content,
             id: story.content.id,
             date: story.content.timestamp || page.date
         };
@@ -22,7 +24,7 @@ function mapVideos(stories) {
         return video;
     });
 }
-async function getVideos(options) {
+async function getVideos(options, renderType = 'MD') {
     try {
         const allStories = [];
         let i = 1;
@@ -34,7 +36,7 @@ async function getVideos(options) {
             }
             if (!allStories.length)
                 throw Error('No Videos');
-            return mapVideos(allStories);
+            return mapVideos(allStories, renderType);
         }
     }
     catch (err) {

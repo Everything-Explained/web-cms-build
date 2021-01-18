@@ -32,7 +32,7 @@ async function bundleMDPages() {
         starts_with: 'red33m',
         version: 'draft',
         sort_by: 'created_at:asc'
-    });
+    }, 'plain');
     await web_md_bundler_1.default.bundlePageMaps([
         { dir: `${paths_1.default.dist.pages}/blog.json`, pages: posts },
         { dir: `${paths_1.default.dist.pages}/home.json`, pages: [pages.home] },

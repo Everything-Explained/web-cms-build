@@ -23,12 +23,15 @@ type VideoOptions = {
   version: 'draft'|'published'
 }
 
-function mapVideos(stories: VideoStory[]) {
+function mapVideos(stories: VideoStory[], renderType: 'plain'|'MD' = 'MD') {
   return stories.map(story => {
     const page = mapStoryDefaults(story);
     const video: Video = {
       ...page,
-      content: page.content ? bundler.renderMDStr(page.content) : page.content,
+      content:
+        (page.content && renderType == 'MD')
+          ? bundler.renderMDStr(page.content)
+          : page.content,
       id: story.content.id,
       date: story.content.timestamp || page.date!
     };
@@ -39,7 +42,7 @@ function mapVideos(stories: VideoStory[]) {
   });
 }
 
-export async function getVideos(options: VideoOptions) {
+export async function getVideos(options: VideoOptions, renderType: 'plain'|'MD' = 'MD') {
   try {
     const allStories = [];
     let i = 1;
@@ -52,7 +55,7 @@ export async function getVideos(options: VideoOptions) {
         continue;
       }
       if (!allStories.length) throw Error('No Videos');
-      return mapVideos(allStories);
+      return mapVideos(allStories, renderType);
     }
   }
   catch (err) { throw Error(err); }

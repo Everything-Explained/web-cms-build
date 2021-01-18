@@ -27,7 +27,7 @@ export async function bundleMDPages() {
     starts_with: 'red33m',
     version: 'draft',
     sort_by: 'created_at:asc'
-  });
+  }, 'plain');
   await bundler.bundlePageMaps([
     { dir: `${paths.dist.pages}/blog.json`, pages: posts },
     { dir: `${paths.dist.pages}/home.json`, pages: [pages.home] },
