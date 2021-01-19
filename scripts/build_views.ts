@@ -26,7 +26,7 @@ export async function bundleMDPages() {
   const pages = await getPages();
   const videos = await getVideos({
     starts_with: 'red33m',
-    version: 'draft',
+    version: 'published',
     sort_by: 'created_at:asc'
   }, 'plain');
   await bundler.bundlePageMaps([

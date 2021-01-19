@@ -32,7 +32,7 @@ async function bundleMDPages() {
     const pages = await api_pages_1.getPages();
     const videos = await api_videos_1.getVideos({
         starts_with: 'red33m',
-        version: 'draft',
+        version: 'published',
         sort_by: 'created_at:asc'
     }, 'plain');
     await web_md_bundler_1.default.bundlePageMaps([
