@@ -15,6 +15,7 @@
     "gulp-changed": "^4.0.2",
     "gulp-gzip": "^1.4.2",
     "gulp-rename": "^2.0.0",
+    "source-map-support": "^0.5.19",
     "storyblok-js-client": "^3.3.1"
   },
   "devDependencies": {
@@ -25,7 +26,6 @@
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "eslint": "^7.17.0",
-    "source-map-support": "^0.5.19",
     "typescript": "^4.1.3"
   }
 }
