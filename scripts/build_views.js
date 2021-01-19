@@ -20,6 +20,8 @@ function createPageDirs(cb) {
         fs_1.mkdirSync(paths_1.default.dist.root);
     if (!fs_1.existsSync(paths_1.default.dist.pages))
         fs_1.mkdirSync(paths_1.default.dist.pages);
+    if (!fs_1.existsSync(paths_1.default.release.root))
+        fs_1.mkdirSync(paths_1.default.release.root);
     if (!fs_1.existsSync(paths_1.default.release.pages))
         fs_1.mkdirSync(paths_1.default.release.pages);
     cb();

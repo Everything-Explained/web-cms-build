@@ -15,6 +15,7 @@ import paths from '../paths';
 export function createPageDirs(cb: () => void) {
   if (!existsSync(paths.dist.root)) mkdirSync(paths.dist.root);
   if (!existsSync(paths.dist.pages)) mkdirSync(paths.dist.pages);
+  if (!existsSync(paths.release.root)) mkdirSync(paths.release.root);
   if (!existsSync(paths.release.pages)) mkdirSync(paths.release.pages);
   cb();
 }
