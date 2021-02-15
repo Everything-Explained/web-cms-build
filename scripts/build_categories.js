@@ -39,7 +39,7 @@ async function createVideoMap(cb) {
     const rawVideos = await api_videos_1.getVideos({
         starts_with: 'library/videos',
         version: 'draft',
-        sort_by: 'content.category:asc',
+        sort_by: 'content.category:desc',
     });
     const videoMap = {};
     rawVideos.forEach(v => {
