@@ -35,7 +35,7 @@ export async function createVideoMap(cb: () => void): Promise<void> {
   const rawVideos = await getVideos({
     starts_with: 'library/videos',
     version: 'draft',
-    sort_by: 'content.category:asc',
+    sort_by: 'content.category:desc',
   });
 
   const videoMap: {[key: string]: Page[] } = {};
