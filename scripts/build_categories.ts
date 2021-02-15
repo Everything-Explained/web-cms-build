@@ -35,7 +35,7 @@ export async function createVideoMap(cb: () => void): Promise<void> {
   const rawVideos = await getVideos({
     starts_with: 'library/videos',
     version: 'draft',
-    sort_by: 'content.category:desc',
+    sort_by: 'content.category:asc',
   });
 
   const videoMap: {[key: string]: Page[] } = {};
@@ -45,6 +45,13 @@ export async function createVideoMap(cb: () => void): Promise<void> {
     if(!videoMap[cat]) videoMap[cat] = [];
     videoMap[cat].push(v);
   });
+
+  // Sort Videos Descending for each category
+  for (const cat in videoMap) {
+    videoMap[cat].sort((v1, v2) => Date.parse(v1.date!) - Date.parse(v2.date!));
+  }
+
+  console.log(videoMap);
 
   await writeFile(`${paths.dist.library}/videos.json`, JSON.stringify(videoMap, null, 2));
   cb();
