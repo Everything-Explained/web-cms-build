@@ -51,8 +51,6 @@ export async function createVideoMap(cb: () => void): Promise<void> {
     videoMap[cat].sort((v1, v2) => Date.parse(v1.date!) - Date.parse(v2.date!));
   }
 
-  console.log(videoMap);
-
   await writeFile(`${paths.dist.library}/videos.json`, JSON.stringify(videoMap, null, 2));
   cb();
 }
