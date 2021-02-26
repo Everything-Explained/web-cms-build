@@ -1,5 +1,5 @@
 import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
-import { blok, mapStoryDefaults, Story } from "./api_storyblok";
+import { blok, mapStoryToPage, Story } from "./api_storyblok";
 
 interface DynamicPages {
   home: Page;
@@ -8,7 +8,7 @@ interface DynamicPages {
 
 export function mapPages(stories: Story[]) {
   const pages = {} as DynamicPages;
-  stories.forEach(story => pages[story.slug] = mapStoryDefaults(story));
+  stories.forEach(story => pages[story.slug] = mapStoryToPage(story));
   return pages;
 }
 

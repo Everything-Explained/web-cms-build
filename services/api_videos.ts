@@ -1,13 +1,13 @@
 /* eslint-disable no-constant-condition */
 import bundler, { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
-import { blok, ISODateString, mapStoryDefaults, StoryContent, Story } from "./api_storyblok";
+import { blok, ISODateString, mapStoryToPage, StoryblokContent, Story, getStories, StoryblokOptions } from "./api_storyblok";
 
 export interface Video extends Page {
   category ?: string;
 }
 
 
-export interface VideoContent extends StoryContent {
+export interface VideoContent extends StoryblokContent {
   id        : string;
   timestamp : ISODateString;
   category ?: string;
@@ -17,15 +17,11 @@ export interface VideoStory extends Story {
   content: VideoContent;
 }
 
-type VideoOptions = {
-  starts_with: string;
-  sort_by: 'created_at:desc'|'created_at:asc'|'content.category:asc'|'content.category:desc';
-  version: 'draft'|'published'
-}
 
-function mapVideos(stories: VideoStory[], renderType: 'plain'|'MD' = 'MD') {
+export async function getVideos(options: StoryblokOptions, renderType: 'plain'|'MD' = 'MD') {
+  const stories = await getStories<VideoStory>(options);
   return stories.map(story => {
-    const page = mapStoryDefaults(story);
+    const page = mapStoryToPage(story);
     const video: Video = {
       ...page,
       content:
@@ -40,23 +36,4 @@ function mapVideos(stories: VideoStory[], renderType: 'plain'|'MD' = 'MD') {
     }
     return video;
   });
-}
-
-export async function getVideos(options: VideoOptions, renderType: 'plain'|'MD' = 'MD') {
-  try {
-    const allStories = [];
-    let i = 1;
-    while (true) {
-      const stories =
-        await blok.get('cdn/stories/', { per_page: 100, page: i++, ...options })
-      ;
-      if (stories.data.stories.length) {
-        allStories.push(...stories.data.stories);
-        continue;
-      }
-      if (!allStories.length) throw Error('No Videos');
-      return mapVideos(allStories, renderType);
-    }
-  }
-  catch (err) { throw Error(err); }
 }

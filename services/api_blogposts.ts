@@ -1,5 +1,5 @@
 import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
-import { blok, mapStoryDefaults, StoryContent, Story } from "./api_storyblok";
+import { blok, mapStoryToPage, StoryblokContent, Story } from "./api_storyblok";
 
 type BlogImage = {
   id?: number;
@@ -8,7 +8,7 @@ type BlogImage = {
   copyright?: string;
 }
 
-interface BlogContent extends StoryContent {
+interface BlogContent extends StoryblokContent {
   summary: string;
   image_header: BlogImage;
 }
@@ -19,7 +19,7 @@ interface BlogStory extends Story {
 
 function mapBlogPosts(stories: BlogStory[]) {
   return stories.map(story => {
-    const page = mapStoryDefaults(story);
+    const page = mapStoryToPage(story);
     page.summary = story.content.summary;
     page.header_image = story.content.image_header.filename || null;
     return page;
