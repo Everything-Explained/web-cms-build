@@ -31,7 +31,7 @@ async function bundleMDPages() {
     const posts = await api_blogposts_1.getBlogPosts();
     const pages = await api_pages_1.getPages();
     const videos = await api_videos_1.getVideos({
-        starts_with: 'red33m',
+        starts_with: 'red33m/videos',
         version: 'published',
         sort_by: 'created_at:asc'
     }, 'plain');

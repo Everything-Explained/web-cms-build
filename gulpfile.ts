@@ -1,4 +1,4 @@
-import gulp, { task, series, parallel } from 'gulp'
+import { task, series, parallel } from 'gulp';
 import { compressLibraryData, createVideoMap, releaseLibraryData } from './scripts/build_categories';
 import { bundleMDPages, compressToGzip, createPageDirs, releasePageData } from './scripts/build_views';
 
