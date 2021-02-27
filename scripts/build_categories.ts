@@ -2,9 +2,6 @@ import { Page } from '@everything_explained/web-md-bundler/dist/core/md_page_bun
 import { mkdirSync, existsSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { getVideos } from '../services/api_videos';
-import { dest, src } from 'gulp';
-import changed from 'gulp-changed';
-import gzip from 'gulp-gzip';
 import paths from '../paths';
 
 const categories: {[key: string]: string|undefined} = {
