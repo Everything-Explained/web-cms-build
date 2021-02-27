@@ -5,6 +5,7 @@ import {
   compressFiles,
   releaseLibraryData,
   copyPageData,
+  releaseRed33mData,
   createPageDirs
 } from './scripts/build';
 
@@ -17,7 +18,7 @@ task('build',
   series(
     createPageDirs,
     parallel(bundleMDPages, createVideoMap),
-    parallel(releasePageData, releaseLibraryData)
     compressFiles,
+    parallel(copyPageData, releaseLibraryData, releaseRed33mData)
   )
 );

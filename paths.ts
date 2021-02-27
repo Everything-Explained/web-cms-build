@@ -6,12 +6,14 @@ const paths = {
   release: {
     root: releaseRoot,
     pages: `${releaseRoot}/pages`,
-    library: `${releaseRoot}/library`
+    library: `${releaseRoot}/library`,
+    red33m: `${releaseRoot}/red33m`,
   },
   dist: {
     root: distRoot,
     pages: `${distRoot}/pages`,
-    library: `${distRoot}/library`
+    library: `${distRoot}/library`,
+    red33m: `${distRoot}/red33m`,
   }
 };
 
