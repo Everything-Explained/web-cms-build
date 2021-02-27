@@ -12,15 +12,6 @@ import paths from '../paths';
 
 
 
-export function createPageDirs(cb: () => void) {
-  if (!existsSync(paths.dist.root)) mkdirSync(paths.dist.root);
-  if (!existsSync(paths.dist.pages)) mkdirSync(paths.dist.pages);
-  if (!existsSync(paths.release.root)) mkdirSync(paths.release.root);
-  if (!existsSync(paths.release.pages)) mkdirSync(paths.release.pages);
-  cb();
-}
-
-
 export async function bundleMDPages() {
   const posts = await getBlogPosts();
   const pages = await getPages();
@@ -37,21 +28,6 @@ export async function bundleMDPages() {
   ], 'html');
 }
 
-
-export function releasePageData() {
-  return src(`${paths.dist.pages}/*.json`)
-    .pipe(rename(path => { path.dirname = ''; }))
-    .pipe(changed(paths.release.pages))
-    .pipe(dest(paths.release.pages));
-}
-
-
-export function compressToGzip() {
-  return src(`${paths.dist.pages}/*.json`)
-    .pipe(changed(paths.release.pages, { extension: `.json.gz`}))
-    .pipe(gzip({ gzipOptions: { level: 9 }}))
-    .pipe(dest(paths.release.pages));
-}
 
 
 // export function compressToBrotli() {

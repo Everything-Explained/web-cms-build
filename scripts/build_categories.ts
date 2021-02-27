@@ -55,15 +55,3 @@ export async function createVideoMap(cb: () => void): Promise<void> {
   cb();
 }
 
-export function compressLibraryData() {
-  return src(`${paths.dist.library}/*.json`)
-    .pipe(changed(paths.release.library, { extension: `.json.gz`}))
-    .pipe(gzip({ gzipOptions: { level: 9 }}))
-    .pipe(dest(paths.release.library));
-}
-
-export function releaseLibraryData() {
-  return src(`${paths.dist.library}/*.json`)
-    .pipe(changed(paths.release.library))
-    .pipe(dest(paths.release.library));
-}
