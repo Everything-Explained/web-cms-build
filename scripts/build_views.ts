@@ -15,11 +15,7 @@ import paths from '../paths';
 export async function bundleMDPages() {
   const posts = await getBlogPosts();
   const pages = await getPages();
-  const videos = await getVideos({
-    starts_with: 'red33m/videos',
-    version: 'published',
-    sort_by: 'created_at:asc'
-  }, 'plain');
+  const videos = await getVideos('red33m/videos');
 
   await bundler.bundlePageMaps([
     { dir: `${paths.dist.pages}/blog.json`, pages: posts },

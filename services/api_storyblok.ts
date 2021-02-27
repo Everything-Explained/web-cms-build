@@ -5,7 +5,15 @@ import config from '../config.json';
 
 
 
-export type ISODateString = string;
+export type ISODateString   = string;
+export type StoryVersion    = 'published'|'draft';
+export type StorySortString =
+   'created_at:desc'
+  |'created_at:asc'
+  |'content.category:asc'
+  |'content.category:desc'
+;
+
 
 
 export interface Story {
@@ -26,8 +34,8 @@ export interface StoryblokContent {
 export interface StoryblokOptions {
   /** Full Slug pointing to CMS content */
   starts_with : string;
-  sort_by     : 'created_at:desc'|'created_at:asc'|'content.category:asc'|'content.category:desc';
-  version     : 'draft'|'published'
+  sort_by     : StorySortString;
+  version     : StoryVersion;
 }
 
 
