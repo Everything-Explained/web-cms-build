@@ -29,7 +29,7 @@ export async function createVideoMap(cb: () => void): Promise<void> {
   if (!existsSync(paths.dist.library)) mkdirSync(paths.dist.library);
   if (!existsSync(paths.release.library)) mkdirSync(paths.release.library);
 
-  const rawVideos = await getVideos('library/videos', 'published', 'created_at:desc');
+  const rawVideos = await getVideos('library/videos', 'published', 'content.category:asc');
 
   const videoMap: {[key: string]: Page[] } = {};
   rawVideos.forEach(v => {
