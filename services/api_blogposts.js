@@ -4,7 +4,7 @@ exports.getBlogPosts = void 0;
 const api_storyblok_1 = require("./api_storyblok");
 function mapBlogPosts(stories) {
     return stories.map(story => {
-        const page = api_storyblok_1.mapStoryDefaults(story);
+        const page = api_storyblok_1.mapStoryToPage(story);
         page.summary = story.content.summary;
         page.header_image = story.content.image_header.filename || null;
         return page;

@@ -4,7 +4,7 @@ exports.getPages = exports.mapPages = void 0;
 const api_storyblok_1 = require("./api_storyblok");
 function mapPages(stories) {
     const pages = {};
-    stories.forEach(story => pages[story.slug] = api_storyblok_1.mapStoryDefaults(story));
+    stories.forEach(story => pages[story.slug] = api_storyblok_1.mapStoryToPage(story));
     return pages;
 }
 exports.mapPages = mapPages;
