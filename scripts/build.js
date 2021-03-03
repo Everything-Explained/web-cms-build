@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.releaseRed33mData = exports.releaseLibraryData = exports.copyPageData = exports.compressFiles = exports.createPageDirs = void 0;
+exports.releaseRed33mData = exports.releaseLibraryData = exports.copyPageData = exports.generateVersion = exports.compressFiles = exports.createPageDirs = void 0;
 const gulp_1 = require("gulp");
 const fs_1 = require("fs");
 const gulp_changed_1 = __importDefault(require("gulp-changed"));
 const gulp_gzip_1 = __importDefault(require("gulp-gzip"));
 const gulp_rename_1 = __importDefault(require("gulp-rename"));
 const paths_1 = __importDefault(require("../paths"));
+const path_1 = require("path");
 function createPageDirs(cb) {
     let path;
     for (path in paths_1.default.dist) {
@@ -34,6 +35,13 @@ function compressFiles(cb) {
     cb();
 }
 exports.compressFiles = compressFiles;
+function generateVersion(cb) {
+    const releasePath = path_1.resolve(`${paths_1.default.release.root}`, '..');
+    const version = `cms${Date.now().toString(16)}`;
+    fs_1.writeFileSync(`${releasePath}/version.txt`, version);
+    cb();
+}
+exports.generateVersion = generateVersion;
 function copyPageData() {
     return gulp_1.src(`${paths_1.default.dist.pages}/*.json`)
         .pipe(gulp_rename_1.default(path => { path.dirname = ''; }))

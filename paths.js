@@ -4,13 +4,13 @@ const distRoot = './dist';
 const paths = {
     release: {
         root: releaseRoot,
-        pages: `${releaseRoot}/pages`,
+        pages: `${releaseRoot}/`,
         library: `${releaseRoot}/library`,
         red33m: `${releaseRoot}/red33m`,
     },
     dist: {
         root: distRoot,
-        pages: `${distRoot}/pages`,
+        pages: `${distRoot}/`,
         library: `${distRoot}/library`,
         red33m: `${distRoot}/red33m`,
     }
