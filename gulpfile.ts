@@ -6,8 +6,10 @@ import {
   releaseLibraryData,
   copyPageData,
   releaseRed33mData,
-  createPageDirs
+  createPageDirs,
+  generateVersion
 } from './scripts/build';
+
 
 
 
@@ -16,7 +18,7 @@ import {
 
 task('build',
   series(
-    createPageDirs,
+    parallel(createPageDirs, generateVersion),
     parallel(bundleMDPages, createVideoMap),
     compressFiles,
     parallel(copyPageData, releaseLibraryData, releaseRed33mData)

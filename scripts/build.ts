@@ -1,10 +1,10 @@
 import { dest, src } from "gulp";
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import changed from "gulp-changed";
 import gzip from "gulp-gzip";
 import rename from "gulp-rename";
 import paths from "../paths";
-
+import { resolve as pathResolve } from 'path';
 
 
 
@@ -27,6 +27,13 @@ export function compressFiles(cb: () => void) {
       .pipe(gzip({ gzipOptions: { level: 9 }}))
       .pipe(dest(paths.release[path]));
   }
+  cb();
+}
+
+export function generateVersion(cb: () => void) {
+  const releasePath = pathResolve(`${paths.release.root}`, '..');
+  const version = `cms${Date.now().toString(16)}`;
+  writeFileSync(`${releasePath}/version.txt`, version);
   cb();
 }
 
