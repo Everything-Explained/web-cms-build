@@ -11,8 +11,8 @@ export async function bundleMDPages() {
   const posts = await getBlogPosts();
   const pages = await getPages();
   const videos = await getVideos('red33m/videos');
-  const r3d_lit = await getLiterature('red33m/literature', 'draft');
-  const lib_lit = await getLiterature('library/literature', 'draft');
+  const r3d_lit = await getLiterature('red33m/literature');
+  const lib_lit = await getLiterature('library/literature');
 
   await bundler.bundlePageMaps([
     { dir: `${paths.dist.pages}/blog.json`,         pages: posts        },
