@@ -22,24 +22,29 @@ function createPageDirs(cb) {
     cb();
 }
 exports.createPageDirs = createPageDirs;
-function compressFiles(cb) {
-    let path;
-    for (path in paths_1.default.dist) {
-        if (path == 'root')
-            continue;
-        gulp_1.src(`${paths_1.default.dist[path]}/*.json`)
-            .pipe(gulp_changed_1.default(paths_1.default.release[path], { extension: '.json.gz' }))
-            .pipe(gulp_gzip_1.default({ gzipOptions: { level: 9 } }))
-            .pipe(gulp_1.dest(paths_1.default.release[path]));
-    }
-    cb();
+function compressFiles(dev = false) {
+    return function compress(cb) {
+        let path;
+        for (path in paths_1.default.dist) {
+            if (path == 'root')
+                continue;
+            const destPath = dev ? paths_1.default.dev[path] : paths_1.default.release[path];
+            gulp_1.src(`${paths_1.default.dist[path]}/*.json`)
+                .pipe(gulp_changed_1.default(destPath, { extension: '.json.gz' }))
+                .pipe(gulp_gzip_1.default({ gzipOptions: { level: 9 } }))
+                .pipe(gulp_1.dest(destPath));
+        }
+        cb();
+    };
 }
 exports.compressFiles = compressFiles;
-function generateVersion(cb) {
-    const releasePath = path_1.resolve(`${paths_1.default.release.root}`, '..');
-    const version = `cms${Date.now().toString(16)}`;
-    fs_1.writeFileSync(`${releasePath}/version.txt`, version);
-    cb();
+function generateVersion(dev = false) {
+    return function genVersion(cb) {
+        const releasePath = path_1.resolve(`${dev ? paths_1.default.dev.root : paths_1.default.release.root}`, '..');
+        const version = `${Date.now().toString(24)}`;
+        fs_1.writeFileSync(`${releasePath}/version.txt`, version);
+        cb();
+    };
 }
 exports.generateVersion = generateVersion;
 function copyPageData() {

@@ -18,7 +18,7 @@ function mapStoryToPage(story) {
         author: c.author,
         content: c.body,
         id: story.id,
-        date: story.first_published_at ?? story.created_at
+        date: story.content.date ?? story.first_published_at ?? story.created_at
     };
 }
 exports.mapStoryToPage = mapStoryToPage;
