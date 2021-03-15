@@ -18,23 +18,31 @@ export function createPageDirs(cb: () => void) {
 }
 
 
-export function compressFiles(cb: () => void) {
-  let path: keyof typeof paths.dist;
-  for (path in paths.dist) {
-    if (path == 'root') continue;
-    src(`${paths.dist[path]}/*.json`)
-      .pipe(changed(paths.release[path], { extension: '.json.gz' }))
-      .pipe(gzip({ gzipOptions: { level: 9 }}))
-      .pipe(dest(paths.release[path]));
-  }
-  cb();
+export function compressFiles(dev = false) {
+  return function compress(cb: () => void) {
+    let path: keyof typeof paths.dist;
+    for (path in paths.dist) {
+      if (path == 'root') continue;
+      const destPath = dev ? paths.dev[path] : paths.release[path];
+      src(`${paths.dist[path]}/*.json`)
+        .pipe(changed(destPath, { extension: '.json.gz' }))
+        .pipe(gzip({ gzipOptions: { level: 9 }}))
+        .pipe(dest(destPath));
+    }
+    cb();
+  };
 }
 
-export function generateVersion(cb: () => void) {
-  const releasePath = pathResolve(`${paths.release.root}`, '..');
-  const version = `cms${Date.now().toString(16)}`;
-  writeFileSync(`${releasePath}/version.txt`, version);
-  cb();
+
+export function generateVersion(dev = false) {
+  return function genVersion(cb: () => void) {
+    const releasePath =
+      pathResolve(`${dev ? paths.dev.root : paths.release.root}`, '..')
+    ;
+    const version = `${Date.now().toString(24)}`;
+    writeFileSync(`${releasePath}/version.txt`, version);
+    cb();
+  };
 }
 
 
