@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@everything_explained/web-md-bundler": "^3.2.1",
+    "@everything_explained/web-md-bundler": "^3.3.2",
     "axios": "^0.21.1",
     "gulp": "^4.0.2",
     "gulp-changed": "^4.0.2",
@@ -23,9 +23,9 @@
     "@types/gulp-changed": "0.0.33",
     "@types/gulp-gzip": "0.0.31",
     "@types/gulp-rename": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.13.0",
-    "@typescript-eslint/parser": "^4.13.0",
-    "eslint": "^7.17.0",
-    "typescript": "^4.1.3"
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "eslint": "^7.21.0",
+    "typescript": "^4.2.3"
   }
 }
