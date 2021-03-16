@@ -16,7 +16,7 @@ async function bundleMDPages() {
     const pages = await api_pages_1.getPages();
     const changelogs = await api_changelog_1.getChangelogs();
     const videos = await api_videos_1.getVideos('red33m/videos');
-    const r3d_lit = await api_literature_1.getLiterature('red33m/literature', 'draft');
+    const r3d_lit = await api_literature_1.getLiterature('red33m/literature');
     const lib_lit = await api_literature_1.getLiterature('library/literature');
     await web_md_bundler_1.default.bundlePageMaps([
         { dir: `${paths_1.default.dist.pages}/blog.json`, pages: posts },
