@@ -3,3 +3,5 @@
 /views
 node_modules
 config.json
+test.js
+test.ts

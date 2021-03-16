@@ -29,6 +29,7 @@ export interface StoryblokContent {
   title: string;
   author: string;
   body: string;
+  date?: ISODateString;
 }
 
 export interface StoryblokOptions {
@@ -52,7 +53,7 @@ export function mapStoryToPage(story: Story) {
     author  : c.author,
     content : c.body,
     id      : story.id,
-    date    : story.first_published_at ?? story.created_at
+    date    : story.content.date ?? story.first_published_at ?? story.created_at
   } as Page;
 }
 
