@@ -34,7 +34,7 @@ async function getStories(options) {
             continue;
         }
         if (!stories.length)
-            throw Error('No Literature');
+            throw Error(`Missing Stories::${options.starts_with}`);
         return stories;
     }
 }

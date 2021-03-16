@@ -74,7 +74,7 @@ export async function getStories<T>(options: StoryblokOptions) {
       continue;
     }
 
-    if (!stories.length) throw Error('No Literature');
+    if (!stories.length) throw Error(`Missing Stories::${options.starts_with}`);
     return stories as T[];
   }
 }
