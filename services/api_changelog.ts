@@ -13,7 +13,7 @@ export async function getChangelogs() {
   const stories = await getStories<Changelog>({
     starts_with: 'changelog',
     sort_by: 'created_at:asc',
-    version: 'draft',
+    version: 'published',
   });
 
   return stories.map(story => {

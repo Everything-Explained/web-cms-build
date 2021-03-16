@@ -13,7 +13,7 @@ export async function bundleMDPages() {
   const pages = await getPages();
   const changelogs = await getChangelogs();
   const videos = await getVideos('red33m/videos');
-  const r3d_lit = await getLiterature('red33m/literature', 'draft');
+  const r3d_lit = await getLiterature('red33m/literature');
   const lib_lit = await getLiterature('library/literature');
 
   await bundler.bundlePageMaps([
