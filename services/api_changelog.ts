@@ -12,8 +12,8 @@ interface Changelog extends Story {
 export async function getChangelogs() {
   const stories = await getStories<Changelog>({
     starts_with: 'changelog',
-    sort_by: 'created_at:asc',
     version: 'published',
+    sort_by: 'created_at:desc',
   });
 
   return stories.map(story => {
