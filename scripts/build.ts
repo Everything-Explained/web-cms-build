@@ -40,7 +40,7 @@ export function generateVersion(dev = false) {
       pathResolve(`${dev ? paths.dev.root : paths.release.root}`, '..')
     ;
     const version = `${Date.now().toString(24)}`;
-    writeFileSync(`${releasePath}/version.txt`, version);
+    writeFileSync(`${releasePath}/version.json`, JSON.stringify({version}));
     cb();
   };
 }

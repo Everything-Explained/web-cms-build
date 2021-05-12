@@ -42,7 +42,7 @@ function generateVersion(dev = false) {
     return function genVersion(cb) {
         const releasePath = path_1.resolve(`${dev ? paths_1.default.dev.root : paths_1.default.release.root}`, '..');
         const version = `${Date.now().toString(24)}`;
-        fs_1.writeFileSync(`${releasePath}/version.txt`, version);
+        fs_1.writeFileSync(`${releasePath}/version.json`, JSON.stringify({ version }));
         cb();
     };
 }
