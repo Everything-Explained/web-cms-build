@@ -1,5 +1,5 @@
 import { task, series, parallel } from 'gulp';
-import { createVideoMap } from './scripts/build_categories';
+import { buildVideoMap } from './scripts/build_categories';
 import { buildChangelog, bundleMDPages } from './scripts/build_views';
 import {
   compressFiles,
@@ -19,7 +19,7 @@ import {
 task('build',
   series(
     parallel(createPageDirs, generateVersion()),
-    parallel(bundleMDPages, createVideoMap),
+    parallel(bundleMDPages, buildVideoMap),
     compressFiles(),
     parallel(copyPageData, releaseLibraryData, releaseRed33mData)
   )
