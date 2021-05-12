@@ -30,3 +30,7 @@ task('changelog', series(
   parallel(buildChangelog, generateVersion(true)),
   compressFiles(true)
 ));
+
+task('genver', generateVersion());
+
+task('test', buildVideoMap);
