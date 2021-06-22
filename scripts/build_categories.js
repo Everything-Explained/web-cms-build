@@ -8,27 +8,14 @@ const fs_1 = require("fs");
 const promises_1 = require("fs/promises");
 const api_videos_1 = require("../services/api_videos");
 const paths_1 = __importDefault(require("../paths"));
-const categories = {
-    'AA': 'General Spirituality (Meta-Spirituality)',
-    'AB': 'Enlightenment',
-    'AC': 'Religious Acceptance',
-    'AD': 'Philosophical Reasoning',
-    'AE': 'Reincarnation & the Soul',
-    'AF': 'Paranormal Abilities',
-    'AG': 'PAT (Paranormal Ability Training)',
-    'AH': 'Paranormal Entities',
-    'AI': 'Psychedelics',
-    'AJ': 'Law of Attraction',
-    'AK': 'Lifestyle Integration',
-    'AL': 'Conspiracies',
-};
+const api_storyblok_1 = require("../services/api_storyblok");
 async function buildVideoMap(cb) {
     if (!fs_1.existsSync(paths_1.default.dist.library))
         fs_1.mkdirSync(paths_1.default.dist.library);
     if (!fs_1.existsSync(paths_1.default.release.library))
         fs_1.mkdirSync(paths_1.default.release.library);
     const videos = await api_videos_1.getVideos('library/videos', 'published', 'content.category:asc');
-    const categoryMap = createCategoryMap(videos);
+    const categoryMap = await createCategoryMap(videos);
     // Sort Videos by Ascending Date for each category
     for (const cat of categoryMap) {
         cat.videos.sort((v1, v2) => Date.parse(v1.date) - Date.parse(v2.date));
@@ -37,20 +24,37 @@ async function buildVideoMap(cb) {
     cb();
 }
 exports.buildVideoMap = buildVideoMap;
-function createCategoryMap(videos) {
-    const categoryMap = [];
-    videos.forEach(v => {
-        if (!v.category)
-            throw Error('Category Undefined');
-        if (!isValidCategory(v.category))
+async function createCategoryMap(videos) {
+    const catList = await getCategoryList();
+    return videos.reduce((catMap, v) => {
+        const category = catList.find(cat => cat.id == v.category);
+        if (!category)
             throw Error('Category Not Found');
-        const catName = categories[v.category];
-        const catIndex = categoryMap.findIndex(cat => cat.name == catName);
-        if (!~catIndex)
-            categoryMap.push({ name: catName, videos: [v] });
-        else
-            categoryMap[catIndex].videos.push(v);
-    });
-    return categoryMap;
+        const { name, desc } = category;
+        const catIndex = catMap.findIndex(cat => cat.name == name);
+        // We no longer need this value
+        delete v.category;
+        if (!~catIndex) {
+            catMap.push({ name: name, description: desc, videos: [v] });
+            return catMap;
+        }
+        catMap[catIndex].videos.push(v);
+        return catMap;
+    }, []);
 }
-const isValidCategory = (name) => !!categories[name];
+async function getCategoryList() {
+    const options = {
+        starts_with: 'library/category-list',
+        sort_by: 'created_at:asc',
+        version: 'draft',
+    };
+    const stories = await api_storyblok_1.getStories(options);
+    const table = stories[0].content.categories.tbody;
+    return table.map(t => {
+        return {
+            name: t.body[0].value,
+            id: t.body[1].value,
+            desc: t.body[2].value,
+        };
+    });
+}

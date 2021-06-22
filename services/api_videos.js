@@ -15,7 +15,7 @@ async function getVideos(slug, version = 'published', sort_by = 'created_at:asc'
             id: story.content.id,
             date: story.content.timestamp || page.date
         };
-        if (story.content.category) {
+        if (story.content.category && story.content.category != '--') {
             video.category = story.content.category;
         }
         return video;

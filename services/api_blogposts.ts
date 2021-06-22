@@ -1,5 +1,5 @@
 import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
-import { blok, mapStoryToPage, StoryblokContent, Story } from "./api_storyblok";
+import { blok, mapStoryToPage, StoryPageContent, StoryPage } from "./api_storyblok";
 
 type BlogImage = {
   id?: number;
@@ -8,12 +8,12 @@ type BlogImage = {
   copyright?: string;
 }
 
-interface BlogContent extends StoryblokContent {
+interface BlogContent extends StoryPageContent {
   summary: string;
   image_header: BlogImage;
 }
 
-interface BlogStory extends Story {
+interface BlogStory extends StoryPage {
   content: BlogContent;
 }
 
