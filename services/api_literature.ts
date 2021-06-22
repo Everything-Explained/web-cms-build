@@ -1,10 +1,10 @@
-import { getStories, mapStoryToPage, Story, StoryblokContent, StoryVersion } from "./api_storyblok";
+import { getStories, mapStoryToPage, StoryPage, StoryPageContent, StoryVersion } from "./api_storyblok";
 
-interface LiteratureContent extends StoryblokContent {
+interface LiteratureContent extends StoryPageContent {
   summary: string;
 }
 
-interface Literature extends Story {
+interface Literature extends StoryPage {
   content: LiteratureContent;
 }
 

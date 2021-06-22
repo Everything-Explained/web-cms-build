@@ -1,12 +1,12 @@
 import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bundler";
-import { blok, mapStoryToPage, Story } from "./api_storyblok";
+import { blok, mapStoryToPage, StoryPage } from "./api_storyblok";
 
 interface DynamicPages {
   home: Page;
   [key: string]: Page;
 }
 
-export function mapPages(stories: Story[]) {
+export function mapPages(stories: StoryPage[]) {
   const pages = {} as DynamicPages;
   stories.forEach(story => pages[story.slug] = mapStoryToPage(story));
   return pages;

@@ -1,11 +1,11 @@
-import { getStories, mapStoryToPage, Story, StoryblokContent } from "./api_storyblok";
+import { getStories, mapStoryToPage, StoryPage, StoryPageContent } from "./api_storyblok";
 
-interface ChangelogContent extends StoryblokContent {
+interface ChangelogContent extends StoryPageContent {
   summary: string;
   version: string;
 }
 
-interface Changelog extends Story {
+interface Changelog extends StoryPage {
   content: ChangelogContent;
 }
 

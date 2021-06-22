@@ -3,8 +3,8 @@ import { Page } from "@everything_explained/web-md-bundler/dist/core/md_page_bun
 import {
   ISODateString,
   mapStoryToPage,
-  StoryblokContent,
-  Story,
+  StoryPageContent,
+  StoryPage,
   getStories,
   StoryVersion,
   StorySortString
@@ -14,16 +14,17 @@ import {
 
 
 export interface Video extends Page {
-  category ?: string;
+  category    ?: string;
+  description ?: string;
 }
 
-export interface VideoContent extends StoryblokContent {
+export interface VideoContent extends StoryPageContent {
   id        : string;
   timestamp : ISODateString;
   category ?: string;
 }
 
-export interface VideoStory extends Story {
+export interface VideoStory extends StoryPage {
   content: VideoContent;
 }
 

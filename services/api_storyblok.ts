@@ -14,23 +14,38 @@ export type StorySortString =
   |'content.category:desc'
 ;
 
-
-
-export interface Story {
+export interface RawStory {
   id                  : number;
   name                : string;
   slug                : string;
   created_at          : ISODateString;
   published_at?       : ISODateString;
   first_published_at? : ISODateString;
-  content             : StoryblokContent;
 }
-export interface StoryblokContent {
+
+
+export interface StoryPage extends RawStory {
+  content: StoryPageContent;
+}
+export interface StoryPageContent {
   title: string;
   author: string;
   body: string;
   date?: ISODateString;
 }
+
+export interface StoryCategories extends RawStory {
+  content: StoryCategoryTable;
+}
+
+export interface StoryCategoryTable {
+  categories: {
+    tbody: {
+      body: { value: string }[]
+    }[]
+  }
+}
+
 
 export interface StoryblokOptions {
   /** Full Slug pointing to CMS content */
@@ -46,7 +61,7 @@ export const blok = new StoryblokClient({
 });
 
 
-export function mapStoryToPage(story: Story) {
+export function mapStoryToPage(story: StoryPage) {
   const c = story.content;
   return {
     title   : c.title,
@@ -58,7 +73,7 @@ export function mapStoryToPage(story: Story) {
 }
 
 
-export async function getStories<T>(options: StoryblokOptions) {
+export async function getStories<T = StoryPage>(options: StoryblokOptions) {
   const stories = [];
   let i = 1;
   while (true) {
