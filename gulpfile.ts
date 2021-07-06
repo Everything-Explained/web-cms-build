@@ -31,6 +31,6 @@ task('changelog', series(
   compressFiles(true)
 ));
 
-task('genver', generateVersion());
+task('genver', generateVersion(true));
 
 task('test', buildVideoMap);
