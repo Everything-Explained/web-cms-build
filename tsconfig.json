@@ -9,5 +9,4 @@
     "esModuleInterop"   : true,
     "outDir"            : "./dist"
   },
-  "exclude": ["__tests__"]
 }
