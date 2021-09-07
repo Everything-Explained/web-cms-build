@@ -16,11 +16,11 @@ export type StoryCategoryTableBody = Array<[
 
 
 export interface StoryPage extends Story {
-  content: StoryContent;
+  content: CMSContent;
 }
 
 
-export interface StorySimplePage extends StoryContent {
+export interface CMSData extends CMSContent {
   id: string|number;
   date: ISODateString;
 }
@@ -40,11 +40,22 @@ export interface Story {
 }
 
 
-export interface StoryContent {
-  title    : string;
-  author   : string;
-  summary? : string;
-  body     : string;
+export interface CMSContent {
+  title      : string;
+  author     : string;
+  summary   ?: string;
+  body      ?: string;
+  /** Story ID or Custom ID */
+  id        ?: string|number;
+  /** Video Category */
+  category  ?: string;
+  /** Video Timestamp */
+  timestamp ?: ISODateString;
+  /**
+   * Should default to the most relevant date
+   * property of the content
+   */
+  date      ?: ISODateString;
 }
 
 
@@ -60,6 +71,8 @@ export interface StoryOptions {
   starts_with : string;
   sort_by     : StorySortString;
   version     : StoryVersion;
+  /** How many stories per page */
+  per_page   ?: number;
 }
 
 
