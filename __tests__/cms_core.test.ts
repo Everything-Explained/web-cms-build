@@ -81,7 +81,8 @@ describe('StoryBlokAPI.getStories()', () => {
 });
 
 
-describe('StoryBlokAPI.toSimplePage()', () => {
+
+describe('StoryBlokAPI.filterStoryContent()', () => {
 
   const litNoPublishDate =
     { ...litItem, published_at: null, first_published_at: null }
