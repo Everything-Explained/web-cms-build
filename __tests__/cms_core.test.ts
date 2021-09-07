@@ -1,78 +1,82 @@
-import { useCMS } from "../src/services/cms/cms_core";
-import { CMSContent, StoryOptions } from "../src/services/cms/sb_interfaces";
-import lit from './data/lit_item.json';
+import { CMSContent, useCMS } from "../src/services/cms/cms_core";
+import { StoryOptions } from "../src/services/cms/sb_core";
+import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
+import litItem from '../__fixtures__/lit_item.json';
 
 
 const CMS = useCMS();
-const testLitSlug = 'test/tlit';
-const testVidSlug = 'test/tvid';
+const mockAPI = useMockStoryblokAPI();
+const testSimpleSlug = 'test/simple';
+const testPagesSlug  = 'test/pages';
 
 
-function toSBOptions(slug: string, per_page = 100) {
+function toSBOptions(slug: string, page?: number, per_page?: number) {
   const options = {
+    url: slug,
     starts_with: slug,
     version: 'draft',
     sort_by: 'created_at:asc',
+    page,
+    per_page,
   } as StoryOptions;
-  if (per_page == 100) return options;
-  options.per_page = per_page;
   return options;
 }
 
 
 describe('StoryBlokAPI.getStories()', () => {
 
-  it('returns expected stories from API', () => {
-    expect.assertions(1);
-    const onResolve =
-      (data: CMSContent[]) => expect(data.length).toBe(3)
-    ;
-    return CMS
-      .getContent(toSBOptions(testLitSlug))
-      .then(onResolve);
+  it('returns expected stories from API', async () => {
+    CMS
+      .getContent(toSBOptions(testSimpleSlug), mockAPI.get)
+      .then((data) => {
+        expect(data.length).toBe(3);
+      });
   });
 
   it('returns all story pages', () => {
     expect.assertions(1);
-    const testLength =
-      (data: CMSContent[]) => expect(data.length).toBe(144)
-    ;
     return CMS
-      .getContent(toSBOptions(testVidSlug))
-      .then(testLength);
+      .getContent(toSBOptions(testPagesSlug, 1, 1), mockAPI.get)
+      .then((data: CMSContent[]) => {
+        expect(data.length).toBe(3);
+      });
   });
 
   it('throws an error if no stories exist', () => {
     expect.assertions(1);
-    const onMissingStories =
-      (e: Error) => expect(e.message).toContain('Missing Stories::')
-    ;
     return CMS
-      .getContent(toSBOptions('doesnotexist'))
-      .catch(onMissingStories)
+      .getContent(toSBOptions('doesnotexist'), mockAPI.get)
+      .catch((e) => {
+        expect(e.message).toContain('Missing Stories::');
+      });
+  });
+
+  it('throws an error if pages are set to 0 and no stories are found', () => {
+    expect.assertions(1);
+    return CMS
+      .getContent(toSBOptions('doesnotexist', 0), mockAPI.get)
+      .catch((e) => {
+        expect(e.message).toContain('Missing Stories::');
+      })
     ;
   });
 
   it('throws an error if "per_page" is greater than 100', () => {
     expect.assertions(1);
-    const onTooLargePerPage =
-      (e: Error) => expect(e.message).toContain('getStorites()::Max stories')
-    ;
     return CMS
-      .getContent(toSBOptions('test/tlit', 101))
-      .catch(onTooLargePerPage);
+      .getContent(toSBOptions(testSimpleSlug, 1, 101), mockAPI.get)
+      .catch((e) => {
+        expect(e.message).toContain('getStorites()::Max stories');
+      });
   });
 
   it ('does NOT loop through pages when page param set to 0', () => {
     expect.assertions(1);
-    const onDoNotLoop =
-      (c: CMSContent[]) => {
-        expect(c.length).toBe(1);
-      }
-    ;
     return CMS
-      .getContent(toSBOptions(testLitSlug, 1), 0)
-      .then(onDoNotLoop);
+      .getContent(toSBOptions(testPagesSlug, 0, 1), mockAPI.get)
+      .then((c: CMSContent[]) => {
+        expect(c.length).toBe(1);
+      });
   });
 });
 
@@ -80,13 +84,13 @@ describe('StoryBlokAPI.getStories()', () => {
 describe('StoryBlokAPI.toSimplePage()', () => {
 
   const litNoPublishDate =
-    { ...lit, published_at: null, first_published_at: null }
+    { ...litItem, published_at: null, first_published_at: null }
   ;
 
   const vid = {
-    ...lit,
+    ...litItem,
     content: {
-      ...lit.content,
+      ...litItem.content,
       summary: undefined,
       category: 'AA',
       id: 'fl34_31kfQ',
@@ -116,7 +120,7 @@ describe('StoryBlokAPI.toSimplePage()', () => {
 
 
   it('returns a specific subset of Story content', () => {
-    const page = CMS.filterStoryContent(lit);
+    const page = CMS.filterStoryContent(litItem);
     expect(page).toEqual(simplePage);
   });
 

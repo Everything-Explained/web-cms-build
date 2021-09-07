@@ -1,6 +1,13 @@
+import { ISODateString } from "../../global_interfaces";
+import { CMSContent } from "./cms_core";
+import StoryblokClient from 'storyblok-js-client';
+import config from '../../../config.json';
 
 
-export type ISODateString   = string;
+
+
+////////////////////////////////////////////
+//#region Interfaces
 export type StoryVersion    = 'published'|'draft';
 export type StorySortString =
    'created_at:desc'
@@ -20,12 +27,6 @@ export interface StoryPage extends Story {
 }
 
 
-export interface CMSData extends CMSContent {
-  id: string|number;
-  date: ISODateString;
-}
-
-
 export interface StoryVideoCategories extends Story {
   content: StoryVideoCategoryTable;
 }
@@ -37,25 +38,6 @@ export interface Story {
   created_at         : ISODateString;
   published_at       : ISODateString|null;
   first_published_at : ISODateString|null;
-}
-
-
-export interface CMSContent {
-  title      : string;
-  author     : string;
-  summary   ?: string;
-  body      ?: string;
-  /** Story ID or Custom ID */
-  id        ?: string|number;
-  /** Video Category */
-  category  ?: string;
-  /** Video Timestamp */
-  timestamp ?: ISODateString;
-  /**
-   * Should default to the most relevant date
-   * property of the content
-   */
-  date      ?: ISODateString;
 }
 
 
@@ -71,8 +53,27 @@ export interface StoryOptions {
   starts_with : string;
   sort_by     : StorySortString;
   version     : StoryVersion;
+  page       ?: number;
   /** How many stories per page */
   per_page   ?: number;
+}
+//#endregion
+///////////////////////////////////////////
+
+
+
+
+const blok = new StoryblokClient({
+  accessToken: config.apis.storyBlokToken,
+  cache: { type: 'memory', clear: 'auto' }
+});
+
+export function useStoryblok() {
+  return {
+    get(slug: string, params?: any) {
+      return blok.get(slug, params);
+    }
+  };
 }
 
 

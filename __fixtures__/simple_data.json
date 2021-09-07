@@ -1,0 +1,190 @@
+{
+  "stories": [
+    {
+      "name": "A New Lit Post",
+      "created_at": "2021-09-04T20:19:21.969Z",
+      "published_at": null,
+      "alternates": [
+        {
+          "id": 69866783,
+          "name": "Another Lit Post",
+          "slug": "another-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/another-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        },
+        {
+          "id": 69866784,
+          "name": "And Yet Another Lit Post",
+          "slug": "and-yet-another-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/and-yet-another-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        }
+      ],
+      "id": 69866748,
+      "uuid": "8e44605d-966e-4c6e-a00d-8a734498ecdd",
+      "content": {
+        "_uid": "444763b8-b801-4753-a76e-7b286914d517",
+        "body": "This is some kind of body text.",
+        "title": "A New Lit Post",
+        "author": "Jaeiya",
+        "summary": "This is a fake summary for the purpose of testing",
+        "component": "post",
+        "copyright": "Copyright © 2020 - 2021 under CC-BY-NC-SA-4.0 - https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "image_header": {
+          "id": null,
+          "alt": null,
+          "name": "",
+          "focus": null,
+          "title": null,
+          "filename": null,
+          "copyright": null,
+          "fieldtype": "asset"
+        },
+        "_editable": "<!--#storyblok#{\"name\": \"post\", \"space\": \"98937\", \"uid\": \"444763b8-b801-4753-a76e-7b286914d517\", \"id\": \"69866748\"}-->"
+      },
+      "slug": "a-new-lit-post",
+      "full_slug": "test/tlit/a-new-lit-post",
+      "default_full_slug": null,
+      "sort_by_date": null,
+      "position": 0,
+      "tag_list": [],
+      "is_startpage": false,
+      "parent_id": 69852075,
+      "meta_data": null,
+      "group_id": "4cc2c06c-b5b2-4ef5-ba25-08e225922111",
+      "first_published_at": null,
+      "release_id": null,
+      "lang": "default",
+      "path": null,
+      "translated_slugs": []
+    },
+    {
+      "name": "Another Lit Post",
+      "created_at": "2021-09-04T21:17:25.820Z",
+      "published_at": null,
+      "alternates": [
+        {
+          "id": 69866748,
+          "name": "A New Lit Post",
+          "slug": "a-new-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/a-new-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        },
+        {
+          "id": 69866784,
+          "name": "And Yet Another Lit Post",
+          "slug": "and-yet-another-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/and-yet-another-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        }
+      ],
+      "id": 69866783,
+      "uuid": "c18b24bf-7bd0-4af1-b5e1-3685d1596d33",
+      "content": {
+        "_uid": "444763b8-b801-4753-a76e-7b286914d517",
+        "body": "This is some kind of body text that is supposed to represent what would be normal content for this type of post.",
+        "title": "Another Lit Post",
+        "author": "Jaeiya",
+        "summary": "This is a fake summary for the purpose of testing",
+        "component": "post",
+        "copyright": "Copyright © 2020 - 2021 under CC-BY-NC-SA-4.0 - https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "image_header": {
+          "id": null,
+          "alt": null,
+          "name": "",
+          "focus": null,
+          "title": null,
+          "filename": null,
+          "copyright": null,
+          "fieldtype": "asset"
+        },
+        "_editable": "<!--#storyblok#{\"name\": \"post\", \"space\": \"98937\", \"uid\": \"444763b8-b801-4753-a76e-7b286914d517\", \"id\": \"69866783\"}-->"
+      },
+      "slug": "another-lit-post",
+      "full_slug": "test/tlit/another-lit-post",
+      "default_full_slug": null,
+      "sort_by_date": null,
+      "position": 0,
+      "tag_list": [],
+      "is_startpage": false,
+      "parent_id": 69852075,
+      "meta_data": null,
+      "group_id": "4cc2c06c-b5b2-4ef5-ba25-08e225922111",
+      "first_published_at": null,
+      "release_id": null,
+      "lang": "default",
+      "path": null,
+      "translated_slugs": []
+    },
+    {
+      "name": "And Yet Another Lit Post",
+      "created_at": "2021-09-04T21:17:59.210Z",
+      "published_at": null,
+      "alternates": [
+        {
+          "id": 69866748,
+          "name": "A New Lit Post",
+          "slug": "a-new-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/a-new-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        },
+        {
+          "id": 69866783,
+          "name": "Another Lit Post",
+          "slug": "another-lit-post",
+          "published": false,
+          "full_slug": "test/tlit/another-lit-post",
+          "is_folder": false,
+          "parent_id": 69852075
+        }
+      ],
+      "id": 69866784,
+      "uuid": "8f7b9944-2dce-4385-93b9-29e6d5d22425",
+      "content": {
+        "_uid": "444763b8-b801-4753-a76e-7b286914d517",
+        "body": "This is some kind of body text that is supposed to represent what would be normal content for this type of post.",
+        "title": "And Yet Another Lit Post",
+        "author": "Jaeiya",
+        "summary": "This is a fake summary for the purpose of testing",
+        "component": "post",
+        "copyright": "Copyright © 2020 - 2021 under CC-BY-NC-SA-4.0 - https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "image_header": {
+          "id": null,
+          "alt": null,
+          "name": "",
+          "focus": null,
+          "title": null,
+          "filename": null,
+          "copyright": null,
+          "fieldtype": "asset"
+        },
+        "_editable": "<!--#storyblok#{\"name\": \"post\", \"space\": \"98937\", \"uid\": \"444763b8-b801-4753-a76e-7b286914d517\", \"id\": \"69866784\"}-->"
+      },
+      "slug": "and-yet-another-lit-post",
+      "full_slug": "test/tlit/and-yet-another-lit-post",
+      "default_full_slug": null,
+      "sort_by_date": null,
+      "position": 0,
+      "tag_list": [],
+      "is_startpage": false,
+      "parent_id": 69852075,
+      "meta_data": null,
+      "group_id": "4cc2c06c-b5b2-4ef5-ba25-08e225922111",
+      "first_published_at": null,
+      "release_id": null,
+      "lang": "default",
+      "path": null,
+      "translated_slugs": []
+    }
+  ]
+}

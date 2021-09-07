@@ -1,7 +1,44 @@
 /* eslint-disable no-constant-condition */
-import StoryblokClient from 'storyblok-js-client';
-import config from '../../../config.json';
-import { StoryOptions, StoryPage, CMSContent } from './sb_interfaces';
+import { StoryblokResult } from 'storyblok-js-client';
+import { ISODateString } from '../../global_interfaces';
+import { StoryOptions, StoryPage } from './sb_core';
+
+
+
+/////////////////////////////////////////
+//#region Interfaces and Custom Types
+interface CMSOptions extends StoryOptions {
+  url     ?: string;
+  stories ?: StoryPage[];
+}
+
+export interface CMSData extends CMSContent {
+  id: string|number;
+  date: ISODateString;
+}
+
+export interface CMSContent {
+  title      : string;
+  author     : string;
+  summary   ?: string;
+  body      ?: string;
+  /** Story ID or Custom ID */
+  id        ?: string|number;
+  /** Video Category */
+  category  ?: string;
+  /** Video Timestamp */
+  timestamp ?: ISODateString;
+  /**
+   * Should default to the most relevant date
+   * property of the content
+   */
+  date      ?: ISODateString;
+}
+
+type CMSGetter = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+//#endregion
+/////////////////////////////////////////
+
 
 
 
@@ -13,32 +50,38 @@ export function useCMS() {
 }
 
 
-const blok = new StoryblokClient({
-  accessToken: config.apis.storyBlokToken,
-  cache: { type: 'memory', clear: 'auto' }
-});
 
+async function getContent(opt: CMSOptions, exec: CMSGetter): Promise<CMSContent[]> {
+  opt.per_page = opt.per_page ?? 100;
+  opt.page     = opt.page     ?? 1;
+  opt.stories  = opt.stories  || [];
 
-async function getContent(options: StoryOptions, startPage = 1, stories = [] as StoryPage[]): Promise<CMSContent[]> {
-  options.per_page = options.per_page ?? 100;
-  if (options.per_page > 100)
+  if (opt.per_page > 100)
     throw Error('getStorites()::Max stories "per_page" is 100')
   ;
-  const page = startPage ? startPage++ : startPage;
-  const batch = await blok.get('cdn/stories/', { page, ...options });
 
-  if (batch.data.stories.length && startPage) {
-    stories.push(...batch.data.stories);
-    return getContent(options, startPage, stories);
+  const batch = await exec(opt.url || 'cdn/stories/', {
+    starts_with : opt.starts_with,
+    version     : opt.version,
+    sort_by     : opt.sort_by,
+    page        : opt.page,
+    per_page    : opt.per_page,
+  });
+
+  const stories = batch.data.stories;
+
+  if (stories.length) {
+    if (!opt.page) return stories.map(filterStoryContent);
+    opt.stories.push(...batch.data.stories);
+    opt.page += 1;
+    return getContent(opt, exec);
   }
 
-  if (!startPage) return batch.data.stories.map(filterStoryContent);
-
   // We want our build process to fail if stories can't be found
-  if (!stories.length)
-    throw Error(`Missing Stories::${options.starts_with}`)
+  if (!opt.stories.length)
+    throw Error(`Missing Stories::${opt.starts_with}`)
   ;
-  return stories.map(filterStoryContent);
+  return opt.stories.map(filterStoryContent);
 }
 
 
