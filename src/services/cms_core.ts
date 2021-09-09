@@ -1,6 +1,7 @@
 /* eslint-disable no-constant-condition */
 import { StoryblokResult } from 'storyblok-js-client';
-import { ISODateString } from '../../global_interfaces';
+import { ISODateString } from '../global_interfaces';
+import { useMarkdown } from './markdown/md_core';
 import { StoryOptions, StoryPage } from './sb_core';
 
 
@@ -40,6 +41,8 @@ type CMSGetter = (slug: string, params: StoryOptions) => Promise<StoryblokResult
 /////////////////////////////////////////
 
 
+
+const md = useMarkdown();
 
 
 export function useCMS() {
@@ -95,7 +98,7 @@ function filterStoryContent(story: StoryPage) {
     author,
     date: timestamp || first_published_at || created_at
   };
-  if (body) cmsContent.body = body;
+  if (body) cmsContent.body = md.render(body);
   if (summary) cmsContent.summary = summary;
   if (category && category != categoryNone) cmsContent.category = category;
   return cmsContent;

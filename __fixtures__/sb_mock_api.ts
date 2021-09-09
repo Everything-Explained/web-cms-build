@@ -1,5 +1,5 @@
 import { StoryblokResult } from "storyblok-js-client";
-import { StoryOptions } from "../src/services/cms/sb_core";
+import { StoryOptions } from "../src/services/sb_core";
 import simpleData from './simple_data.json';
 
 

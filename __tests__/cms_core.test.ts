@@ -1,7 +1,8 @@
-import { CMSContent, useCMS } from "../src/services/cms/cms_core";
-import { StoryOptions } from "../src/services/cms/sb_core";
+import { CMSContent, useCMS } from "../src/services/cms_core";
+import { StoryOptions } from "../src/services/sb_core";
 import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
 import litItem from '../__fixtures__/lit_item.json';
+import litItems from '../__fixtures__/simple_data.json';
 
 
 const CMS = useCMS();
@@ -111,7 +112,7 @@ describe('StoryBlokAPI.filterStoryContent()', () => {
     title   : 'Literature Item 1',
     author  : 'Ethan Kahn',
     summary : 'This is a summary string',
-    body    : 'This is some body content',
+    body    : '<p>This is some body content</p>\n',
     date    : '2021-05-19T21:50:32.720Z',
   };
 
@@ -142,6 +143,5 @@ describe('StoryBlokAPI.filterStoryContent()', () => {
     const page = CMS.filterStoryContent(vidNoCategory);
     expect('category' in page).toBeFalsy();
   });
-
 
 });

@@ -1,7 +1,7 @@
-import { ISODateString } from "../../global_interfaces";
+import { ISODateString } from "../global_interfaces";
 import { CMSContent } from "./cms_core";
 import StoryblokClient from 'storyblok-js-client';
-import config from '../../../config.json';
+import config from '../../config.json';
 
 
 
