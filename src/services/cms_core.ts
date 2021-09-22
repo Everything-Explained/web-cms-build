@@ -71,11 +71,11 @@ async function getContent(opt: CMSOptions, exec: CMSGetter): Promise<CMSContent[
     per_page    : opt.per_page,
   });
 
-  const stories = batch.data.stories;
+  const stories = resp.data.stories;
 
   if (stories.length) {
     if (!opt.page) return stories.map(filterStoryContent);
-    opt.stories.push(...batch.data.stories);
+    opt.stories.push(...stories);
     opt.page += 1;
     return getContent(opt, exec);
   }
