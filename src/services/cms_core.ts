@@ -8,8 +8,8 @@ import { StoryOptions, StoryPage } from './sb_core';
 
 /////////////////////////////////////////
 //#region Interfaces and Custom Types
-interface CMSOptions extends StoryOptions {
-  url     ?: string;
+export interface CMSOptions extends StoryOptions {
+  url      : string; // cdn/stories/
   stories ?: StoryPage[];
 }
 
@@ -63,7 +63,7 @@ async function getContent(opt: CMSOptions, exec: CMSGetter): Promise<CMSContent[
     throw Error('getStorites()::Max stories "per_page" is 100')
   ;
 
-  const batch = await exec(opt.url || 'cdn/stories/', {
+  const resp = await exec(opt.url, {
     starts_with : opt.starts_with,
     version     : opt.version,
     sort_by     : opt.sort_by,

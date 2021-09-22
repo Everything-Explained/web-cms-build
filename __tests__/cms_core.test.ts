@@ -1,4 +1,4 @@
-import { CMSContent, useCMS } from "../src/services/cms_core";
+import { CMSContent, CMSOptions, useCMS } from "../src/services/cms_core";
 import { StoryOptions } from "../src/services/sb_core";
 import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
 import litItem from '../__fixtures__/lit_item.json';
@@ -19,7 +19,7 @@ function toSBOptions(slug: string, page?: number, per_page?: number) {
     sort_by: 'created_at:asc',
     page,
     per_page,
-  } as StoryOptions;
+  } as CMSOptions;
   return options;
 }
 
