@@ -3,6 +3,8 @@ import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
 import { useMarkdown } from './markdown/md_core';
 import { StoryOptions, StoryPage } from './sb_core';
+import { map, pipe } from 'ramda';
+import { useMockStoryblokAPI } from '../../__fixtures__/sb_mock_api';
 
 
 
@@ -48,13 +50,19 @@ const md = useMarkdown();
 export function useCMS() {
   return {
     getContent,
-    filterStoryContent,
+    getRawStories,
+    sanitizeStory,
   };
 }
 
 
+async function getContent(opt: CMSOptions, exec: CMSGetter) {
+  const stories = await getRawStories(opt, exec);
+  return stories.map(sanitizeStory);
+}
 
-async function getContent(opt: CMSOptions, exec: CMSGetter): Promise<CMSContent[]> {
+
+async function getRawStories(opt: CMSOptions, exec: CMSGetter): Promise<StoryPage[]> {
   opt.per_page = opt.per_page ?? 100;
   opt.page     = opt.page     ?? 1;
   opt.stories  = opt.stories  || [];
@@ -63,32 +71,26 @@ async function getContent(opt: CMSOptions, exec: CMSGetter): Promise<CMSContent[
     throw Error('getStorites()::Max stories "per_page" is 100')
   ;
 
-  const resp = await exec(opt.url, {
-    starts_with : opt.starts_with,
-    version     : opt.version,
-    sort_by     : opt.sort_by,
-    page        : opt.page,
-    per_page    : opt.per_page,
-  });
+  const { starts_with, version, sort_by, page, per_page } = opt;
+  const resp = await exec(opt.url, { starts_with, version, sort_by, page, per_page, });
 
   const stories = resp.data.stories;
-
   if (stories.length) {
-    if (!opt.page) return stories.map(filterStoryContent);
+    if (!page) return stories;
     opt.stories.push(...stories);
     opt.page += 1;
-    return getContent(opt, exec);
+    return getRawStories(opt, exec);
   }
 
   // We want our build process to fail if stories can't be found
   if (!opt.stories.length)
-    throw Error(`Missing Stories::${opt.starts_with}`)
+    throw Error(`Missing Stories::${starts_with}`)
   ;
-  return opt.stories.map(filterStoryContent);
+  return opt.stories;
 }
 
 
-function filterStoryContent(story: StoryPage) {
+function sanitizeStory(story: StoryPage) {
   const { first_published_at, created_at } = story;
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';

@@ -1,8 +1,6 @@
 import { CMSContent, CMSOptions, useCMS } from "../src/services/cms_core";
-import { StoryOptions } from "../src/services/sb_core";
 import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
 import litItem from '../__fixtures__/lit_item.json';
-import litItems from '../__fixtures__/simple_data.json';
 
 
 const CMS = useCMS();
@@ -24,9 +22,9 @@ function toSBOptions(slug: string, page?: number, per_page?: number) {
 }
 
 
-describe('StoryBlokAPI.getStories()', () => {
+describe('StoryBlokAPI.getContent()', () => {
 
-  it('returns expected stories from API', async () => {
+  it('returns sanitized stories from API', async () => {
     CMS
       .getContent(toSBOptions(testSimpleSlug), mockAPI.get)
       .then((data) => {
@@ -83,7 +81,7 @@ describe('StoryBlokAPI.getStories()', () => {
 
 
 
-describe('StoryBlokAPI.filterStoryContent()', () => {
+describe('StoryBlokAPI.sanitizeStory()', () => {
 
   const litNoPublishDate =
     { ...litItem, published_at: null, first_published_at: null }
@@ -121,18 +119,18 @@ describe('StoryBlokAPI.filterStoryContent()', () => {
   ;
 
 
-  it('returns a specific subset of Story content', () => {
-    const page = CMS.filterStoryContent(litItem);
+  it('returns a sanitized version of Story content', () => {
+    const page = CMS.sanitizeStory(litItem);
     expect(page).toEqual(simplePage);
   });
 
   it('uses created date of Story content if published date is null', () => {
-    const page = CMS.filterStoryContent(litNoPublishDate);
+    const page = CMS.sanitizeStory(litNoPublishDate);
     expect(page).toEqual(simplePageNoPublishDate);
   });
 
   it ('assigns Video-specific properties if Story is Video', () => {
-    const page = CMS.filterStoryContent(vid);
+    const page = CMS.sanitizeStory(vid);
     expect(page.date).toBe(vid.content.timestamp);
     expect(page.id).toBe('fl34_31kfQ');
     expect(page.category).toBe('AA');
@@ -140,7 +138,7 @@ describe('StoryBlokAPI.filterStoryContent()', () => {
   });
 
   it('removes category if category is "none"', () => {
-    const page = CMS.filterStoryContent(vidNoCategory);
+    const page = CMS.sanitizeStory(vidNoCategory);
     expect('category' in page).toBeFalsy();
   });
 
