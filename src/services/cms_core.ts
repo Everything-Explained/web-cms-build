@@ -15,12 +15,12 @@ export interface CMSOptions extends StoryOptions {
   stories ?: StoryPage[];
 }
 
-export interface CMSData extends CMSContent {
+export interface CMSData extends CMSStory {
   id: string|number;
   date: ISODateString;
 }
 
-export interface CMSContent {
+export interface CMSStory {
   title      : string;
   author     : string;
   summary   ?: string;
@@ -36,6 +36,8 @@ export interface CMSContent {
    * property of the content
    */
   date      ?: ISODateString;
+  /** Needed for filename */
+  slug      ?: string;
 }
 
 type CMSGetter = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
@@ -91,19 +93,22 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetter): Promise<StoryPag
 
 
 function sanitizeStory(story: StoryPage) {
-  const { first_published_at, created_at } = story;
+  const { first_published_at, created_at, slug } = story;
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';
-  const cmsContent: CMSContent = {
+  const cmsContent: CMSStory = {
     id: story.content.id || story.id, // Videos have content.id
     title,
     author,
-    date: timestamp || first_published_at || created_at
+    date: timestamp || first_published_at || created_at,
+    slug,
   };
   if (body) cmsContent.body = md.render(body);
   if (summary) cmsContent.summary = summary;
   if (category && category != categoryNone) cmsContent.category = category;
   return cmsContent;
 }
+
+
 
 

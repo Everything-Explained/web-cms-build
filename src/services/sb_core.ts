@@ -1,5 +1,5 @@
 import { ISODateString } from "../global_interfaces";
-import { CMSContent } from "./cms_core";
+import { CMSStory } from "./cms_core";
 import StoryblokClient from 'storyblok-js-client';
 import config from '../../config.json';
 
@@ -23,7 +23,7 @@ export type StoryCategoryTableBody = Array<[
 
 
 export interface StoryPage extends Story {
-  content: CMSContent;
+  content: CMSStory;
 }
 
 
@@ -35,6 +35,7 @@ export interface StoryVideoCategories extends Story {
 export interface Story {
   id                 : number;
   name               : string;
+  slug               : string;
   created_at         : ISODateString;
   published_at       : ISODateString|null;
   first_published_at : ISODateString|null;
