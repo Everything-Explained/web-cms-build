@@ -40,7 +40,7 @@ export interface CMSStory {
   slug       : string;
 }
 
-type CMSGetter = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
 //#endregion
 /////////////////////////////////////////
 
@@ -58,13 +58,13 @@ export function useCMS() {
 }
 
 
-async function getContent(opt: CMSOptions, exec: CMSGetter) {
+async function getContent(opt: CMSOptions, exec: CMSGetFunc) {
   const stories = await getRawStories(opt, exec);
   return stories.map(sanitizeStory);
 }
 
 
-async function getRawStories(opt: CMSOptions, exec: CMSGetter): Promise<StoryPage[]> {
+async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryPage[]> {
   opt.per_page = opt.per_page ?? 100;
   opt.page     = opt.page     ?? 1;
   opt.stories  = opt.stories  || [];
