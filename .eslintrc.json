@@ -19,6 +19,7 @@
       "semi": "warn",
       "@typescript-eslint/explicit-module-boundary-types": 0,
       "@typescript-eslint/no-explicit-any": 0,
-      "@typescript-eslint/no-non-null-assertion": 0
+      "@typescript-eslint/no-non-null-assertion": 0,
+      "no-param-reassign": "error"
     }
 }

@@ -21,12 +21,12 @@ export interface CMSData extends CMSStory {
 }
 
 export interface CMSStory {
+  /** Story ID or Custom ID */
+  id         : string|number;
   title      : string;
   author     : string;
   summary   ?: string;
-  body      ?: string;
-  /** Story ID or Custom ID */
-  id        ?: string|number;
+  body       : string;
   /** Video Category */
   category  ?: string;
   /** Video Timestamp */
@@ -35,9 +35,9 @@ export interface CMSStory {
    * Should default to the most relevant date
    * property of the content
    */
-  date      ?: ISODateString;
+  date       : ISODateString;
   /** Needed for filename */
-  slug      ?: string;
+  slug       : string;
 }
 
 type CMSGetter = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
@@ -100,10 +100,10 @@ function sanitizeStory(story: StoryPage) {
     id: story.content.id || story.id, // Videos have content.id
     title,
     author,
+    body: body ? md.render(body) : '',
     date: timestamp || first_published_at || created_at,
     slug,
   };
-  if (body) cmsContent.body = md.render(body);
   if (summary) cmsContent.summary = summary;
   if (category && category != categoryNone) cmsContent.category = category;
   return cmsContent;
