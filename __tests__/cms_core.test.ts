@@ -1,4 +1,4 @@
-import { CMSContent, CMSOptions, useCMS } from "../src/services/cms_core";
+import { CMSStory, CMSOptions, useCMS } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
 import litItem from '../__fixtures__/lit_item.json';
 
@@ -24,19 +24,21 @@ function toSBOptions(slug: string, page?: number, per_page?: number) {
 
 describe('StoryBlokAPI.getContent()', () => {
 
-  it('returns sanitized stories from API', async () => {
+  it('returns sanitized stories from API', done => {
     CMS
       .getContent(toSBOptions(testSimpleSlug), mockAPI.get)
       .then((data) => {
         expect(data.length).toBe(3);
-      });
+        done();
+      })
+      .catch(done);
   });
 
   it('returns all story pages', () => {
     expect.assertions(1);
     return CMS
       .getContent(toSBOptions(testPagesSlug, 1, 1), mockAPI.get)
-      .then((data: CMSContent[]) => {
+      .then((data: CMSStory[]) => {
         expect(data.length).toBe(3);
       });
   });
@@ -73,7 +75,7 @@ describe('StoryBlokAPI.getContent()', () => {
     expect.assertions(1);
     return CMS
       .getContent(toSBOptions(testPagesSlug, 0, 1), mockAPI.get)
-      .then((c: CMSContent[]) => {
+      .then((c: CMSStory[]) => {
         expect(c.length).toBe(1);
       });
   });
