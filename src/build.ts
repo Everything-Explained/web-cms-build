@@ -1,15 +1,17 @@
-import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
+import { useMockStoryblokAPI }          from "../__fixtures__/sb_mock_api";
 import { CMSStory, CMSOptions, useCMS } from "./services/cms_core";
-import { writeFile, mkdir, readFile, stat } from 'fs/promises';
-import { StorySortString } from "../services/api_storyblok";
-import { createHmac } from 'crypto';
-import { map, pipe, ifElse, always, forEach, composeWith, andThen, pick } from "ramda";
-import { dirname } from 'path';
-import { useStoryblok } from "./services/sb_core";
-import { ISODateString } from "./global_interfaces";
+import { writeFile, readFile, unlink }  from 'fs/promises';
+import { mkdirSync }                    from 'fs';
+import { StorySortString }              from "../services/api_storyblok";
+import { createHmac }                   from 'crypto';
+import { map, pipe, forEach, anyPass }  from "ramda";
+import { useStoryblok }                 from "./services/sb_core";
+import { ISODateString }                from "./global_interfaces";
 
 
-type Manifest = {
+
+
+type ManifestEntry = {
 	id        : number|string   // content.id || id
 	title     : string;
 	author    : string;
@@ -17,123 +19,208 @@ type Manifest = {
 	summary  ?: string;
 	date      : ISODateString;  // content.timestamp || first_published_at || created_at
 	ver       : string;
-}[];
+}
+
+type Manifest = ManifestEntry[];
+
+type ObjWithID = { id: string|number };
 
 
-const CMS     = useCMS();
-const mockAPI = useMockStoryblokAPI();
-const sb = useStoryblok();
-const rootDir = '../release';
 
 
-export async function buildCMSFiles(url: string, dir: string) {
-  const stories  = await CMS.getContent(toSBOptions('test/pages', url), mockAPI.get);
-  const manifest = await tryGetManifest(`${dir}/${dir}.json`);
-  if (!manifest) return createManifest(dir)(stories);
-  compareManifest(stories, manifest);
+
+export async function createBuilder(url: string, dir: string) {
+  const CMS       = useCMS();
+  const mockAPI   = useMockStoryblokAPI();
+  const sb        = useStoryblok();
+  const buildPath = `../release/${dir}`;
+  const stories   = await CMS.getContent(toSBOptions('test/pages', url), mockAPI.get);
+  let manifest    = await tryGetJSONFromFile<Manifest>(`${buildPath}/${dir}.json`);
+
+  async function build() {
+    // manifest should NOT mutate anywhere else
+    if (!manifest) manifest = await initManifest(stories);
+    updateManifest(stories);
+  }
+
+
+  function initManifest(stories: CMSStory[]) {
+    return pipe(
+      createDir,
+      forEach(writeBodyToFile),
+      createManifest
+    )(stories);
+  }
+
+
+  function updateManifest(stories: CMSStory[]) {
+    const hasChanged = anyPass([
+      tryAddStories,
+      tryDeleteStories,
+      tryUpdateStories,
+    ]);
+    if (hasChanged(stories)) createManifest(stories);
+  }
+
+
+  function createManifest(stories: CMSStory[]) {
+    return pipe(
+      map(toManifestData),
+      saveAsJSON(`${dir}.json`),
+    )(stories);
+  }
+
+
+  function tryAddStories(stories: CMSStory[]) {
+      let hasAdded = false;
+      for (const story of stories) {
+        if (isPropEq('id', manifest!, story)) continue;
+        writeBodyToFile(story);
+        console.log(`[ADD]: ${story.title}`), hasAdded = true;
+      }
+      return hasAdded;
+  }
+
+
+  function tryDeleteStories(stories: CMSStory[]) {
+    let hasDeleted = false;
+    for (const entry of manifest!) {
+      if (isPropEq('id', stories, entry)) continue;
+      deleteFile(`${dir}.mdhtml`);
+      console.log(`[DEL]: ${entry.title}`), hasDeleted = true;
+    }
+    return hasDeleted;
+  }
+
+
+  function tryUpdateStories(stories: CMSStory[]) {
+    let hasUpdated = false;
+    for (const story of stories) {
+      if (isPropEq('ver', manifest!, story)) continue;
+      writeBodyToFile(story);
+      console.log(`[UPD]: ${story.title}`), hasUpdated = true;
+    }
+    return hasUpdated;
+  }
+
+
+  function writeBodyToFile(story: CMSStory) {
+    return writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
+  }
+
+
+  function deleteFile(filename: string) {
+    return unlink(`${buildPath}/${filename}`);
+  }
+
+
+  function saveAsJSON(fileName: string) {
+    return async <T>(data: T) => {
+      await writeFile(
+        `${buildPath}/${fileName}`,
+        JSON.stringify(data, null, 2), { encoding: 'utf-8' }
+      );
+      return data;
+    };
+  }
+
+
+  function createDir(data: any) {
+    try {
+      mkdirSync(buildPath);
+      return data;
+    }
+    catch (e) {
+      if ((e as Error).message.includes('EEXIST')) return data;
+      throw e;
+    }
+  }
+
+  return { build };
 }
 
 
-export function createManifest(dir: string) {
-  return pipe(
-    forEach(toStaticResource(dir, 'mdhtml')),
-    map(toManifestData),
-    saveAsJSON(dir, `${dir}.json`),
-  );
-}
-
-export function compareManifest(stories: CMSStory[], manifest: Manifest) {
-  throw new Error('Not Implemented');
-}
 
 
-export function toStaticResource(dir: string, ext: string) {
-  return async (data: CMSStory) => {
-    await saveAsString(dir, `${data.slug}.${ext}`)(data.body!);
-  };
+/**
+ * Returns true if **obj2.prop** is found in and equal to any
+ * obj within obj1 Array.
+ */
+export function isPropEq<T>(prop: keyof T, obj1: T[], obj2: any) {
+  return !!obj1.find(o => o[prop] == obj2[prop]);
 }
 
 
 export function toManifestData(story: CMSStory) {
   const { summary, title, author, date, id } = story;
-  return {
+  const entry: ManifestEntry = {
     id,
     summary,
     title,
     author,
     date,
-    ver: toMd5(JSON.stringify(story)).substring(0, 10)
+    ver: toShortHash(story)
   };
+  return entry;
 }
 
 
-export async function tryGetManifest(path: string) {
-  const [file, error] = await tryCatch(readFile(`${rootDir}/${path}`, { encoding: 'utf-8' }));
-  if (error) {
-    if (error.message.includes('ENOENT')) return null;
-    throw error;
+export async function tryGetJSONFromFile<T>(path: string) {
+  const resp = await tryCatch(readFile(path, { encoding: 'utf-8' }));
+  if (resp instanceof Error) {
+    if (resp.message.includes('ENOENT')) return null;
+    throw resp;
   }
-  return JSON.parse(file!) as Manifest;
+  return JSON.parse(resp) as T;
 }
 
 
-export function saveAsJSON(dir: string, fileName: string) {
-  return async <T>(data: T) => {
-    await writeFile(
-      `${rootDir}/${dir}/${fileName}`,
-      JSON.stringify(data, null, 2), { encoding: 'utf-8' }
-    );
-    return data;
-  };
+export function toShortHash(data: any) {
+  const truncateTo10Chars = (str: string) => str.substring(0, 10);
+  return pipe(
+    JSON.stringify,
+    toMd4hash,
+    truncateTo10Chars,
+  )(data);
 }
 
 
-export function saveAsString(dir: string, fileName: string) {
-  return async (data: string) => {
-    await writeFile(
-      `${rootDir}/${dir}/${fileName}`,
-      data
-    );
-  };
-}
-
-
-export function toMd5(str: string) {
+function toMd4hash(str: string) {
   const secret = 'EvEx1337';
-  return createHmac('sha1', secret).update(str).digest('hex');
-}
-
-
-export async function createDir(dir: string) {
-  try { await mkdir(dir); return true; }
-  catch (e) {
-    if ((e as Error).message.includes('EEXIST')) return true;
-    return false;
-  }
+  return createHmac('md4', secret).update(str).digest('hex');
 }
 
 
 export function toSBOptions(url: string, starts_with: string, sort_by?: StorySortString) {
-  const options = {
+  return {
     url,
     starts_with,
     version: 'draft',
     sort_by: sort_by ?? 'created_at:asc',
     per_page: 100,
   } as CMSOptions;
-  return options;
 }
 
 
-
-export async function tryCatch<T>(p: Promise<T>): Promise<[T|null, Error|null]> {
+export async function tryCatch<T>(p: Promise<T>): Promise<T|Error> {
   try {
     const data = await p;
-    return [data, null];
+    return data;
   }
   catch (e) {
-    return [null, e as Error];
+    return e as Error;
   }
+}
+
+
+export function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/\s/g, '-')
+    .replace(/α/g, 'a') // Greek Alpha
+    .replace(/β/g, 'b') // Greek Beta
+    .replace(/[^a-z0-9-]+/g, '')
+  ;
 }
 
 
