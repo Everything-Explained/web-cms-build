@@ -2,7 +2,7 @@
 import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
 import { useMarkdown } from './markdown/md_core';
-import { StoryOptions, StoryPage } from './sb_core';
+import { StoryOptions, StoryEntry } from './sb_core';
 import { map, pipe } from 'ramda';
 import { useMockStoryblokAPI } from '../../__fixtures__/sb_mock_api';
 
@@ -12,7 +12,7 @@ import { useMockStoryblokAPI } from '../../__fixtures__/sb_mock_api';
 //#region Interfaces and Custom Types
 export interface CMSOptions extends StoryOptions {
   url      : string; // cdn/stories/
-  stories ?: StoryPage[];
+  stories ?: StoryEntry[];
 }
 
 export interface CMSData extends CMSStory {
@@ -64,7 +64,7 @@ async function getContent(opt: CMSOptions, exec: CMSGetFunc) {
 }
 
 
-async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryPage[]> {
+async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEntry[]> {
   opt.per_page = opt.per_page ?? 100;
   opt.page     = opt.page     ?? 1;
   opt.stories  = opt.stories  || [];
@@ -92,8 +92,8 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryPa
 }
 
 
-function sanitizeStory(story: StoryPage) {
   const { first_published_at, created_at, slug } = story;
+function sanitizeStory(story: StoryEntry) {
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';
   const cmsContent: CMSStory = {

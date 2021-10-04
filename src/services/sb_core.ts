@@ -1,5 +1,4 @@
 import { ISODateString } from "../global_interfaces";
-import { CMSStory } from "./cms_core";
 import StoryblokClient from 'storyblok-js-client';
 import config from '../../config.json';
 
@@ -22,8 +21,19 @@ export type StoryCategoryTableBody = Array<[
 ]>
 
 
-export interface StoryPage extends Story {
-  content: CMSStory;
+export interface StoryEntry extends Story {
+  content: StoryContent;
+}
+
+
+export interface StoryContent {
+  id        ?: string;
+  title      : string;
+  author     : string;
+  category  ?: string;
+  summary   ?: string;
+  body       : string;
+  timestamp ?: ISODateString;
 }
 
 
