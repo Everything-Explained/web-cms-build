@@ -1,6 +1,6 @@
 import { useMockStoryblokAPI }          from "../__fixtures__/sb_mock_api";
-import { CMSStory, CMSOptions, useCMS } from "./services/cms_core";
 import { writeFile, readFile, unlink }  from 'fs/promises';
+import { CMSEntry, CMSOptions, slugify, useCMS } from "./services/cms_core";
 import { mkdirSync }                    from 'fs';
 import { StorySortString }              from "../services/api_storyblok";
 import { createHmac }                   from 'crypto';
@@ -44,12 +44,12 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function initManifest(stories: CMSStory[]) {
     return pipe(
       createDir,
       forEach(writeBodyToFile),
       createManifest
     )(stories);
+  function initManifest(stories: CMSEntry[]) {
   }
 
 
@@ -63,7 +63,7 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function createManifest(stories: CMSStory[]) {
+  function createManifest(stories: CMSEntry[]) {
     return pipe(
       map(toManifestData),
       saveAsJSON(`${dir}.json`),
@@ -71,7 +71,7 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function tryAddStories(stories: CMSStory[]) {
+  function tryAddStories(stories: CMSEntry[]) {
       let hasAdded = false;
       for (const story of stories) {
         if (isPropEq('id', manifest!, story)) continue;
@@ -82,7 +82,7 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function tryDeleteStories(stories: CMSStory[]) {
+  function tryDeleteStories(stories: CMSEntry[]) {
     let hasDeleted = false;
     for (const entry of manifest!) {
       if (isPropEq('id', stories, entry)) continue;
@@ -93,7 +93,7 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function tryUpdateStories(stories: CMSStory[]) {
+  function tryUpdateStories(stories: CMSEntry[]) {
     let hasUpdated = false;
     for (const story of stories) {
       if (isPropEq('ver', manifest!, story)) continue;
@@ -104,7 +104,7 @@ export async function createBuilder(url: string, dir: string) {
   }
 
 
-  function writeBodyToFile(story: CMSStory) {
+  function writeBodyToFile(story: CMSEntry) {
     return writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
   }
 
@@ -151,7 +151,7 @@ export function isPropEq<T>(prop: keyof T, obj1: T[], obj2: any) {
 }
 
 
-export function toManifestData(story: CMSStory) {
+export function toManifestEntry(story: CMSEntry) {
   const { summary, title, author, date, id } = story;
   const entry: ManifestEntry = {
     id,
@@ -212,16 +212,6 @@ export async function tryCatch<T>(p: Promise<T>): Promise<T|Error> {
   }
 }
 
-
-export function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/\s/g, '-')
-    .replace(/α/g, 'a') // Greek Alpha
-    .replace(/β/g, 'b') // Greek Beta
-    .replace(/[^a-z0-9-]+/g, '')
-  ;
-}
 
 
 

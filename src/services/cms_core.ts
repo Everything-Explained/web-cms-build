@@ -15,12 +15,12 @@ export interface CMSOptions extends StoryOptions {
   stories ?: StoryEntry[];
 }
 
-export interface CMSData extends CMSStory {
+export interface CMSData extends CMSEntry {
   id: string|number;
   date: ISODateString;
 }
 
-export interface CMSStory {
+export interface CMSEntry {
   /** Story ID or Custom ID */
   id         : string|number;
   title      : string;
@@ -92,21 +92,32 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEn
 }
 
 
-  const { first_published_at, created_at, slug } = story;
 function sanitizeStory(story: StoryEntry) {
+  const { first_published_at, created_at } = story;
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';
-  const cmsContent: CMSStory = {
+  const cmsContent: CMSEntry = {
     id: story.content.id || story.id, // Videos have content.id
     title,
     author,
     body: body ? md.render(body) : '',
     date: timestamp || first_published_at || created_at,
-    slug,
+    slug: slugify(title)
   };
   if (summary) cmsContent.summary = summary;
   if (category && category != categoryNone) cmsContent.category = category;
   return cmsContent;
+}
+
+
+export function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/\s/g, '-')
+    .replace(/α/g, 'a') // Greek Alpha
+    .replace(/β/g, 'b') // Greek Beta
+    .replace(/[^a-z0-9-]+/g, '')
+  ;
 }
 
 
