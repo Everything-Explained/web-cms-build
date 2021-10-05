@@ -154,10 +154,7 @@ export function toManifestEntry(story: CMSEntry) {
 
 export async function tryGetJSONFromFile<T>(path: string) {
   const resp = await tryCatch(readFile(path, { encoding: 'utf-8' }));
-  if (resp instanceof Error) {
-    if (resp.message.includes('ENOENT')) return null;
-    throw resp;
-  }
+  if (resp instanceof Error) throw resp;
   return JSON.parse(resp) as T;
 }
 
