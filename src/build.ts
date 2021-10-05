@@ -130,11 +130,11 @@ export async function createBuilder(url: string, dir: string) {
 
 
 /**
- * Returns true if **obj2.prop** is found in and equal to any
- * obj within obj1 Array.
+ * Returns true if **prop** is found in **obj2** and any
+ * objs in **obj1[]**.
  */
-export function isPropEq<T>(prop: keyof T, obj1: T[], obj2: any) {
-  return !!obj1.find(o => o[prop] == obj2[prop]);
+export function isPropEq<T>(prop: keyof T, objArray: T[], obj: any) {
+  return !!objArray.find(o => o[prop] == obj[prop]);
 }
 
 
