@@ -96,7 +96,10 @@ export async function createBuilder(url: string, dir: string) {
   function tryUpdateStories(stories: CMSEntry[]) {
     let hasUpdated = false;
     for (const story of stories) {
-      if (isPropEq('ver', manifest!, story)) continue;
+      const storyVer = toShortHash(story);
+      const entry = manifest.find(entry => entry.id == story.id);
+      if (!entry) continue; // Skip added/deleted entries
+      if (entry.ver == storyVer) continue;
       writeBodyToFile(story);
       console.log(`[UPD]: ${story.title}`), hasUpdated = true;
     }
