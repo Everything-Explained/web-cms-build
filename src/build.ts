@@ -192,7 +192,7 @@ export async function tryCatch<T>(p: Promise<T>): Promise<T|Error> {
     return data;
   }
   catch (e) {
-    return e as Error;
+    return Error((e as Error).message);
   }
 }
 
