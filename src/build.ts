@@ -33,12 +33,17 @@ export async function createBuilder(url: string, dir: string) {
   const sb        = useStoryblok();
   const buildPath = `../release/${dir}`;
   const stories   = await CMS.getContent(toSBOptions('test/pages', url), mockAPI.get);
-  let manifest    = await tryGetJSONFromFile<Manifest>(`${buildPath}/${dir}.json`);
+  const resp      = await tryCatch(access(`${buildPath}/${dir}.json`));
+  const isENOENT  = (e: Error) => e.message.includes('ENOENT');
+  const manifest  =
+    both(is(Error), isENOENT)(resp)
+      ? await initManifest(stories)
+      : await getManifest()
+  ;
 
-  async function build() {
-    // manifest should NOT mutate anywhere else
-    if (!manifest) manifest = await initManifest(stories);
-    updateManifest(stories);
+  async function getManifest() {
+     const file = await readFile(`${buildPath}/${dir}.json`, 'utf-8');
+     return JSON.parse(file) as Manifest;
   }
 
   function initManifest(stories: CMSEntry[]) {
