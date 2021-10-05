@@ -86,7 +86,7 @@ export async function createBuilder(url: string, dir: string) {
     let hasDeleted = false;
     for (const entry of manifest!) {
       if (isPropEq('id', stories, entry)) continue;
-      deleteFile(`${dir}.mdhtml`);
+      deleteFile(`${slugify(entry.title)}.mdhtml`);
       console.log(`[DEL]: ${entry.title}`), hasDeleted = true;
     }
     return hasDeleted;
