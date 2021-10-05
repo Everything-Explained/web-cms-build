@@ -1,10 +1,10 @@
 import { useMockStoryblokAPI }          from "../__fixtures__/sb_mock_api";
-import { writeFile, readFile, unlink }  from 'fs/promises';
 import { CMSEntry, CMSOptions, slugify, useCMS } from "./services/cms_core";
+import { writeFile, readFile, unlink, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
 import { StorySortString }              from "../services/api_storyblok";
 import { createHmac }                   from 'crypto';
-import { map, pipe, forEach, anyPass }  from "ramda";
+import { map, pipe, forEach, anyPass, cond, andThen, always, equals, ifElse, is, and, both }  from "ramda";
 import { useStoryblok }                 from "./services/sb_core";
 import { ISODateString }                from "./global_interfaces";
 
@@ -22,8 +22,6 @@ type ManifestEntry = {
 }
 
 type Manifest = ManifestEntry[];
-
-type ObjWithID = { id: string|number };
 
 
 
@@ -43,17 +41,11 @@ export async function createBuilder(url: string, dir: string) {
     updateManifest(stories);
   }
 
-
-    return pipe(
-      createDir,
-      forEach(writeBodyToFile),
-      createManifest
-    )(stories);
   function initManifest(stories: CMSEntry[]) {
+    return pipe(createDir, forEach(writeBodyToFile), createManifest)(stories);
   }
 
-
-  function updateManifest(stories: CMSStory[]) {
+  function updateManifest() {
     const hasChanged = anyPass([
       tryAddStories,
       tryDeleteStories,
@@ -62,14 +54,12 @@ export async function createBuilder(url: string, dir: string) {
     if (hasChanged(stories)) createManifest(stories);
   }
 
-
   function createManifest(stories: CMSEntry[]) {
     return pipe(
-      map(toManifestData),
+      map(toManifestEntry),
       saveAsJSON(`${dir}.json`),
     )(stories);
   }
-
 
   function tryAddStories(stories: CMSEntry[]) {
       let hasAdded = false;
@@ -81,7 +71,6 @@ export async function createBuilder(url: string, dir: string) {
       return hasAdded;
   }
 
-
   function tryDeleteStories(stories: CMSEntry[]) {
     let hasDeleted = false;
     for (const entry of manifest!) {
@@ -91,7 +80,6 @@ export async function createBuilder(url: string, dir: string) {
     }
     return hasDeleted;
   }
-
 
   function tryUpdateStories(stories: CMSEntry[]) {
     let hasUpdated = false;
@@ -106,16 +94,13 @@ export async function createBuilder(url: string, dir: string) {
     return hasUpdated;
   }
 
-
   function writeBodyToFile(story: CMSEntry) {
     return writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
   }
 
-
   function deleteFile(filename: string) {
     return unlink(`${buildPath}/${filename}`);
   }
-
 
   function saveAsJSON(fileName: string) {
     return async <T>(data: T) => {
@@ -126,7 +111,6 @@ export async function createBuilder(url: string, dir: string) {
       return data;
     };
   }
-
 
   function createDir(data: any) {
     try {
@@ -139,7 +123,7 @@ export async function createBuilder(url: string, dir: string) {
     }
   }
 
-  return { build };
+  return { updateManifest, };
 }
 
 
@@ -188,7 +172,7 @@ export function toShortHash(data: any) {
 }
 
 
-function toMd4hash(str: string) {
+export function toMd4hash(str: string) {
   const secret = 'EvEx1337';
   return createHmac('md4', secret).update(str).digest('hex');
 }
