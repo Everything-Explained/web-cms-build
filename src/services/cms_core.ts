@@ -86,7 +86,7 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEn
 
   // We want our build process to fail if stories can't be found
   if (!opt.stories.length)
-    throw Error(`Missing Stories::${starts_with}`)
+    throw Error(`Missing Stories From "${starts_with}"`)
   ;
   return opt.stories;
 }

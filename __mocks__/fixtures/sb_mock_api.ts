@@ -25,6 +25,12 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
   const { per_page } = params;
   if (!per_page) throw Error('"per_page" param must be > 0');
 
+  if (slug == 'test/empty') return {
+    ...result,
+    data: { stories: [] }
+  };
+
+
   if (slug == 'test/simple' && page == 1) {
     return { ...result, data: { stories: simpleData.stories} };
   }
