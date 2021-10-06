@@ -116,6 +116,8 @@ export async function createBuilder(options: BuildOptions) {
 
   function saveAsJSON(fileName: string) {
     return async <T>(data: T) => {
+      const filePath = `${buildPath}/${fileName}`;
+      log(`[SAVE]: ${fileName}`);
       await writeFile(
         filePath,
         JSON.stringify(data, null, 2), { encoding: 'utf-8' }
