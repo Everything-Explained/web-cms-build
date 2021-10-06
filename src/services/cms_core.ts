@@ -2,9 +2,9 @@
 import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
 import { useMarkdown } from './markdown/md_core';
-import { StoryOptions, StoryEntry } from './sb_core';
+import { StoryOptions, StoryEntry, StorySortString } from './sb_core';
 import { map, pipe } from 'ramda';
-import { useMockStoryblokAPI } from '../../__fixtures__/sb_mock_api';
+import { useMockStoryblokAPI } from '../../__mocks__/fixtures/sb_mock_api';
 
 
 
@@ -40,7 +40,7 @@ export interface CMSEntry {
   slug       : string;
 }
 
-type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
 //#endregion
 /////////////////////////////////////////
 
@@ -118,6 +118,17 @@ export function slugify(str: string) {
     .replace(/β/g, 'b') // Greek Beta
     .replace(/[^a-z0-9-]+/g, '')
   ;
+}
+
+
+export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
+  return {
+    url,
+    starts_with,
+    version: 'draft',
+    sort_by: sort_by ?? 'created_at:asc',
+    per_page: 100,
+  } as CMSOptions;
 }
 
 

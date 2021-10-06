@@ -1,12 +1,10 @@
-import { useMockStoryblokAPI }          from "../__fixtures__/sb_mock_api";
-import { CMSEntry, CMSOptions, slugify, useCMS } from "./services/cms_core";
+import { CMSEntry, CMSGetFunc, slugify, toCMSOptions, useCMS } from "./services/cms_core";
 import { writeFile, readFile, unlink, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
-import { StorySortString }              from "../services/api_storyblok";
 import { createHmac }                   from 'crypto';
-import { map, pipe, forEach, anyPass, cond, andThen, always, equals, ifElse, is, and, both }  from "ramda";
-import { useStoryblok }                 from "./services/sb_core";
+import { map, pipe, forEach, anyPass, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
+import { basename as pathBasename, resolve as pathResolve } from 'path';
 
 
 
@@ -23,84 +21,93 @@ type ManifestEntry = {
 
 type Manifest = ManifestEntry[];
 
+type ObjWithID = {
+  id: string|number;
+  [key: string]: any;
+}
+
+interface BuildOptions {
+  url         : string;
+  starts_with : string;
+  filesPath   : string;
+  logging?    : boolean;
+  exec        : CMSGetFunc;
+}
 
 
-
-
-export async function createBuilder(url: string, dir: string) {
-  const CMS       = useCMS();
-  const mockAPI   = useMockStoryblokAPI();
-  const sb        = useStoryblok();
-  const buildPath = `../release/${dir}`;
-  const stories   = await CMS.getContent(toSBOptions('test/pages', url), mockAPI.get);
-  const resp      = await tryCatch(access(`${buildPath}/${dir}.json`));
-  const isENOENT  = (e: Error) => e.message.includes('ENOENT');
-  const manifest  =
+export async function createBuilder(options: BuildOptions) {
+  const { url, filesPath, exec, logging, starts_with } = options;
+  const buildPath        = pathResolve(filesPath);
+  const manifestFileName = pathBasename(buildPath);
+  const stories          = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
+  const resp             = await tryCatch(access(`${buildPath}/${manifestFileName}.json`));
+  const manifest         =
     both(is(Error), isENOENT)(resp)
       ? await initManifest(stories)
       : await getManifest()
   ;
 
   async function getManifest() {
-     const file = await readFile(`${buildPath}/${dir}.json`, 'utf-8');
+     const file = await readFile(`${buildPath}/${manifestFileName}.json`, 'utf-8');
      return JSON.parse(file) as Manifest;
   }
 
   function initManifest(stories: CMSEntry[]) {
-    return pipe(createDir, forEach(writeBodyToFile), createManifest)(stories);
+    return pipe(createDir, forEach(saveBodyToFile), saveAsManifest)(stories);
   }
 
   function updateManifest() {
     const hasChanged = anyPass([
-      tryAddStories,
-      tryDeleteStories,
-      tryUpdateStories,
+      tryAddEntries,
+      tryDeleteEntries,
+      tryUpdateEntries,
     ]);
-    if (hasChanged(stories)) createManifest(stories);
+    if (hasChanged(stories)) saveAsManifest(stories);
   }
 
-  function createManifest(stories: CMSEntry[]) {
+  function saveAsManifest(stories: CMSEntry[]) {
     return pipe(
       map(toManifestEntry),
-      saveAsJSON(`${dir}.json`),
+      saveAsJSON(`${manifestFileName}.json`),
     )(stories);
   }
 
-  function tryAddStories(stories: CMSEntry[]) {
-      let hasAdded = false;
-      for (const story of stories) {
-        if (isPropEq('id', manifest!, story)) continue;
-        writeBodyToFile(story);
-        console.log(`[ADD]: ${story.title}`), hasAdded = true;
-      }
-      return hasAdded;
+  function tryAddEntries(stories: CMSEntry[]) {
+    let hasAdded = false;
+    for (const story of stories) {
+      if (manifest.find(hasSameID(story))) continue;
+      log(`[ADD]: ${story.title}`), hasAdded = true;
+      saveBodyToFile(story);
+    }
+    return hasAdded;
   }
 
-  function tryDeleteStories(stories: CMSEntry[]) {
+  function tryDeleteEntries(stories: CMSEntry[]) {
     let hasDeleted = false;
     for (const entry of manifest!) {
-      if (isPropEq('id', stories, entry)) continue;
+      if (stories.find(hasSameID(entry))) continue;
       deleteFile(`${slugify(entry.title)}.mdhtml`);
-      console.log(`[DEL]: ${entry.title}`), hasDeleted = true;
+      log(`[DEL]: ${entry.title}`), hasDeleted = true;
     }
     return hasDeleted;
   }
 
-  function tryUpdateStories(stories: CMSEntry[]) {
+  function tryUpdateEntries(stories: CMSEntry[]) {
     let hasUpdated = false;
     for (const story of stories) {
-      const storyVer = toShortHash(story);
-      const entry = manifest.find(entry => entry.id == story.id);
-      if (!entry) continue; // Skip added/deleted entries
-      if (entry.ver == storyVer) continue;
-      writeBodyToFile(story);
-      console.log(`[UPD]: ${story.title}`), hasUpdated = true;
+      const entry = manifest.find(hasSameID(story));
+      if (!entry) continue;
+      if (entry.ver == toShortHash(story)) continue;
+      // We don't know if body changed
+      saveBodyToFile(story);
+      log(`[UPD]: ${story.title}`), hasUpdated = true;
     }
     return hasUpdated;
   }
 
-  function writeBodyToFile(story: CMSEntry) {
-    return writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
+  async function saveBodyToFile(story: CMSEntry) {
+    log(`[CREATE]: ${story.slug}`);
+    await writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
   }
 
   function deleteFile(filename: string) {
@@ -110,7 +117,7 @@ export async function createBuilder(url: string, dir: string) {
   function saveAsJSON(fileName: string) {
     return async <T>(data: T) => {
       await writeFile(
-        `${buildPath}/${fileName}`,
+        filePath,
         JSON.stringify(data, null, 2), { encoding: 'utf-8' }
       );
       return data;
@@ -120,27 +127,43 @@ export async function createBuilder(url: string, dir: string) {
   function createDir(data: any) {
     try {
       mkdirSync(buildPath);
+      log(`[DIR]: ${buildPath}`);
       return data;
     }
     catch (e) {
-      if ((e as Error).message.includes('EEXIST')) return data;
+      if ((e as Error).message.includes('EEXIST'))
+        return data
+      ;
       throw e;
     }
   }
 
-  return { updateManifest, };
+  function isENOENT(e: Error) {
+    return e.message.includes('ENOENT');
+  }
+
+  function hasSameID(o1: ObjWithID) {
+    return (o2: ObjWithID) => o1.id == o2.id;
+  }
+
+  function log(...msg: any[]) {
+    if (logging ?? true) console.log(...msg);
+  }
+
+  return {
+    updateManifest,
+    _exportedForTesting: {
+      tryAddEntries,
+      tryDeleteEntries,
+      tryUpdateEntries,
+      saveBodyToFile,
+      saveAsJSON,
+      createDir,
+    }
+  };
 }
 
 
-
-
-/**
- * Returns true if **prop** is found in **obj2** and any
- * objs in **obj1[]**.
- */
-export function isPropEq<T>(prop: keyof T, objArray: T[], obj: any) {
-  return !!objArray.find(o => o[prop] == obj[prop]);
-}
 
 
 export function toManifestEntry(story: CMSEntry) {
@@ -177,17 +200,6 @@ export function toShortHash(data: any) {
 export function toMd4hash(str: string) {
   const secret = 'EvEx1337';
   return createHmac('md4', secret).update(str).digest('hex');
-}
-
-
-export function toSBOptions(url: string, starts_with: string, sort_by?: StorySortString) {
-  return {
-    url,
-    starts_with,
-    version: 'draft',
-    sort_by: sort_by ?? 'created_at:asc',
-    per_page: 100,
-  } as CMSOptions;
 }
 
 
