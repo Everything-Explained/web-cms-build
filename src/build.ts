@@ -129,7 +129,7 @@ export async function createBuilder(options: BuildOptions) {
   function createDir(data: any) {
     try {
       mkdirSync(buildPath);
-      log(`[DIR]: ${buildPath}`);
+      log(`[DIR]: /${pathBasename(buildPath)}`);
       return data;
     }
     catch (e) {
