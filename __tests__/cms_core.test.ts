@@ -1,6 +1,6 @@
-import { CMSStory, CMSOptions, useCMS } from "../src/services/cms_core";
-import { useMockStoryblokAPI } from "../__fixtures__/sb_mock_api";
-import litItem from '../__fixtures__/lit_item.json';
+import { CMSEntry, CMSOptions, useCMS, slugify, toCMSOptions } from "../src/services/cms_core";
+import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
+import litItem from '../__mocks__/fixtures/lit_item.json';
 
 
 const CMS = useCMS();
@@ -9,7 +9,7 @@ const testSimpleSlug = 'test/simple';
 const testPagesSlug  = 'test/pages';
 
 
-function toSBOptions(slug: string, page?: number, per_page?: number) {
+function toSBlokOpt(slug: string, page?: number, per_page?: number) {
   const options = {
     url: slug,
     starts_with: slug,
@@ -26,7 +26,7 @@ describe('StoryBlokAPI.getContent()', () => {
 
   it('returns sanitized stories from API', done => {
     CMS
-      .getContent(toSBOptions(testSimpleSlug), mockAPI.get)
+      .getContent(toSBlokOpt(testSimpleSlug), mockAPI.get)
       .then((data) => {
         expect(data.length).toBe(3);
         done();
@@ -37,8 +37,8 @@ describe('StoryBlokAPI.getContent()', () => {
   it('returns all story pages', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBOptions(testPagesSlug, 1, 1), mockAPI.get)
-      .then((data: CMSStory[]) => {
+      .getContent(toSBlokOpt(testPagesSlug, 1, 1), mockAPI.get)
+      .then((data: CMSEntry[]) => {
         expect(data.length).toBe(3);
       });
   });
@@ -46,7 +46,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it('throws an error if no stories exist', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBOptions('doesnotexist'), mockAPI.get)
+      .getContent(toSBlokOpt('doesnotexist'), mockAPI.get)
       .catch((e) => {
         expect(e.message).toContain('Missing Stories::');
       });
@@ -55,7 +55,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it('throws an error if pages are set to 0 and no stories are found', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBOptions('doesnotexist', 0), mockAPI.get)
+      .getContent(toSBlokOpt('doesnotexist', 0), mockAPI.get)
       .catch((e) => {
         expect(e.message).toContain('Missing Stories::');
       })
@@ -65,7 +65,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it('throws an error if "per_page" is greater than 100', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBOptions(testSimpleSlug, 1, 101), mockAPI.get)
+      .getContent(toSBlokOpt(testSimpleSlug, 1, 101), mockAPI.get)
       .catch((e) => {
         expect(e.message).toContain('getStorites()::Max stories');
       });
@@ -74,8 +74,8 @@ describe('StoryBlokAPI.getContent()', () => {
   it ('does NOT loop through pages when page param set to 0', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBOptions(testPagesSlug, 0, 1), mockAPI.get)
-      .then((c: CMSStory[]) => {
+      .getContent(toSBlokOpt(testPagesSlug, 0, 1), mockAPI.get)
+      .then((c: CMSEntry[]) => {
         expect(c.length).toBe(1);
       });
   });
@@ -113,6 +113,7 @@ describe('StoryBlokAPI.sanitizeStory()', () => {
     author  : 'Ethan Kahn',
     summary : 'This is a summary string',
     body    : '<p>This is some body content</p>\n',
+    slug    : 'literature-item-1',
     date    : '2021-05-19T21:50:32.720Z',
   };
 
@@ -144,4 +145,36 @@ describe('StoryBlokAPI.sanitizeStory()', () => {
     expect('category' in page).toBeFalsy();
   });
 
+});
+
+
+describe('slugify(str)', () => {
+  it('returns a sanitized string which can be used as a url', () => {
+    expect(slugify('This is a "T3ST"')).toBe('this-is-a-t3st');
+  });
+
+  it('converts Greek Alpha character to "a"', () => {
+    expect(slugify('greek-alpha-α')).toBe('greek-alpha-a');
+  });
+
+  it('converts Greek Beta character to "b"', () => {
+    expect(slugify('greek-beta-β')).toBe('greek-beta-b');
+  });
+});
+
+
+describe('toSBOptions(url, starts_with, sort_by?)', () => {
+  it('returns StoryBlok options with specified params', () => {
+    const options = toCMSOptions('test/path', 'test', 'created_at:desc');
+    expect(options.url).toBe('test/path');
+    expect(options.starts_with).toBe('test');
+    expect(options.sort_by).toBe('created_at:desc');
+  });
+
+  it('returns options that contain defaults', () => {
+    const options = toCMSOptions('test/path', 'test');
+    expect(options.version).toBe('draft');
+    expect(options.sort_by).toBe('created_at:asc');
+    expect(options.per_page).toBe(100);
+  });
 });
