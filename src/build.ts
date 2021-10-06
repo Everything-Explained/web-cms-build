@@ -47,15 +47,6 @@ export async function createBuilder(options: BuildOptions) {
       : await getManifest()
   ;
 
-  async function getManifest() {
-     const file = await readFile(`${buildPath}/${manifestFileName}.json`, 'utf-8');
-     return JSON.parse(file) as Manifest;
-  }
-
-  function initManifest(stories: CMSEntry[]) {
-    return pipe(createDir, forEach(saveBodyToFile), saveAsManifest)(stories);
-  }
-
   function updateManifest() {
     const hasChanged = anyPass([
       tryAddEntries,
@@ -63,6 +54,15 @@ export async function createBuilder(options: BuildOptions) {
       tryUpdateEntries,
     ]);
     if (hasChanged(stories)) saveAsManifest(stories);
+  }
+
+  async function getManifest() {
+    const file = await readFile(`${buildPath}/${manifestFileName}.json`, 'utf-8');
+    return JSON.parse(file) as Manifest;
+  }
+
+  function initManifest(stories: CMSEntry[]) {
+    return pipe(createDir, forEach(saveBodyToFile), saveAsManifest)(stories);
   }
 
   function saveAsManifest(stories: CMSEntry[]) {
