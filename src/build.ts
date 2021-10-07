@@ -154,12 +154,18 @@ export async function createBuilder(options: BuildOptions) {
 
   return {
     updateManifest,
-    _exportedForTesting: {
+    _tdd: {
+      buildPath,
+      manifestFileName,
+      manifest,
+      stories,
       tryAddEntries,
       tryDeleteEntries,
       tryUpdateEntries,
       saveBodyToFile,
+      deleteFile,
       saveAsJSON,
+      hasSameID,
       createDir,
     }
   };
