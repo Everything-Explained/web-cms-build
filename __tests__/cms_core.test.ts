@@ -48,7 +48,7 @@ describe('StoryBlokAPI.getContent()', () => {
     return CMS
       .getContent(toSBlokOpt('doesnotexist'), mockAPI.get)
       .catch((e) => {
-        expect(e.message).toContain('Missing Stories::');
+        expect(e.message).toContain('Missing Stories From "doesnotexist"');
       });
   });
 
@@ -57,7 +57,7 @@ describe('StoryBlokAPI.getContent()', () => {
     return CMS
       .getContent(toSBlokOpt('doesnotexist', 0), mockAPI.get)
       .catch((e) => {
-        expect(e.message).toContain('Missing Stories::');
+        expect(e.message).toContain('Missing Stories From "doesnotexist"');
       })
     ;
   });
