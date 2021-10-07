@@ -5,8 +5,8 @@ import litItem from '../__mocks__/fixtures/lit_item.json';
 
 const CMS = useCMS();
 const mockAPI = useMockStoryblokAPI();
-const testSimpleSlug = 'test/simple';
-const testPagesSlug  = 'test/pages';
+const singlePageSlug = 'test/singlepage';
+const multiPageSlug  = 'test/multipage';
 
 
 function toSBlokOpt(slug: string, page?: number, per_page?: number) {
@@ -26,7 +26,7 @@ describe('StoryBlokAPI.getContent()', () => {
 
   it('returns sanitized stories from API', done => {
     CMS
-      .getContent(toSBlokOpt(testSimpleSlug), mockAPI.get)
+      .getContent(toSBlokOpt(singlePageSlug), mockAPI.get)
       .then((data) => {
         expect(data.length).toBe(3);
         done();
@@ -37,7 +37,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it('returns all story pages', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBlokOpt(testPagesSlug, 1, 1), mockAPI.get)
+      .getContent(toSBlokOpt(multiPageSlug, 1, 1), mockAPI.get)
       .then((data: CMSEntry[]) => {
         expect(data.length).toBe(3);
       });
@@ -65,7 +65,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it('throws an error if "per_page" is greater than 100', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBlokOpt(testSimpleSlug, 1, 101), mockAPI.get)
+      .getContent(toSBlokOpt(singlePageSlug, 1, 101), mockAPI.get)
       .catch((e) => {
         expect(e.message).toContain('getStorites()::Max stories');
       });
@@ -74,7 +74,7 @@ describe('StoryBlokAPI.getContent()', () => {
   it ('does NOT loop through pages when page param set to 0', () => {
     expect.assertions(1);
     return CMS
-      .getContent(toSBlokOpt(testPagesSlug, 0, 1), mockAPI.get)
+      .getContent(toSBlokOpt(multiPageSlug, 0, 1), mockAPI.get)
       .then((c: CMSEntry[]) => {
         expect(c.length).toBe(1);
       });

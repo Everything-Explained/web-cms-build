@@ -1,4 +1,5 @@
 import { StoryblokResult } from "storyblok-js-client";
+import { CMSOptions } from "../../src/services/cms_core";
 import { StoryOptions } from "../../src/services/sb_core";
 import simpleData from './simple_data.json';
 
@@ -10,7 +11,7 @@ export function useMockStoryblokAPI() {
 }
 
 
-const result = {
+const emptyResult = {
   perPage: 0,
   total: 0,
   headers: null,
@@ -21,30 +22,35 @@ const result = {
 
 
 async function get(slug: string, params: StoryOptions): Promise<StoryblokResult> {
-  const page = params.page || 1;
+  const page         = params.page || 1;
   const { per_page } = params;
+  const slugIs       = (tslug: string) => slug == tslug;
+
   if (!per_page) throw Error('"per_page" param must be > 0');
 
-  if (slug == 'test/empty') return {
-    ...result,
-    data: { stories: [] }
-  };
-
-
-  if (slug == 'test/simple' && page == 1) {
-    return { ...result, data: { stories: simpleData.stories} };
+  if (slugIs('test/simple')) {
+    if (page > 1) return emptyResult;
+    return {
+      ...emptyResult,
+      data: { stories: [simpleData.stories[0]] }
+    };
   }
 
-  if ('test/pages' == slug) {
+  if (slugIs('test/singlepage') && page == 1) return {
+    ...emptyResult,
+    data: { stories: simpleData.stories }
+  };
+
+  if (slugIs('test/multipage')) {
     const index = findIndexByPage(page, per_page);
     return {
-      ...result,
+      ...emptyResult,
       data: {
         stories: simpleData.stories.slice(index, index + per_page)
       }
     };
   }
-  return result;
+  return emptyResult;
 }
 
 
