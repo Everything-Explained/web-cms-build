@@ -1,0 +1,26 @@
+[
+  {
+    "id": 69866748,
+    "summary": "This is a fake summary for the purpose of testing",
+    "title": "A New Lit Post that contains an Image",
+    "author": "Jaeiya",
+    "date": "2021-09-04T20:19:21.969Z",
+    "ver": "f73c556beff41"
+  },
+  {
+    "id": 69866783,
+    "summary": "This is a fake summary for the purpose of testing",
+    "title": "Another Lit Post with an Internal Link",
+    "author": "Jaeiya",
+    "date": "2021-09-04T21:17:25.820Z",
+    "ver": "581f38317ac38"
+  },
+  {
+    "id": 69866908,
+    "summary": "This entry will be removed",
+    "title": "Post to Delete",
+    "author": "Jaeiya",
+    "date": "0000-00-00T00:00:00.000Z",
+    "ver": "doesnotmatter"
+  }
+]

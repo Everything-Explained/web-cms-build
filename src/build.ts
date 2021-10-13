@@ -2,7 +2,7 @@ import { CMSEntry, CMSGetFunc, slugify, toCMSOptions, useCMS } from "./services/
 import { writeFile, readFile, unlink, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
 import { createHmac }                   from 'crypto';
-import { map, pipe, forEach, anyPass, is, both }  from "ramda";
+import { map, pipe, forEach, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 
@@ -39,6 +39,9 @@ export async function createBuilder(options: BuildOptions) {
   const { url, filesPath, exec, logging, starts_with } = options;
   const buildPath        = pathResolve(filesPath);
   const manifestFileName = pathBasename(buildPath);
+
+  log(`[INIT]: Setting up Builder for ${buildPath}`);
+
   const stories          = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
   const resp             = await tryCatch(access(`${buildPath}/${manifestFileName}.json`));
   const manifest         =
@@ -48,11 +51,14 @@ export async function createBuilder(options: BuildOptions) {
   ;
 
   function updateManifest() {
-    const hasChanged = anyPass([
-      tryAddEntries,
-      tryDeleteEntries,
-      tryUpdateEntries,
-    ]);
+    const hasChanged = (stories: CMSEntry[]) => {
+      const funcArray = [
+        tryAddEntries,
+        tryDeleteEntries,
+        tryUpdateEntries
+      ];
+      return funcArray.map(func => func(stories)).includes(true);
+    };
     if (hasChanged(stories)) saveAsManifest(stories);
   }
 
@@ -62,7 +68,11 @@ export async function createBuilder(options: BuildOptions) {
   }
 
   function initManifest(stories: CMSEntry[]) {
-    return pipe(createDir, forEach(saveBodyToFile), saveAsManifest)(stories);
+    return pipe(
+      createDir,
+      forEach(saveBodyToFile),
+      saveAsManifest
+    )(stories);
   }
 
   function saveAsManifest(stories: CMSEntry[]) {
@@ -105,9 +115,9 @@ export async function createBuilder(options: BuildOptions) {
     return hasUpdated;
   }
 
-  async function saveBodyToFile(story: CMSEntry) {
-    log(`[CREATE]: ${story.slug}`);
-    await writeFile(`${buildPath}/${story.slug}.mdhtml`, story.body);
+  async function saveBodyToFile(entry: CMSEntry) {
+    log(`[CREATE]: ${entry.slug}`);
+    await writeFile(`${buildPath}/${entry.slug}.mdhtml`, entry.body);
   }
 
   function deleteFile(filename: string) {
@@ -159,6 +169,7 @@ export async function createBuilder(options: BuildOptions) {
       manifestFileName,
       manifest,
       stories,
+      logging,
       tryAddEntries,
       tryDeleteEntries,
       tryUpdateEntries,
@@ -196,7 +207,7 @@ export async function tryGetJSONFromFile<T>(path: string) {
 
 
 export function toShortHash(data: any) {
-  const truncateTo10Chars = (str: string) => str.substring(0, 10);
+  const truncateTo10Chars = (str: string) => str.substring(0, 13);
   return pipe(
     JSON.stringify,
     toMd4hash,
