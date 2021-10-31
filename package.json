@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@everything_explained/web-md-bundler": "^3.3.5",
-    "@types/markdown-it": "^12.2.2",
+    "@types/markdown-it": "^12.2.3",
     "axios": "^0.21.4",
     "gulp": "^4.0.2",
     "gulp-changed": "^4.0.3",
