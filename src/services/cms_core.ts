@@ -102,7 +102,7 @@ function sanitizeStory(story: StoryEntry) {
     date: timestamp || first_published_at || created_at,
     slug: slugify(title)
   };
-  if (summary) cmsContent.summary = summary;
+  if (summary || story.content.id) cmsContent.summary = summary ?? md.render(body);
   if (category && category != categoryNone) cmsContent.category = category;
   return cmsContent;
 }
