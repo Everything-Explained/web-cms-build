@@ -3,8 +3,6 @@ import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
 import { useMarkdown } from './markdown/md_core';
 import { StoryOptions, StoryEntry, StorySortString } from './sb_core';
-import { map, pipe } from 'ramda';
-import { useMockStoryblokAPI } from '../../__mocks__/fixtures/sb_mock_api';
 
 
 
