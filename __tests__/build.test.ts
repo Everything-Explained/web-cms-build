@@ -2,7 +2,7 @@ import { createBuilder, toManifestEntry, toMd4hash, toShortHash, tryCatch, tryGe
 import { CMSOptions, slugify, useCMS } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import litItem from '../__mocks__/fixtures/lit_item.json';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, stat } from 'fs/promises';
 import mockManifest from '../__mocks__/testUpdateManifest/mockManifest.json';
 import del from 'del';
 
@@ -92,6 +92,15 @@ describe('createBuilder().updateManifest()', () => {
     // Reset deleted file
     await writeFile(deletedPath, testBodyText);
   });
+
+  it('does not save to manifest if there are no changes', async () => {
+    const activeDir = './__mocks__/testNoChanges';
+    const fileStats = await stat(`${activeDir}/testNoChanges.json`);
+    const builder = await getSimpleBuilder(activeDir);
+    builder.updateManifest();
+    const newFileStats = await stat(`${activeDir}/testNoChanges.json`);
+    expect(fileStats.mtimeMs).toBe(newFileStats.mtimeMs);
+  });
 });
 
 
@@ -110,8 +119,11 @@ describe('createBuilder().tryAddEntry(stories)', () => {
     const addedStory = builder._tdd.stories[2];
     await del(`${activeDir}/${addedStory.slug}.mdhtml`);
     builder._tdd.tryAddEntries(builder._tdd.stories);
-    expect(await readFile(`${activeDir}/${addedStory.slug}.mdhtml`, 'utf-8'))
-      .toBe(addedStory.body);
+    // We can't await on tryAddEntries, so we need to manually wait
+    setTimeout(async () => {
+      expect(await readFile(`${activeDir}/${addedStory.slug}.mdhtml`, 'utf-8'))
+        .toBe(addedStory.body);
+    }, 1);
   });
 });
 
