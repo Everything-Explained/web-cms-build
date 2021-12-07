@@ -1,7 +1,7 @@
 import { StoryblokResult } from "storyblok-js-client";
-import { CMSOptions } from "../../src/services/cms_core";
 import { StoryOptions } from "../../src/services/sb_core";
 import simpleData from './simple_data.json';
+import videoCatData from './videos_with_cat.json';
 
 
 
@@ -39,6 +39,13 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
   if (slugIs('test/singlepage') && page == 1) return {
     ...emptyResult,
     data: { stories: simpleData.stories }
+  };
+
+  if (slugIs('test/videos_with_categories')) return {
+    ...emptyResult,
+    data: {
+      stories: videoCatData.stories
+    }
   };
 
   if (slugIs('test/multipage')) {
