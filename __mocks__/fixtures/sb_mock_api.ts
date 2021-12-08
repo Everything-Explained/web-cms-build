@@ -41,12 +41,15 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     data: { stories: simpleData.stories }
   };
 
-  if (slugIs('test/videos_with_categories')) return {
-    ...emptyResult,
-    data: {
-      stories: videoCatData.stories
-    }
-  };
+  if (slugIs('test/videos_with_categories')) {
+    if (page > 1) return emptyResult;
+    return {
+      ...emptyResult,
+      data: {
+        stories: videoCatData.stories
+      }
+    };
+  }
 
   if (slugIs('test/multipage')) {
     const index = findIndexByPage(page, per_page);
