@@ -76,7 +76,7 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEn
 
   const stories = resp.data.stories;
   if (stories.length) {
-    if (!page) return stories;
+    if (!page || stories.length < opt.per_page) return stories;
     opt.stories.push(...stories);
     opt.page += 1;
     return getRawStories(opt, exec);

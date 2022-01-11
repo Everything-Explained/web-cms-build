@@ -1,0 +1,16 @@
+{
+  "spellcheckDictionary": [
+    "Storyblok",
+    "feat",
+    "Dev",
+    "Devs",
+    "prettyfier",
+    "dataset",
+    "sanitization",
+    "renderer",
+    "customizeable"
+  ],
+  "spellcheck": true,
+  "legacyEditor": false,
+  "communityThemeSortOrder": "release"
+}

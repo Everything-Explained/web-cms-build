@@ -1,0 +1,112 @@
+{
+  "main": {
+    "id": "af534dc3268bef6a",
+    "type": "split",
+    "children": [
+      {
+        "id": "d01e16cfa7eceb4e",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "process.md",
+            "mode": "preview",
+            "backlinks": false,
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "38d96c84a38aaf5d",
+    "type": "split",
+    "children": [
+      {
+        "id": "ea668efa34ea93d0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5709820fd3550faf",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "c859f1a7b78392bb",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 219.49999809265137
+  },
+  "right": {
+    "id": "7a64147733667e85",
+    "type": "split",
+    "children": [
+      {
+        "id": "64cd3cf99b239e0e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f56deb10604373e0",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "process.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "4f563832cbaad1d1",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "process.md"
+              }
+            }
+          },
+          {
+            "id": "fcf3d28f0e181299",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "active": "d01e16cfa7eceb4e",
+  "lastOpenFiles": [
+    "process.md",
+    "CMS Sanitization.md",
+    "commit_syntax.md",
+    "COMMITSYNTAX.md",
+    "PROCESS.md"
+  ]
+}

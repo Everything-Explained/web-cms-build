@@ -1,0 +1,38 @@
+[
+  {
+    "id": "rbkzASVI7wg",
+    "title": "Story One",
+    "author": "Ethan Kahn",
+    "summary": "",
+    "category": "AE",
+    "date": "2021-10-02T14:22:00.000Z",
+    "ver": "fcbdf2f033fdf"
+  },
+  {
+    "id": "RL9K0P-KnMg",
+    "title": "Story Two",
+    "author": "Vojtěch Kantor",
+    "summary": "<p>Talking about how Power can be handled in a responsible way and bringing up the example of Connor Murphy.</p>\n",
+    "category": "AF",
+    "date": "2021-06-06T13:07:07Z",
+    "ver": "6a51a1c3dc52d"
+  },
+  {
+    "id": "Zdj0jQauiwQ",
+    "title": "Story Four",
+    "author": "Ethan Kahn",
+    "summary": "",
+    "category": "AC",
+    "date": "2021-03-12T22:33:00.000Z",
+    "ver": "4df0bd7926d69"
+  },
+  {
+    "id": "KQfwneiYe4Y",
+    "title": "Story Five",
+    "author": "Vojtěch Kantor",
+    "summary": "<p>explaining the instruction - “Get what you are”</p>\n",
+    "category": "AB",
+    "date": "2021-06-23T11:30:04.000Z",
+    "ver": "144fc784af5e2"
+  }
+]
