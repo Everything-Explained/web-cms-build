@@ -1,14 +1,27 @@
 {
   "cSpell.words": [
+    "AEIMQU",
+    "datetime",
+    "deflist",
+    "doesnotexist",
+    "Jaeiya",
+    "lact",
+    "linkify",
+    "lnfo",
+    "lwarn",
+    "mdhtml",
+    "mozallowfullscreen",
+    "multipage",
+    "nocookie",
+    "noopener",
+    "singlepage",
     "Storyblok",
-    "datetime"
+    "webkitallowfullscreen",
+    "Ycgkosw"
   ],
   "workbench.colorCustomizations": {
     "editorInlayHint.background": "#49463f",
     "editorInlayHint.foreground": "#d4d0c1",
-    "activityBar.background": "#302E0F",
-    "titleBar.activeBackground": "#444115",
-    "titleBar.activeForeground": "#FBFBF3"
   },
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }

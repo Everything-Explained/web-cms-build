@@ -1,6 +1,7 @@
-/* eslint-disable no-constant-condition */
+
 import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
+import { toShortHash } from '../utilities';
 import { useMarkdown } from './markdown/md_core';
 import { StoryOptions, StoryEntry, StorySortString } from './sb_core';
 
@@ -18,24 +19,24 @@ export interface CMSData extends CMSEntry {
   date: ISODateString;
 }
 
-export interface CMSEntry {
+interface PartialCMSEntry {
   /** Story ID or Custom ID */
   id         : string|number;
   title      : string;
   author     : string;
   summary   ?: string;
-  body       : string;
+  body      ?: string;
   /** Video Category */
   category  ?: string;
   /** Video Timestamp */
   timestamp ?: ISODateString;
-  /**
-   * Should default to the most relevant date
-   * property of the content
-   */
+  /** Should default to the most relevant date property of the content */
   date       : ISODateString;
-  /** Needed for filename */
-  slug       : string;
+}
+
+export interface CMSEntry extends PartialCMSEntry {
+  /** A hash of all the Entry's data, excluding this property. */
+  hash       : string;
 }
 
 export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
@@ -51,14 +52,14 @@ export function useCMS() {
   return {
     getContent,
     getRawStories,
-    sanitizeStory,
+    toCMSEntry,
   };
 }
 
 
 async function getContent(opt: CMSOptions, exec: CMSGetFunc) {
   const stories = await getRawStories(opt, exec);
-  return stories.map(sanitizeStory);
+  return stories.map(toCMSEntry);
 }
 
 
@@ -68,7 +69,7 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEn
   opt.stories  = opt.stories  || [];
 
   if (opt.per_page > 100)
-    throw Error('getStorites()::Max stories "per_page" is 100')
+    throw Error('getStories()::Max stories "per_page" is 100')
   ;
 
   const { starts_with, version, sort_by, page, per_page } = opt;
@@ -90,21 +91,20 @@ async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEn
 }
 
 
-function sanitizeStory(story: StoryEntry) {
+function toCMSEntry(story: StoryEntry): CMSEntry {
   const { first_published_at, created_at } = story;
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';
-  const cmsContent: CMSEntry = {
+  const pCMSEntry: PartialCMSEntry = {
     id: story.content.id || story.id, // Videos have content.id
     title,
     author,
-    body: body ? md.render(body) : '',
     date: timestamp || first_published_at || created_at,
-    slug: slugify(title)
   };
-  if (summary || story.content.id) cmsContent.summary = summary ?? md.render(body);
-  if (category && category != categoryNone) cmsContent.category = category;
-  return cmsContent;
+  if (summary) pCMSEntry.summary = md.renderInline(summary);
+  if (body) pCMSEntry.body = md.render(body);
+  if (category && category != categoryNone) pCMSEntry.category = category;
+  return { ...pCMSEntry, hash: toShortHash(pCMSEntry) };
 }
 
 

@@ -1,15 +1,14 @@
-import { createBuilder, toManifestEntry, toMd4hash, toShortHash, tryCatch, tryGetJSONFromFile } from "../src/build";
+import { createBuilder, toManifestEntry } from "../src/build";
 import { CMSOptions, slugify, useCMS } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
-import litItem from '../__mocks__/fixtures/lit_item.json';
 import { readFile, writeFile, stat } from 'fs/promises';
 import mockManifest from '../__mocks__/testUpdateManifest/mockManifest.json';
 import del from 'del';
+import { toShortHash, tryCatchAsync } from "../src/utilities";
 
 
 const cms              = useCMS();
 const mockAPI          = useMockStoryblokAPI();
-const litItemPath      = './__mocks__/fixtures/lit_item.json';
 
 
 function toStoryBlokOpts(slug: string, page?: number, per_page?: number) {
@@ -84,7 +83,7 @@ describe('createBuilder().updateManifest()', () => {
     expect((await readFile(`${changedEntryPath}`, 'utf-8'))).not.toBe(testBodyText);
     const newBuilder = await getMultipageBuilder(activeDir);
     // New entry added to manifest and deleted entry has been removed
-    expect(newBuilder._tdd.manifest[2].ver).toBe('7fd7fdb409fcc');
+    expect(newBuilder._tdd.manifest[2].hash).toBe('28649410a71f2');
     // Entry to delete has been deleted
     await readFile(deletedPath)
       .then((res) => { throw Error(`file not deleted: ${res}`); })
@@ -110,18 +109,20 @@ describe('createBuilder().tryAddEntry(stories)', () => {
     const builder = await getMultipageBuilder(activeDir);
     const addedStory = builder._tdd.stories[2];
     expect(builder._tdd.tryAddEntries(builder._tdd.stories)).toBe(true);
-    await del(`${activeDir}/${addedStory.slug}.mdhtml`);
+    const fileName = slugify(addedStory.title);
+    await del(`${activeDir}/${fileName}.mdhtml`);
   });
 
   it('saves entry body to file when an entry is added', async () => {
     const activeDir = './__mocks__/testAddEntry/testAddition';
     const builder = await getMultipageBuilder(activeDir);
     const addedStory = builder._tdd.stories[2];
-    await del(`${activeDir}/${addedStory.slug}.mdhtml`);
+    const fileName = slugify(addedStory.title);
+    await del(`${activeDir}/${fileName}.mdhtml`);
     builder._tdd.tryAddEntries(builder._tdd.stories);
     // We can't await on tryAddEntries, so we need to manually wait
     setTimeout(async () => {
-      expect(await readFile(`${activeDir}/${addedStory.slug}.mdhtml`, 'utf-8'))
+      expect(await readFile(`${activeDir}/${fileName}.mdhtml`, 'utf-8'))
         .toBe(addedStory.body);
     }, 1);
   });
@@ -168,10 +169,12 @@ describe('createBuilder().tryUpdateEntries(stories)', () => {
   it('overwrites entry file if changes occurred', async () => {
     const pathTestChangedEntry = './__mocks__/testChangedEntry/testOverwrite';
     const builder = await getSimpleBuilder(pathTestChangedEntry);
-    const oldStory = { ...builder._tdd.stories[0], body: 'This is some body text' };
-    const oldEntry = toManifestEntry(oldStory);
+    const { id, title, author, summary, date } = builder._tdd.stories[0];
+    const oldStory = { id, title, author, summary, body: 'This is some body text', date };
+    const oldEntry = { ...oldStory, hash: toShortHash(oldStory) };
     await writeFile(`${pathTestChangedEntry}/testOverwrite.json`, JSON.stringify([oldEntry], null, 2));
-    const body = await readFile(`${pathTestChangedEntry}/${oldStory.slug}.mdhtml`, 'utf8');
+    const fileName = slugify(oldStory.title);
+    const body = await readFile(`${pathTestChangedEntry}/${fileName}.mdhtml`, 'utf8');
     expect(builder._tdd.tryUpdateEntries(builder._tdd.stories)).toBe(true);
     expect(body).toBe(builder._tdd.stories[0].body);
   });
@@ -201,7 +204,7 @@ describe('createBuilder().saveBodyToFile(entry)', () => {
 
 describe('createBuilder().deleteFile(filename)', () => {
   const pathDeleteFile = './__mocks__/deleteFile';
-  it('deletes the specified filename from the internal buildpath', async () => {
+  it('deletes the specified filename from the internal build path', async () => {
     const builder = await getSimpleBuilder(pathDeleteFile);
     const deleteFile = builder._tdd.deleteFile;
     const buildPath = builder._tdd.buildPath;
@@ -272,7 +275,7 @@ describe('toManifestEntry(story)', () => {
           title   : 'A New Lit Post that contains an Image',
           author  : 'Jaeiya',
           date    : '2021-09-04T20:19:21.969Z',
-          ver     : 'f73c556beff41'
+          hash     : '2c6181fe83007'
         };
         const entry = toManifestEntry(res[0]);
         expect(entry).toEqual(validEntry);
@@ -280,21 +283,6 @@ describe('toManifestEntry(story)', () => {
       })
       .catch(done);
   });
-});
-
-
-describe('tryGetJSONFromFile<T>(path)', () => {
-  it('reads a file and returns a JSON object on success', async () => {
-    const resp = await tryGetJSONFromFile<typeof litItem>(litItemPath);
-    if (resp) {
-      expect(resp.name).toBe('Literature Item 1');
-    }
-  });
-
-  it('throws an error if promise rejects', async () => {
-    await expect(() => tryGetJSONFromFile('test/path.json')).rejects.toThrow();
-  });
-
 });
 
 
@@ -319,24 +307,16 @@ describe('toShortHash(data)', () => {
 });
 
 
-describe('toMd4hash(str)', () => {
-  it('returns an md4 hash of a str', () => {
-    const hash = toMd4hash('hello world');
-    expect(hash).toBe('d7712b222699d243d3b22f39e020a796');
-  });
-});
-
-
 describe('tryCatch<T>(promise<T>)', () => {
   it('returns data from promise if promise does NOT throw error', async () => {
     const okPromise = Promise.resolve(true);
-    const resp = await tryCatch(okPromise);
+    const resp = await tryCatchAsync(okPromise);
     expect(resp).toBe(true);
   });
 
   it ('returns Error if promise throws an Error', async () => {
     const badPromise = new Promise(() => { throw Error('test'); });
-    const resp = await tryCatch(badPromise);
+    const resp = await tryCatchAsync(badPromise);
     expect(resp instanceof Error).toBe(true);
   });
 });

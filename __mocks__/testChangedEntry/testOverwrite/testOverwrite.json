@@ -1,10 +1,11 @@
 [
   {
     "id": 69866748,
-    "summary": "This is a fake summary for the purpose of testing",
     "title": "A New Lit Post that contains an Image",
     "author": "Jaeiya",
+    "summary": "This is a fake summary for the purpose of testing",
+    "body": "This is some body text",
     "date": "2021-09-04T20:19:21.969Z",
-    "ver": "f7322fbabfdbb"
+    "hash": "7db7b43b92416"
   }
 ]

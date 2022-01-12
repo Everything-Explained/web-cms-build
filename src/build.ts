@@ -2,10 +2,12 @@ import { CMSEntry, CMSGetFunc, slugify, toCMSOptions, useCMS } from "./services/
 import { writeFile, readFile, unlink, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
 import { createHmac }                   from 'crypto';
-import { map, pipe, forEach, is, both }  from "ramda";
+import { map, pipe, forEach, is, both, sum }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
+import { toShortHash, truncateStr, tryCatchAsync } from "./utilities";
+import { state } from "./state";
 
 
 
@@ -17,7 +19,7 @@ type ManifestEntry = {
 	category ?: string;         // AA, AB, AC...
 	summary  ?: string;
 	date      : ISODateString;  // content.timestamp || first_published_at || created_at
-	ver       : string;
+	hash      : string;
 }
 
 type Manifest = ManifestEntry[];
@@ -27,15 +29,25 @@ type ObjWithID = {
   [key: string]: any;
 }
 
-interface BuildOptions {
+export interface BuildOptions {
+  /** CDN Root Slug */
   url         : string;
+  /** CDN Resource Name */
   starts_with : string;
+  /** Path to build files */
   filesPath   : string;
   logging?    : boolean;
+  /** CMS get function to use */
   exec        : CMSGetFunc;
 }
 
+/** Console Colors */
+const cc = console_colors;
 
+
+/////////////////////////////////////
+// TODO: Add "sort_by" to options
+/////////////////////////////////////
 export async function createBuilder(options: BuildOptions) {
   const { url, filesPath, exec, logging, starts_with } = options;
   const buildPath        = pathResolve(filesPath);
@@ -46,7 +58,8 @@ export async function createBuilder(options: BuildOptions) {
   lnfo('init', `Setting up Builder for ${cc.gy(buildPath)}`);
 
   const stories          = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
-  const resp             = await tryCatch(access(`${buildPath}/${manifestFileName}.json`));
+  const resp             = await tryCatchAsync(access(`${buildPath}/${manifestFileName}.json`));
+  const isENOENT         = (err: Error) => err.message.includes('ENOENT');
   const manifest         =
     both(is(Error), isENOENT)(resp)
       ? await initManifest(stories)
@@ -112,7 +125,7 @@ export async function createBuilder(options: BuildOptions) {
     for (const story of stories) {
       const entry = manifest.find(hasSameID(story));
       if (!entry) continue;
-      if (entry.ver == toShortHash(story)) continue;
+      if (entry.hash == story.hash) continue;
       lnfo('upd', `${cc.yw('(')}${cc.gy(`${entry.hash} ${cc.yw('=>')} ${story.hash}`)}${cc.yw(')')}/${story.title}`);
       hasUpdated = true;
       // We don't know if body changed
@@ -188,15 +201,9 @@ export async function createBuilder(options: BuildOptions) {
 
 
 export function toManifestEntry(story: CMSEntry) {
-  const { summary, title, author, date, id } = story;
-  const entry: ManifestEntry = {
-    id,
-    summary,
-    title,
-    author,
-    date,
-    ver: toShortHash(story)
-  };
+  const { id, title, author, date, hash, summary } = story;
+  const entry: ManifestEntry = { id, title, author, summary, hash, date, };
+  if (!summary) delete entry.summary;
   return entry;
 }
 
