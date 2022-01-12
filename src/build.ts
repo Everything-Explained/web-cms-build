@@ -5,6 +5,7 @@ import { createHmac }                   from 'crypto';
 import { map, pipe, forEach, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
+import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
 
 
 
@@ -40,7 +41,9 @@ export async function createBuilder(options: BuildOptions) {
   const buildPath        = pathResolve(filesPath);
   const manifestFileName = pathBasename(buildPath);
 
-  log(`[INIT]: Setting up Builder for ${buildPath}`);
+  state.logger.active = logging ?? true;
+
+  lnfo('init', `Setting up Builder for ${cc.gy(buildPath)}`);
 
   const stories          = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
   const resp             = await tryCatch(access(`${buildPath}/${manifestFileName}.json`));
@@ -86,7 +89,8 @@ export async function createBuilder(options: BuildOptions) {
     let hasAdded = false;
     for (const story of stories) {
       if (manifest.find(hasSameID(story))) continue;
-      log(`[ADD]: ${story.title}`), hasAdded = true;
+      lnfo('add', `${cc.gy(toShortHash(story))}/${story.title}`);
+      hasAdded = true;
       saveBodyToFile(story);
     }
     return hasAdded;
@@ -96,8 +100,9 @@ export async function createBuilder(options: BuildOptions) {
     let hasDeleted = false;
     for (const entry of manifest!) {
       if (stories.find(hasSameID(entry))) continue;
+      lwarn('omit', `${cc.gy(entry.hash)}/${entry.title}`);
+      hasDeleted = true;
       deleteFile(`${slugify(entry.title)}.mdhtml`);
-      log(`[DEL]: ${entry.title}`), hasDeleted = true;
     }
     return hasDeleted;
   }
@@ -108,26 +113,29 @@ export async function createBuilder(options: BuildOptions) {
       const entry = manifest.find(hasSameID(story));
       if (!entry) continue;
       if (entry.ver == toShortHash(story)) continue;
+      lnfo('upd', `${cc.yw('(')}${cc.gy(`${entry.hash} ${cc.yw('=>')} ${story.hash}`)}${cc.yw(')')}/${story.title}`);
+      hasUpdated = true;
       // We don't know if body changed
       saveBodyToFile(story);
-      log(`[UPD]: ${story.title}`), hasUpdated = true;
     }
     return hasUpdated;
   }
 
   async function saveBodyToFile(entry: CMSEntry) {
-    log(`[CREATE]: ${entry.slug}`);
-    await writeFile(`${buildPath}/${entry.slug}.mdhtml`, entry.body);
+    const fileNameWithExt = `${slugify(entry.title)}.mdhtml`;
+    lact('create', `${cc.gy(`/${pathBasename(buildPath)}/`)}${fileNameWithExt}`);
+    await writeFile(`${buildPath}/${fileNameWithExt}`, entry.body!);
   }
 
   function deleteFile(filename: string) {
+    lwarn('delete', `${cc.gy(`/${pathBasename(buildPath)}/`)}${filename}`);
     return unlink(`${buildPath}/${filename}`);
   }
 
   function saveAsJSON(fileName: string) {
     return async <T>(data: T) => {
       const filePath = `${buildPath}/${fileName}`;
-      log(`[SAVE]: ${fileName}`);
+      lact('create', `${cc.gy(`/${pathBasename(buildPath)}/`)}${fileName}`);
       await writeFile(
         filePath,
         JSON.stringify(data, null, 2), { encoding: 'utf-8' }
@@ -139,7 +147,7 @@ export async function createBuilder(options: BuildOptions) {
   function createDir(data: any) {
     try {
       mkdirSync(buildPath);
-      log(`[DIR]: /${pathBasename(buildPath)}`);
+      lact('create', cc.gy(`/${pathBasename(buildPath)}`));
       return data;
     }
     catch (e) {
@@ -148,10 +156,6 @@ export async function createBuilder(options: BuildOptions) {
       ;
       throw e;
     }
-  }
-
-  function isENOENT(e: Error) {
-    return e.message.includes('ENOENT');
   }
 
   function hasSameID(o1: ObjWithID) {
@@ -183,8 +187,6 @@ export async function createBuilder(options: BuildOptions) {
 }
 
 
-
-
 export function toManifestEntry(story: CMSEntry) {
   const { summary, title, author, date, id } = story;
   const entry: ManifestEntry = {
@@ -199,38 +201,7 @@ export function toManifestEntry(story: CMSEntry) {
 }
 
 
-export async function tryGetJSONFromFile<T>(path: string) {
-  const resp = await tryCatch(readFile(path, { encoding: 'utf-8' }));
-  if (resp instanceof Error) throw resp;
-  return JSON.parse(resp) as T;
-}
 
-
-export function toShortHash(data: any) {
-  const truncateTo10Chars = (str: string) => str.substring(0, 13);
-  return pipe(
-    JSON.stringify,
-    toMd4hash,
-    truncateTo10Chars,
-  )(data);
-}
-
-
-export function toMd4hash(str: string) {
-  const secret = 'EvEx1337';
-  return createHmac('md4', secret).update(str).digest('hex');
-}
-
-
-export async function tryCatch<T>(p: Promise<T>): Promise<T|Error> {
-  try {
-    const data = await p;
-    return data;
-  }
-  catch (e) {
-    return Error((e as Error).message);
-  }
-}
 
 
 
