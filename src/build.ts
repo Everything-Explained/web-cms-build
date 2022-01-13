@@ -1,4 +1,4 @@
-import { CMSEntry, CMSGetFunc, slugify, toCMSOptions, useCMS } from "./services/cms_core";
+import { CMSEntry, CMSGetFunc, toCMSOptions, useCMS } from "./services/cms_core";
 import { writeFile, readFile, unlink, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
 import { createHmac }                   from 'crypto';
@@ -6,7 +6,7 @@ import { map, pipe, forEach, is, both, sum }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
-import { toShortHash, truncateStr, tryCatchAsync } from "./utilities";
+import { slugify, toShortHash, truncateStr, tryCatchAsync } from "./utilities";
 import { state } from "./state";
 
 

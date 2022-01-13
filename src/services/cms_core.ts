@@ -108,17 +108,6 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
 }
 
 
-export function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/\s/g, '-')
-    .replace(/α/g, 'a') // Greek Alpha
-    .replace(/β/g, 'b') // Greek Beta
-    .replace(/[^a-z0-9-]+/g, '')
-  ;
-}
-
-
 export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
   return {
     url,

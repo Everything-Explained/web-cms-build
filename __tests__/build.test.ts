@@ -1,10 +1,10 @@
 import { createBuilder, toManifestEntry } from "../src/build";
-import { CMSOptions, slugify, useCMS } from "../src/services/cms_core";
+import { CMSOptions, useCMS } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import { readFile, writeFile, stat } from 'fs/promises';
 import mockManifest from '../__mocks__/testUpdateManifest/mockManifest.json';
 import del from 'del';
-import { toShortHash, tryCatchAsync } from "../src/utilities";
+import { slugify, toShortHash, tryCatchAsync } from "../src/utilities";
 
 
 const cms              = useCMS();
