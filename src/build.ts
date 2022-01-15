@@ -1,14 +1,11 @@
 import { CMSEntry, CMSGetFunc, toCMSOptions, useCMS } from "./services/cms_core";
-import { writeFile, readFile, unlink, access }  from 'fs/promises';
+import { writeFile, readFile, access }  from 'fs/promises';
 import { mkdirSync }                    from 'fs';
-import { createHmac }                   from 'crypto';
-import { map, pipe, forEach, is, both, sum }  from "ramda";
+import { pipe, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
-import { slugify, toShortHash, truncateStr, tryCatchAsync } from "./utilities";
-import { state } from "./state";
-
+import { hasSameID, tryCatchAsync } from "./utilities";
 
 
 
@@ -24,188 +21,165 @@ type ManifestEntry = {
 
 type Manifest = ManifestEntry[];
 
-type ObjWithID = {
-  id: string|number;
-  [key: string]: any;
-}
 
+// TODO - add sort_by option
 export interface BuildOptions {
   /** CDN Root Slug */
-  url         : string;
+  url           : string;
   /** CDN Resource Name */
-  starts_with : string;
-  /** Path to build files */
-  filesPath   : string;
-  logging?    : boolean;
+  starts_with   : string;
+  /** Path to build manifest */
+  filesPath     : string;
+  /** Will overwrite default manifest file name. */
+  manifestName? : string;
   /** CMS get function to use */
-  exec        : CMSGetFunc;
+  exec          : CMSGetFunc;
+  /** Callback when an entry is deleted. */
+  onDelete?     : (entry: CMSEntry) => void;
+  /** Callback when an entry is updated. */
+  onUpdate?     : (entry: CMSEntry) => void;
+  /** Callback when an entry is Added. */
+  onAdd?        : (entry: CMSEntry) => void;
 }
 
 /** Console Colors */
 const cc = console_colors;
 
 
-/////////////////////////////////////
-// TODO: Add "sort_by" to options
-/////////////////////////////////////
-export async function createBuilder(options: BuildOptions) {
-  const { url, filesPath, exec, logging, starts_with } = options;
+export async function buildManifest(options: BuildOptions) {
+  const { url, filesPath, exec, starts_with } = options;
   const buildPath        = pathResolve(filesPath);
-  const manifestFileName = pathBasename(buildPath);
+  const manifestFileName = options.manifestName ?? pathBasename(buildPath);
 
-  state.logger.active = logging ?? true;
-
-  lnfo('init', `Setting up Builder for ${cc.gy(buildPath)}`);
-
-  const stories          = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
+  const latestEntries    = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
   const resp             = await tryCatchAsync(access(`${buildPath}/${manifestFileName}.json`));
   const isENOENT         = (err: Error) => err.message.includes('ENOENT');
-  const manifest         =
+  const oldEntries =
     both(is(Error), isENOENT)(resp)
-      ? await initManifest(stories)
-      : await getManifest()
+      ? await initManifest(latestEntries, buildPath, manifestFileName)
+      : await getManifest(buildPath, manifestFileName)
   ;
-
-  function updateManifest() {
-    const hasChanged = (stories: CMSEntry[]) => {
-      const funcArray = [
-        tryAddEntries,
-        tryDeleteEntries,
-        tryUpdateEntries
-      ];
-      return funcArray.map(func => func(stories)).includes(true);
-    };
-    if (hasChanged(stories)) saveAsManifest(stories);
-  }
-
-  async function getManifest() {
-    const file = await readFile(`${buildPath}/${manifestFileName}.json`, 'utf-8');
-    return JSON.parse(file) as Manifest;
-  }
-
-  function initManifest(stories: CMSEntry[]) {
-    return pipe(
-      createDir,
-      forEach(saveBodyToFile),
-      saveAsManifest
-    )(stories);
-  }
-
-  function saveAsManifest(stories: CMSEntry[]) {
-    return pipe(
-      map(toManifestEntry),
-      saveAsJSON(`${manifestFileName}.json`),
-    )(stories);
-  }
-
-  function tryAddEntries(stories: CMSEntry[]) {
-    let hasAdded = false;
-    for (const story of stories) {
-      if (manifest.find(hasSameID(story))) continue;
-      lnfo('add', `${cc.gy(toShortHash(story))}/${story.title}`);
-      hasAdded = true;
-      saveBodyToFile(story);
-    }
-    return hasAdded;
-  }
-
-  function tryDeleteEntries(stories: CMSEntry[]) {
-    let hasDeleted = false;
-    for (const entry of manifest!) {
-      if (stories.find(hasSameID(entry))) continue;
-      lwarn('omit', `${cc.gy(entry.hash)}/${entry.title}`);
-      hasDeleted = true;
-      deleteFile(`${slugify(entry.title)}.mdhtml`);
-    }
-    return hasDeleted;
-  }
-
-  function tryUpdateEntries(stories: CMSEntry[]) {
-    let hasUpdated = false;
-    for (const story of stories) {
-      const entry = manifest.find(hasSameID(story));
-      if (!entry) continue;
-      if (entry.hash == story.hash) continue;
-      lnfo('upd', `${cc.yw('(')}${cc.gy(`${entry.hash} ${cc.yw('=>')} ${story.hash}`)}${cc.yw(')')}/${story.title}`);
-      hasUpdated = true;
-      // We don't know if body changed
-      saveBodyToFile(story);
-    }
-    return hasUpdated;
-  }
-
-  async function saveBodyToFile(entry: CMSEntry) {
-    const fileNameWithExt = `${slugify(entry.title)}.mdhtml`;
-    lact('create', `${cc.gy(`/${pathBasename(buildPath)}/`)}${fileNameWithExt}`);
-    await writeFile(`${buildPath}/${fileNameWithExt}`, entry.body!);
-  }
-
-  function deleteFile(filename: string) {
-    lwarn('delete', `${cc.gy(`/${pathBasename(buildPath)}/`)}${filename}`);
-    return unlink(`${buildPath}/${filename}`);
-  }
-
-  function saveAsJSON(fileName: string) {
-    return async <T>(data: T) => {
-      const filePath = `${buildPath}/${fileName}`;
-      lact('create', `${cc.gy(`/${pathBasename(buildPath)}/`)}${fileName}`);
-      await writeFile(
-        filePath,
-        JSON.stringify(data, null, 2), { encoding: 'utf-8' }
-      );
-      return data;
-    };
-  }
-
-  function createDir(data: any) {
-    try {
-      mkdirSync(buildPath);
-      lact('create', cc.gy(`/${pathBasename(buildPath)}`));
-      return data;
-    }
-    catch (e) {
-      if ((e as Error).message.includes('EEXIST'))
-        return data
-      ;
-      throw e;
-    }
-  }
-
-  function hasSameID(o1: ObjWithID) {
-    return (o2: ObjWithID) => o1.id == o2.id;
-  }
-
-  function log(...msg: any[]) {
-    if (logging ?? true) console.log(...msg);
-  }
-
-  return {
-    updateManifest,
-    _tdd: {
-      buildPath,
-      manifestFileName,
-      manifest,
-      stories,
-      logging,
-      tryAddEntries,
-      tryDeleteEntries,
-      tryUpdateEntries,
-      saveBodyToFile,
-      deleteFile,
-      saveAsJSON,
-      hasSameID,
-      createDir,
-    }
-  };
+  const detectionFuncs = [
+    detectAddedEntries(options.onAdd),
+    detectUpdatedEntries(options.onUpdate),
+    detectDeletedEntries(options.onDelete),
+  ];
+  const hasUpdatedEntries =
+    () => detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
+  ;
+  if (hasUpdatedEntries()) saveAsManifest(buildPath, manifestFileName)(latestEntries);
 }
 
 
-export function toManifestEntry(story: CMSEntry) {
-  const { id, title, author, date, hash, summary } = story;
+function initManifest(entries: CMSEntry[], path: string, fileName: string) {
+  return pipe(
+    tryCreateDir(path),
+    // forEach(saveBodyToFile),
+    saveAsManifest(path, fileName)
+  )(entries);
+}
+
+async function getManifest(path: string, fileName: string) {
+  const file = await readFile(`${path}/${fileName}.json`, 'utf-8');
+  return JSON.parse(file) as Manifest;
+}
+
+
+function tryCreateDir(path: string) {
+  try {
+    mkdirSync(path);
+    lact('create', cc.gy(`/${pathBasename(path)}`));
+    return (data: any) => data;
+  }
+  catch (e) {
+    if ((e as Error).message.includes('EEXIST'))
+      return (data: any) => data
+    ;
+    throw e;
+  }
+}
+
+
+function saveAsManifest(path: string, fileName: string) {
+  return (entries: CMSEntry[]) =>
+    saveAsJSON(path, fileName)(entries.map(toManifestEntry))
+  ;
+}
+
+export function toManifestEntry(newEntry: CMSEntry) {
+  const { id, title, author, date, hash, summary } = newEntry;
   const entry: ManifestEntry = { id, title, author, summary, hash, date, };
   if (!summary) delete entry.summary;
   return entry;
 }
+
+
+function saveAsJSON(path: string, fileName: string) {
+  return async <T>(data: T) => {
+    const filePath = `${path}/${fileName}.json`;
+    lact('create', `${cc.gy(`/${pathBasename(path)}/`)}${fileName}.json`);
+    await writeFile(
+      filePath,
+      JSON.stringify(data, null, 2), { encoding: 'utf-8' }
+    );
+    return data;
+  };
+}
+
+
+function detectAddedEntries(onAddEntries?: (entry: CMSEntry) => void) {
+  return (oldEntries: ManifestEntry[], latestEntries: CMSEntry[]) => {
+    let hasAdded = false;
+    for (const newEntry of latestEntries) {
+      if (!oldEntries.find(hasSameID(newEntry))) {
+        lnfo('add', `${cc.gy(newEntry.hash)}/${newEntry.title}`);
+        hasAdded = true;
+        onAddEntries && onAddEntries(newEntry);
+        // saveBodyToFile(cmsEntry);
+      }
+    }
+    return hasAdded;
+  };
+}
+
+
+function detectDeletedEntries(onDelete?: (newEntry: CMSEntry) => void) {
+  return (oldEntries: ManifestEntry[], latestEntries: CMSEntry[]) => {
+    let hasDeleted = false;
+    for (const oldEntry of oldEntries) {
+      if (!latestEntries.find(hasSameID(oldEntry))) {
+        lwarn('omit', `${cc.gy(oldEntry.hash)}/${oldEntry.title}`);
+        onDelete && onDelete(oldEntry);
+        hasDeleted = true;
+        // deleteFile(`${slugify(entry.title)}.mdhtml`);
+      }
+    }
+    return hasDeleted;
+  };
+}
+
+
+function detectUpdatedEntries(onUpdate?: (newEntry: CMSEntry) => void) {
+  return (oldEntries: ManifestEntry[], latestEntries: CMSEntry[]) => {
+    let hasUpdated = false;
+    for (const newEntry of latestEntries) {
+      const oldEntry = oldEntries.find(hasSameID(newEntry));
+      if (oldEntry && oldEntry.hash != newEntry.hash) {
+        lnfo('upd',
+          `${cc.yw('(')}${cc.gy(`${oldEntry.hash} ${cc.yw('=>')} ${newEntry.hash}`)}`
+          +`${cc.yw(')')}/${newEntry.title}`
+        );
+        onUpdate && onUpdate(newEntry);
+        hasUpdated = true;
+        // saveBodyToFile(story);
+      }
+    }
+    return hasUpdated;
+  };
+}
+
+
+
 
 
 

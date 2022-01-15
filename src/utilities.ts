@@ -2,7 +2,10 @@ import { createHmac } from "crypto";
 import { mkdirSync } from "fs";
 import { pipe } from "ramda";
 
-
+interface ObjWithID {
+  id: string|number;
+  [key: string]: any;
+}
 
 
 export function tryCreateDir(path: string) {
@@ -57,6 +60,10 @@ export function toShortHash(data: any) {
     toMd4Hash,
     truncateStr(13),
   )(data);
+}
+
+export function hasSameID(o1: ObjWithID) {
+  return (o2: ObjWithID) => o1.id == o2.id;
 }
 
 
