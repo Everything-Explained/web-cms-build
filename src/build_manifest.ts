@@ -5,7 +5,7 @@ import { pipe, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
-import { hasSameID, tryCatchAsync } from "./utilities";
+import { hasSameID, isENOENT, setIfInDev, tryCatchAsync } from "./utilities";
 
 
 
@@ -34,11 +34,11 @@ export interface BuildOptions {
   manifestName? : string;
   /** CMS get function to use */
   exec          : CMSGetFunc;
-  /** Callback when an entry is deleted. */
+  /** Callback when an entry has been deleted. */
   onDelete?     : (entry: CMSEntry) => void;
-  /** Callback when an entry is updated. */
+  /** Callback when an entry has been updated. */
   onUpdate?     : (entry: CMSEntry) => void;
-  /** Callback when an entry is Added. */
+  /** Callback when an entry has been Added. */
   onAdd?        : (entry: CMSEntry) => void;
 }
 
@@ -48,26 +48,42 @@ const cc = console_colors;
 
 export async function buildManifest(options: BuildOptions) {
   const { url, filesPath, exec, starts_with } = options;
-  const buildPath        = pathResolve(filesPath);
-  const manifestFileName = options.manifestName ?? pathBasename(buildPath);
+  const buildPath = pathResolve(filesPath);
+  const fileName = options.manifestName ?? pathBasename(buildPath);
 
-  const latestEntries    = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
-  const resp             = await tryCatchAsync(access(`${buildPath}/${manifestFileName}.json`));
-  const isENOENT         = (err: Error) => err.message.includes('ENOENT');
-  const oldEntries =
-    both(is(Error), isENOENT)(resp)
-      ? await initManifest(latestEntries, buildPath, manifestFileName)
-      : await getManifest(buildPath, manifestFileName)
-  ;
+  const latestEntries  = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
+  const oldEntries     = await getManifestEntries(latestEntries, buildPath, fileName);
   const detectionFuncs = [
     detectAddedEntries(options.onAdd),
     detectUpdatedEntries(options.onUpdate),
     detectDeletedEntries(options.onDelete),
   ];
   const hasUpdatedEntries =
-    () => detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
+    detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
   ;
-  if (hasUpdatedEntries()) saveAsManifest(buildPath, manifestFileName)(latestEntries);
+  if (hasUpdatedEntries) saveAsManifest(buildPath, fileName)(latestEntries);
+}
+
+
+export const _tdd_buildManifest = setIfInDev({
+  initManifest,
+  getManifest,
+  tryCreateDir,
+  saveAsManifest,
+  toManifestEntry,
+  saveAsJSON,
+  detectAddedEntries,
+  detectDeletedEntries,
+  detectUpdatedEntries,
+});
+
+
+export async function getManifestEntries(latestEntries: CMSEntry[], path: string, fileName: string) {
+  const resp = await tryCatchAsync(access(`${path}/${fileName}.json`));
+  return both(is(Error), isENOENT)(resp)
+    ? await initManifest(latestEntries, path, fileName)
+    : await getManifest(path, fileName)
+  ;
 }
 
 

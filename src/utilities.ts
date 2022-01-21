@@ -67,3 +67,14 @@ export function hasSameID(o1: ObjWithID) {
 }
 
 
+/** Return data if environment is set to development */
+export function setIfInDev<T>(data: T) {
+  return (process.env.NODE_ENV == 'production') ? null : data;
+}
+
+
+export function isENOENT(err: Error) {
+  return err.message.includes('ENOENT');
+}
+
+
