@@ -67,7 +67,7 @@ export async function buildManifest(options: BuildOptions) {
 
 export const _tdd_buildManifest = setIfInDev({
   initManifest,
-  getManifest,
+  readManifestFile,
   tryCreateDir,
   saveAsManifest,
   toManifestEntry,
@@ -82,7 +82,7 @@ export async function getManifestEntries(latestEntries: CMSEntry[], path: string
   const resp = await tryCatchAsync(access(`${path}/${fileName}.json`));
   return both(is(Error), isENOENT)(resp)
     ? await initManifest(latestEntries, path, fileName)
-    : await getManifest(path, fileName)
+    : await readManifestFile(path, fileName)
   ;
 }
 
@@ -95,7 +95,7 @@ function initManifest(entries: CMSEntry[], path: string, fileName: string) {
   )(entries);
 }
 
-async function getManifest(path: string, fileName: string) {
+async function readManifestFile(path: string, fileName: string) {
   const file = await readFile(`${path}/${fileName}.json`, 'utf-8');
   return JSON.parse(file) as Manifest;
 }
