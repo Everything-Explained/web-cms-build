@@ -65,20 +65,6 @@ export async function buildManifest(options: BuildOptions) {
 }
 
 
-export const _tdd_buildManifest = setIfInDev({
-  getManifestEntries,
-  initManifest,
-  readManifestFile,
-  tryCreateDir,
-  saveAsManifest,
-  toManifestEntry,
-  saveAsJSON,
-  detectAddedEntries,
-  detectDeletedEntries,
-  detectUpdatedEntries,
-});
-
-
 async function getManifestEntries(latestEntries: CMSEntry[], path: string, fileName: string) {
   const accessResponse = await tryCatchAsync(access(`${path}/${fileName}.json`));
   return both(is(Error), isENOENT)(accessResponse)
@@ -194,6 +180,25 @@ function detectUpdatedEntries(onUpdate?: (newEntry: CMSEntry) => void) {
     return hasUpdated;
   };
 }
+
+
+
+
+
+
+
+export const _tdd_buildManifest = setIfInDev({
+  getManifestEntries,
+  initManifest,
+  readManifestFile,
+  tryCreateDir,
+  saveAsManifest,
+  toManifestEntry,
+  saveAsJSON,
+  detectAddedEntries,
+  detectDeletedEntries,
+  detectUpdatedEntries,
+});
 
 
 
