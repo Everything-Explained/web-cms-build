@@ -5,7 +5,7 @@ import { pipe, is, both }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
-import { hasSameID, isENOENT, setIfInDev, tryCatchAsync } from "./utilities";
+import { hasSameID, isENOENT, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
 
 
 
@@ -82,24 +82,10 @@ function initManifest(entries: CMSEntry[], path: string, fileName: string) {
   )(entries);
 }
 
+
 async function readManifestFile(path: string, fileName: string) {
   const file = await readFile(`${path}/${fileName}.json`, 'utf-8');
   return JSON.parse(file) as Manifest;
-}
-
-
-function tryCreateDir(path: string) {
-  try {
-    mkdirSync(path);
-    lact('create', cc.gy(`/${pathBasename(path)}`));
-    return (data: any) => data;
-  }
-  catch (e) {
-    if ((e as Error).message.includes('EEXIST'))
-      return (data: any) => data
-    ;
-    throw e;
-  }
 }
 
 
@@ -108,6 +94,7 @@ function saveAsManifest(path: string, fileName: string) {
     saveAsJSON(path, fileName)(entries.map(toManifestEntry))
   ;
 }
+
 
 export function toManifestEntry(newEntry: CMSEntry) {
   const { id, title, author, date, hash, summary } = newEntry;

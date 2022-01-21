@@ -1,6 +1,11 @@
 import { createHmac } from "crypto";
 import { mkdirSync } from "fs";
+import { basename as pathBasename } from "path";
 import { pipe } from "ramda";
+import { console_colors as cc, lact } from "./lib/logger";
+
+
+
 
 interface ObjWithID {
   id: string|number;
@@ -8,19 +13,31 @@ interface ObjWithID {
 }
 
 
+
+
+export async function tryCatchAsync<T>(p: Promise<T>): Promise<T|Error> {
+  try {
+    const data = await p;
+    return data;
+  }
+  catch (e) {
+    return Error((e as Error).message);
+  }
+}
+
+
 export function tryCreateDir(path: string) {
-  return <T>(data?: T) => {
-    try {
-      mkdirSync(path);
-      return data;
-    }
-    catch (e: any) {
-      if (e.message.includes('EEXIST'))
-        return data
-      ;
-      throw e;
-    }
-  };
+  try {
+    mkdirSync(path);
+    lact('create', cc.gy(`/${pathBasename(path)}`));
+    return (data: any) => data;
+  }
+  catch (e: any) {
+    if (e.message.includes('EEXIST'))
+      return (data: any) => data
+    ;
+    throw e;
+  }
 }
 
 
@@ -35,23 +52,13 @@ export function slugify(str: string) {
 }
 
 
-export async function tryCatchAsync<T>(p: Promise<T>): Promise<T|Error> {
-  try {
-    const data = await p;
-    return data;
-  }
-  catch (e) {
-    return Error((e as Error).message);
-  }
-}
-
-
 export function truncateStr(to: number) {
   if (to <= 0)
     throw Error('truncateStr()::can only truncate to > 0')
   ;
   return (str: string) => str.substring(0, to);
 }
+
 
 export function toShortHash(data: any) {
   const toMd4Hash = (str: string) => createHmac('md4', 'EvEx1337').update(str).digest('hex');
@@ -61,6 +68,7 @@ export function toShortHash(data: any) {
     truncateStr(13),
   )(data);
 }
+
 
 export function hasSameID(o1: ObjWithID) {
   return (o2: ObjWithID) => o1.id == o2.id;
