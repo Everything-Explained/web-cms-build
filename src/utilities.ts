@@ -26,15 +26,15 @@ export async function tryCatchAsync<T>(p: Promise<T>): Promise<T|Error> {
 }
 
 
-export function tryCreateDir(path: string) {
+export function tryCreateDir<T extends unknown>(path: string) {
   try {
     mkdirSync(path);
     lact('create', cc.gy(`/${pathBasename(path)}`));
-    return (data: any) => data;
+    return (data: T) => data;
   }
   catch (e: any) {
     if (e.message.includes('EEXIST'))
-      return (data: any) => data
+      return (data: T) => data
     ;
     throw e;
   }
