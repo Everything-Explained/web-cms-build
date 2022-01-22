@@ -1,5 +1,6 @@
 import { createHmac } from "crypto";
 import { mkdirSync } from "fs";
+import { writeFile } from "fs/promises";
 import { basename as pathBasename } from "path";
 import { pipe } from "ramda";
 import { console_colors as cc, lact } from "./lib/logger";
@@ -67,6 +68,19 @@ export function toShortHash(data: any) {
     toMd4Hash,
     truncateStr(13),
   )(data);
+}
+
+
+export function saveAsJSON(path: string, fileName: string) {
+  return async <T>(data: T) => {
+    const filePath = `${path}/${fileName}.json`;
+    lact('create', `${cc.gy(`/${pathBasename(path)}/`)}${fileName}.json`);
+    await writeFile(
+      filePath,
+      JSON.stringify(data, null, 2), { encoding: 'utf-8' }
+    );
+    return data;
+  };
 }
 
 

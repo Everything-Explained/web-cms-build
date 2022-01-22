@@ -4,7 +4,8 @@ import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
-import { hasSameID, isENOENT, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
+import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
+
 
 
 
@@ -45,6 +46,9 @@ export interface BuildOptionsInternal extends BuildOptions {
   /** Set as the default manifest file name. */
   manifestName: string;
 }
+
+
+
 
 /** Console Colors */
 const cc = console_colors;
@@ -108,19 +112,6 @@ export function toManifestEntry(newEntry: CMSEntry) {
   const entry: ManifestEntry = { id, title, author, hash, date, };
   if (summary) entry.summary = summary;
   return entry;
-}
-
-
-function saveAsJSON(path: string, fileName: string) {
-  return async <T>(data: T) => {
-    const filePath = `${path}/${fileName}.json`;
-    lact('create', `${cc.gy(`/${pathBasename(path)}/`)}${fileName}.json`);
-    await writeFile(
-      filePath,
-      JSON.stringify(data, null, 2), { encoding: 'utf-8' }
-    );
-    return data;
-  };
 }
 
 
