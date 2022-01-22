@@ -1,7 +1,6 @@
 import { CMSEntry, CMSGetFunc, toCMSOptions, useCMS } from "./services/cms_core";
 import { writeFile, readFile, access }  from 'fs/promises';
-import { mkdirSync }                    from 'fs';
-import { pipe, is, both }  from "ramda";
+import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
@@ -29,7 +28,7 @@ export interface BuildOptions {
   /** CDN Resource Name */
   starts_with   : string;
   /** Path to build manifest */
-  filesPath     : string;
+  buildPath     : string;
   /** Will overwrite default manifest file name. */
   manifestName? : string;
   /** CMS get function to use */
@@ -42,43 +41,50 @@ export interface BuildOptions {
   onAdd?        : (entry: CMSEntry) => void;
 }
 
+export interface BuildOptionsInternal extends BuildOptions {
+  /** Set as the default manifest file name. */
+  manifestName: string;
+}
+
 /** Console Colors */
 const cc = console_colors;
 
 
-export async function buildManifest(options: BuildOptions) {
-  const { url, filesPath, exec, starts_with } = options;
-  const buildPath = pathResolve(filesPath);
-  const fileName = options.manifestName ?? pathBasename(buildPath);
+export async function buildManifest(opts: BuildOptions) {
+  const { url, exec, starts_with } = opts;
+  opts.buildPath = pathResolve(opts.buildPath);
+  opts.manifestName ??= pathBasename(opts.buildPath);
 
   const latestEntries  = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
-  const oldEntries     = await getManifestEntries(latestEntries, buildPath, fileName);
+  const oldEntries     = await getManifestEntries(latestEntries, opts as BuildOptionsInternal);
   const detectionFuncs = [
-    detectAddedEntries(options.onAdd),
-    detectUpdatedEntries(options.onUpdate),
-    detectDeletedEntries(options.onDelete),
+    detectAddedEntries(opts.onAdd),
+    detectUpdatedEntries(opts.onUpdate),
+    detectDeletedEntries(opts.onDelete),
   ];
   const hasUpdatedEntries =
     detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
   ;
-  if (hasUpdatedEntries) saveAsManifest(buildPath, fileName)(latestEntries);
+  if (hasUpdatedEntries) saveAsManifest(opts.buildPath, opts.manifestName)(latestEntries);
 }
 
 
-async function getManifestEntries(latestEntries: CMSEntry[], path: string, fileName: string) {
-  const accessResponse = await tryCatchAsync(access(`${path}/${fileName}.json`));
+async function getManifestEntries(latestEntries: CMSEntry[], opts: BuildOptionsInternal) {
+  const { buildPath, manifestName} = opts;
+  const accessResponse = await tryCatchAsync(access(`${buildPath}/${manifestName}.json`));
   return both(is(Error), isENOENT)(accessResponse)
-    ? await initManifest(latestEntries, path, fileName)
-    : await readManifestFile(path, fileName)
+    ? await initManifest(latestEntries, opts)
+    : await readManifestFile(buildPath, manifestName)
   ;
 }
 
 
-function initManifest(entries: CMSEntry[], path: string, fileName: string) {
+function initManifest(entries: CMSEntry[], opts: BuildOptionsInternal) {
+  const { buildPath, manifestName } = opts;
   return pipe(
-    tryCreateDir(path),
     // forEach(saveBodyToFile),
-    saveAsManifest(path, fileName)
+    tryCreateDir(opts.buildPath),
+    saveAsManifest(buildPath, manifestName)
   )(entries);
 }
 
