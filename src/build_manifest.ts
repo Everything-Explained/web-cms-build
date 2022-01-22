@@ -105,8 +105,8 @@ function saveAsManifest(path: string, fileName: string) {
 
 export function toManifestEntry(newEntry: CMSEntry) {
   const { id, title, author, date, hash, summary } = newEntry;
-  const entry: ManifestEntry = { id, title, author, summary, hash, date, };
-  if (!summary) delete entry.summary;
+  const entry: ManifestEntry = { id, title, author, hash, date, };
+  if (summary) entry.summary = summary;
   return entry;
 }
 
