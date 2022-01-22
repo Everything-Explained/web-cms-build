@@ -81,9 +81,10 @@ async function getManifestEntries(latestEntries: CMSEntry[], opts: BuildOptionsI
 
 function initManifest(entries: CMSEntry[], opts: BuildOptionsInternal) {
   const { buildPath, manifestName } = opts;
+  const emptyFunc = (e: CMSEntry) => e;
   return pipe(
-    // forEach(saveBodyToFile),
     tryCreateDir(opts.buildPath),
+    forEach<CMSEntry>(opts.onAdd ?? emptyFunc),
     saveAsManifest(buildPath, manifestName)
   )(entries);
 }
