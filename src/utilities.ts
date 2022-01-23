@@ -43,13 +43,15 @@ export function tryCreateDir<T extends unknown>(path: string) {
 
 
 export function slugify(str: string) {
-  return str
+  const slug = str
     .toLowerCase()
     .replace(/\s/g, '-')
     .replace(/α/g, 'a') // Greek Alpha
     .replace(/β/g, 'b') // Greek Beta
     .replace(/[^a-z0-9-]+/g, '')
   ;
+  if (slug.at(-1) == '-') return slug.slice(0, -1);
+  return slug;
 }
 
 
