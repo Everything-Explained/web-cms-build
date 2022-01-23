@@ -1,6 +1,7 @@
-import { CMSEntry, CMSOptions, useCMS, slugify, toCMSOptions } from "../src/services/cms_core";
+import { CMSEntry, CMSOptions, useCMS, toCMSOptions } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import litItem from '../__mocks__/fixtures/lit_item.json';
+import { slugify, tryCatchAsync } from "../src/utilities";
 
 
 const CMS = useCMS();
@@ -22,144 +23,115 @@ function toSBlokOpt(slug: string, page?: number, per_page?: number) {
 }
 
 
-describe('StoryBlokAPI.getContent()', () => {
+describe('getContent()', () => {
 
-  it('returns sanitized stories from API', done => {
-    CMS
-      .getContent(toSBlokOpt(singlePageSlug), mockAPI.get)
-      .then((data) => {
-        expect(data.length).toBe(3);
-        done();
-      })
-      .catch(done);
+  it('returns sanitized stories from API', async () => {
+    const data = await CMS.getContent(toSBlokOpt(singlePageSlug), mockAPI.get);
+    expect(data.length).toBe(3);
   });
 
-  it('returns all story pages', () => {
-    expect.assertions(1);
-    return CMS
-      .getContent(toSBlokOpt(multiPageSlug, 1, 1), mockAPI.get)
-      .then((data: CMSEntry[]) => {
-        expect(data.length).toBe(3);
-      });
+  it('returns all story pages', async () => {
+    const data = await CMS.getContent(toSBlokOpt(multiPageSlug, 1, 1), mockAPI.get);
+    expect(data.length).toBe(3);
   });
 
-  it('throws an error if no stories exist', () => {
-    expect.assertions(1);
-    return CMS
-      .getContent(toSBlokOpt('doesnotexist'), mockAPI.get)
-      .catch((e) => {
-        expect(e.message).toContain('Missing Stories From "doesnotexist"');
-      });
+  it('throws an error if no stories exist', async () => {
+    const error = await tryCatchAsync(CMS.getContent(toSBlokOpt('doesnotexist'), mockAPI.get));
+    const isError = error instanceof Error;
+    expect(isError).toBeTruthy();
+    if (isError) {
+      expect(error.message).toContain('Missing Stories From "doesnotexist"');
+    }
   });
 
-  it('throws an error if pages are set to 0 and no stories are found', () => {
-    expect.assertions(1);
-    return CMS
-      .getContent(toSBlokOpt('doesnotexist', 0), mockAPI.get)
-      .catch((e) => {
-        expect(e.message).toContain('Missing Stories From "doesnotexist"');
-      })
-    ;
+  it('throws an error if pages are set to 0 and no stories are found', async () => {
+    const error = await tryCatchAsync(CMS.getContent(toSBlokOpt('doesnotexist', 0), mockAPI.get));
+    const isError = error instanceof Error;
+    expect(isError).toBeTruthy();
+    if (isError) {
+      expect(error.message).toContain('Missing Stories From "doesnotexist"');
+    }
   });
 
-  it('throws an error if "per_page" is greater than 100', () => {
-    expect.assertions(1);
-    return CMS
-      .getContent(toSBlokOpt(singlePageSlug, 1, 101), mockAPI.get)
-      .catch((e) => {
-        expect(e.message).toContain('getStorites()::Max stories');
-      });
+  it('throws an error if "per_page" is greater than 100', async () => {
+    const error = await tryCatchAsync(CMS.getContent(toSBlokOpt(singlePageSlug, 1, 101), mockAPI.get));
+    const isError = error instanceof Error;
+    expect(isError).toBeTruthy();
+    if (isError) {
+      expect(error.message).toContain('getStories()::Max stories');
+    }
   });
 
-  it ('does NOT loop through pages when page param set to 0', () => {
-    expect.assertions(1);
-    return CMS
-      .getContent(toSBlokOpt(multiPageSlug, 0, 1), mockAPI.get)
-      .then((c: CMSEntry[]) => {
-        expect(c.length).toBe(1);
-      });
+  it ('does NOT loop through pages when page param set to 0', async () => {
+    const data = await CMS.getContent(toSBlokOpt(multiPageSlug, 0, 1), mockAPI.get);
+    expect(data.length).toBe(1);
   });
 });
 
 
 
-describe('StoryBlokAPI.sanitizeStory()', () => {
+describe('toCMSEntry()', () => {
 
-  const litNoPublishDate =
-    { ...litItem, published_at: null, first_published_at: null }
-  ;
-
-  const vid = {
-    ...litItem,
-    content: {
-      ...litItem.content,
-      summary: undefined,
-      category: 'AA',
-      id: 'fl34_31kfQ',
-      timestamp: '2021-09-05T19:18:11.450Z'
-    }
-  };
-  const vidNoCategory = {
-    ...vid,
-    content: {
-      ...vid.content,
-      category: '--'
-    }
-  };
-
-  const simplePage = {
+  const simplePageCMSEntry = {
     id      : 69852066,
     title   : 'Literature Item 1',
     author  : 'Ethan Kahn',
     summary : 'This is a summary string',
     body    : '<p>This is some body content</p>\n',
-    slug    : 'literature-item-1',
+    hash    : 'caeea493a03b2',
     date    : '2021-05-19T21:50:32.720Z',
   };
 
-  const simplePageNoPublishDate =
-    {...simplePage, date: '2021-09-03T19:48:44.930Z' } // using created_at date
-  ;
-
 
   it('returns a sanitized version of Story content', () => {
-    const page = CMS.sanitizeStory(litItem);
-    expect(page).toEqual(simplePage);
+    const page = CMS.toCMSEntry(litItem);
+    expect(page).toEqual(simplePageCMSEntry);
   });
 
   it('uses created date of Story content if published date is null', () => {
-    const page = CMS.sanitizeStory(litNoPublishDate);
-    expect(page).toEqual(simplePageNoPublishDate);
+    const litNoPublishDate = { ...litItem, published_at: null, first_published_at: null };
+    const page = CMS.toCMSEntry(litNoPublishDate);
+    expect(page.date).toEqual('2021-09-03T19:48:44.930Z');
   });
 
-  it ('assigns Video-specific properties if Story is Video', () => {
-    const page = CMS.sanitizeStory(vid);
+  it ('returns an entry with video-specific properties.', () => {
+    const vid = { ...litItem,
+      content: { ...litItem.content,
+        summary: 'hello world',
+        category: 'AC',
+        id: 'fl34_31kfQ',
+        timestamp: '2021-09-05T19:18:11.450Z'
+      }
+    };
+    const page = CMS.toCMSEntry(vid);
     expect(page.date).toBe(vid.content.timestamp);
     expect(page.id).toBe('fl34_31kfQ');
-    expect(page.category).toBe('AA');
-    expect('summary' in page).toBeFalsy();
+    expect(page.category).toBe('AC');
+    expect(page.summary).toBe('hello world');
   });
 
-  it('removes category if category is "none"', () => {
-    const page = CMS.sanitizeStory(vidNoCategory);
-    expect('category' in page).toBeFalsy();
+  it('returns an entry with all empty properties removed.', () => {
+    const item = {
+      ...litItem,
+      content: {
+        ...litItem.content,
+        body: '',
+        summary: '',
+        category: ''
+      }
+    };
+    const entry = CMS.toCMSEntry(item);
+    expect(entry.category).toBeUndefined();
+    expect(entry.body).toBeUndefined();
+    expect(entry.summary).toBeUndefined();
   });
 
-});
-
-
-describe('slugify(str)', () => {
-  it('returns a sanitized string which can be used as a url', () => {
-    expect(slugify('This is a "T3ST"')).toBe('this-is-a-t3st');
+  it('returns an entry without a category when category is set to none.', () => {
+    const item = { ...litItem, content: { ...litItem.content, category: '--'} };
+    const entry = CMS.toCMSEntry(item);
+    expect(entry.category).toBeUndefined();
   });
 
-  it('converts Greek Alpha character to "a"', () => {
-    expect(slugify('greek-alpha-α')).toBe('greek-alpha-a');
-  });
-
-  it('converts Greek Beta character to "b"', () => {
-    expect(slugify('greek-beta-β')).toBe('greek-beta-b');
-  });
 });
 
 
