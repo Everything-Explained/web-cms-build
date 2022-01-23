@@ -57,9 +57,9 @@ export function slugify(str: string) {
 
 
 export function truncateStr(to: number) {
-  if (to <= 0)
-    throw Error('truncateStr()::can only truncate to > 0')
-  ;
+  if (to <= 0) {
+    throw Error('truncateStr()::can only truncate to > 0');
+  }
   return (str: string) => str.substring(0, to);
 }
 
@@ -78,10 +78,7 @@ export function saveAsJSON(path: string, fileName: string) {
   return async <T>(data: T) => {
     const filePath = `${path}/${fileName}.json`;
     lact('create', `${cc.gy(`/${pathBasename(path)}/`)}${fileName}.json`);
-    await writeFile(
-      filePath,
-      JSON.stringify(data, null, 2), { encoding: 'utf-8' }
-    );
+    await writeFile(filePath, JSON.stringify(data, null, 2), { encoding: 'utf-8' });
     return data;
   };
 }
