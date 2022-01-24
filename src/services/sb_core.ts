@@ -22,11 +22,18 @@ export type StoryCategoryTableBody = Array<[
   description : { value: string },
 ]>
 
+export interface Story {
+  id                 : number;
+  name               : string;
+  slug               : string;
+  created_at         : ISODateString;
+  published_at       : ISODateString|null;
+  first_published_at : ISODateString|null;
+}
 
 export interface StoryEntry extends Story {
   content: StoryContent;
 }
-
 
 export interface StoryContent {
   id        ?: string;
@@ -38,21 +45,9 @@ export interface StoryContent {
   timestamp ?: ISODateString;
 }
 
-
 export interface StoryVideoCategories extends Story {
   content: StoryVideoCategoryTable;
 }
-
-
-export interface Story {
-  id                 : number;
-  name               : string;
-  slug               : string;
-  created_at         : ISODateString;
-  published_at       : ISODateString|null;
-  first_published_at : ISODateString|null;
-}
-
 
 export interface StoryVideoCategoryTable {
   categories: {
