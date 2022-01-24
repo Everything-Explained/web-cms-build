@@ -3,15 +3,20 @@ import { StoryblokResult } from 'storyblok-js-client';
 import { ISODateString } from '../global_interfaces';
 import { toShortHash } from '../utilities';
 import { useMarkdown } from './markdown/md_core';
-import { StoryOptions, StoryEntry, StorySortString } from './sb_core';
+import { StoryOptions, StoryEntry, StorySortString, StoryVersion } from './sb_core';
 
 
 
 /////////////////////////////////////////
 //#region Interfaces and Custom Types
-export interface CMSOptions extends StoryOptions {
-  url      : string; // cdn/stories/
-  stories ?: StoryEntry[];
+export interface CMSOptions {
+  url         : string; // cdn/stories/
+  starts_with : string;
+  sort_by     : StorySortString;
+  version     : StoryVersion;
+  page?       : number;
+  /** For callback only */
+  stories?    : StoryEntry[];
 }
 
 export interface CMSData extends CMSEntry {
@@ -64,20 +69,15 @@ async function getContent(opt: CMSOptions, exec: CMSGetFunc) {
 
 
 async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEntry[]> {
-  opt.per_page = opt.per_page ?? 100;
   opt.page     = opt.page     ?? 1;
   opt.stories  = opt.stories  || [];
 
-  if (opt.per_page > 100)
-    throw Error('getStories()::Max stories "per_page" is 100')
-  ;
-
-  const { starts_with, version, sort_by, page, per_page } = opt;
-  const resp = await exec(opt.url, { starts_with, version, sort_by, page, per_page, });
+  const { starts_with, version, sort_by, page } = opt;
+  const resp = await exec(opt.url, { starts_with, version, sort_by, page, per_page: 100, });
 
   const stories = resp.data.stories;
   if (stories.length) {
-    if (!page || stories.length < opt.per_page) return stories;
+    if (!page) return stories;
     opt.stories.push(...stories);
     opt.page += 1;
     return getRawStories(opt, exec);
