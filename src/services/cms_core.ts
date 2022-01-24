@@ -7,8 +7,7 @@ import { StoryOptions, StoryEntry, StorySortString, StoryVersion } from './sb_co
 
 
 
-/////////////////////////////////////////
-//#region Interfaces and Custom Types
+
 export interface CMSOptions {
   url         : string; // cdn/stories/
   starts_with : string;
@@ -44,8 +43,7 @@ export interface CMSEntry extends PartialCMSEntry {
 }
 
 export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
-//#endregion
-/////////////////////////////////////////
+
 
 
 
