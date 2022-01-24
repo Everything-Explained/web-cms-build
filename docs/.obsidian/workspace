@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "process.md",
+            "file": "commit_syntax.md",
             "mode": "preview",
             "backlinks": false,
             "source": false
@@ -70,7 +70,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "process.md",
+                "file": "commit_syntax.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -82,7 +82,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "process.md"
+                "file": "commit_syntax.md"
               }
             }
           },
@@ -103,9 +103,9 @@
   },
   "active": "d01e16cfa7eceb4e",
   "lastOpenFiles": [
+    "commit_syntax.md",
     "process.md",
     "CMS Sanitization.md",
-    "commit_syntax.md",
     "COMMITSYNTAX.md",
     "PROCESS.md"
   ]
