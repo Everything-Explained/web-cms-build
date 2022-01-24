@@ -1,6 +1,6 @@
 import { CMSEntry, CMSOptions, useCMS, toCMSOptions } from "../src/services/cms_core";
 import { useMockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
-import litItem from '../__mocks__/fixtures/lit_item.json';
+import litStory from '../__mocks__/fixtures/lit_item.json';
 import { slugify, tryCatchAsync } from "../src/utilities";
 
 
@@ -72,64 +72,90 @@ describe('getContent()', () => {
 
 describe('toCMSEntry()', () => {
 
-  const simplePageCMSEntry = {
-    id      : 69852066,
-    title   : 'Literature Item 1',
-    author  : 'Ethan Kahn',
-    summary : 'This is a summary string',
-    body    : '<p>This is some body content</p>\n',
-    hash    : 'caeea493a03b2',
-    date    : '2021-05-19T21:50:32.720Z',
-  };
-
-
-  it('returns a sanitized version of Story content', () => {
-    const page = CMS.toCMSEntry(litItem);
-    expect(page).toEqual(simplePageCMSEntry);
+  it('returns a CMS entry with all empty properties removed.', () => {
+    const story = { ...litStory, content: { ...litStory.content, body: '', summary: '',category: '' } };
+    const entry = CMS.toCMSEntry(story);
+    expect(entry.category).toBeUndefined();
+    expect(entry.body).toBeUndefined();
+    expect(entry.summary).toBeUndefined();
   });
 
-  it('uses created date of Story content if published date is null', () => {
-    const litNoPublishDate = { ...litItem, published_at: null, first_published_at: null };
-    const page = CMS.toCMSEntry(litNoPublishDate);
-    expect(page.date).toEqual('2021-09-03T19:48:44.930Z');
+  it('ignores story.content.category when category is set to none.', () => {
+    const story = { ...litStory, content: { ...litStory.content, category: '--'} };
+    const entry = CMS.toCMSEntry(story);
+    expect(entry.category).toBeUndefined();
   });
 
-  it ('returns an entry with video-specific properties.', () => {
-    const vid = { ...litItem,
-      content: { ...litItem.content,
+  it('uses story.created_at as date, if story.first_published_at and story.content.timestamp are null or undefined.', () => {
+    const story = { ...litStory, first_published_at: null };
+    const entry = CMS.toCMSEntry(story);
+    expect(entry.date).toEqual('2021-09-03T19:48:44.930Z');
+  });
+
+  it('uses story.first_published_at as date, if story.content.timestamp is null or undefined.', () => {
+    const entry = CMS.toCMSEntry(litStory);
+    expect(entry.date).toBe('2021-05-19T21:50:32.720Z');
+  });
+
+  it('uses story.content.timestamp as date, if it is defined.', () => {
+    const story = { ...litStory, content: { ...litStory.content, timestamp: '2022-01-23T23:22:26.993Z'} };
+    const entry = CMS.toCMSEntry(story);
+    expect(entry.date).toBe('2022-01-23T23:22:26.993Z');
+  });
+
+  it('uses story.id as id, if story.content.id is undefined.', () => {
+    const storyWithNoContentID = { ...litStory };
+    const entry = CMS.toCMSEntry(storyWithNoContentID);
+    expect(entry.id).toBe(69852066);
+  });
+
+  it('uses story.content.id as id, if it defined.', () => {
+    const storyWithContentID = { ...litStory, content: { ...litStory.content, id: 'faFE_FQf'} };
+    const entry = CMS.toCMSEntry(storyWithContentID);
+    expect(entry.id).toBe('faFE_FQf');
+  });
+
+  it('parses story.content.summary as inline markdown.', () => {
+    const story = { ...litStory, content: { ...litStory.content, summary: 'hello **world**'} };
+    const entry = CMS.toCMSEntry(story);
+    expect(entry.summary).toBe('hello <strong>world</strong>');
+    expect(entry.summary).not.toContain('<p>');
+  });
+
+  it('parses story.content.body as markdown page.', () => {
+    const entry = CMS.toCMSEntry(litStory);
+    expect(entry.body).toBe('<p>This is some body content</p>\n');
+    expect(entry.body).toContain('<p>');
+  });
+
+  it('returns a sanitized version of Storyblok content called a CMS entry.', () => {
+    const simplePageCMSEntry = {
+      id      : 69852066,
+      title   : 'Literature Item 1',
+      author  : 'Ethan Kahn',
+      summary : 'This is a summary string',
+      body    : '<p>This is some body content</p>\n',
+      hash    : 'caeea493a03b2',
+      date    : '2021-05-19T21:50:32.720Z',
+    };
+    const entry = CMS.toCMSEntry(litStory);
+    expect(entry).toEqual(simplePageCMSEntry);
+  });
+
+  it ('returns a CMS entry with video-specific properties.', () => {
+    const vidStory = { ...litStory,
+      content: { ...litStory.content,
         summary: 'hello world',
         category: 'AC',
         id: 'fl34_31kfQ',
         timestamp: '2021-09-05T19:18:11.450Z'
       }
     };
-    const page = CMS.toCMSEntry(vid);
-    expect(page.date).toBe(vid.content.timestamp);
-    expect(page.id).toBe('fl34_31kfQ');
-    expect(page.category).toBe('AC');
-    expect(page.summary).toBe('hello world');
-  });
-
-  it('returns an entry with all empty properties removed.', () => {
-    const item = {
-      ...litItem,
-      content: {
-        ...litItem.content,
-        body: '',
-        summary: '',
-        category: ''
-      }
-    };
-    const entry = CMS.toCMSEntry(item);
-    expect(entry.category).toBeUndefined();
-    expect(entry.body).toBeUndefined();
-    expect(entry.summary).toBeUndefined();
-  });
-
-  it('returns an entry without a category when category is set to none.', () => {
-    const item = { ...litItem, content: { ...litItem.content, category: '--'} };
-    const entry = CMS.toCMSEntry(item);
-    expect(entry.category).toBeUndefined();
+    const entry = CMS.toCMSEntry(vidStory);
+    expect(entry.date).toBe(vidStory.content.timestamp);
+    expect(entry.id).toBe('fl34_31kfQ');
+    expect(entry.category).toBe('AC');
+    expect(entry.summary).toBe('hello world');
   });
 
 });
