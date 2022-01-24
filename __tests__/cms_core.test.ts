@@ -8,16 +8,16 @@ const CMS = useCMS();
 const mockAPI = useMockStoryblokAPI();
 const singlePageSlug = 'test/singlepage';
 const multiPageSlug  = 'test/multipage';
+const multiPageFailSlug = 'test/multipage/fail';
 
 
-function toSBlokOpt(slug: string, page?: number, per_page?: number) {
+function toSBlokOpt(slug: string, page?: number) {
   const options = {
     url: slug,
     starts_with: slug,
     version: 'draft',
     sort_by: 'created_at:asc',
     page,
-    per_page,
   } as CMSOptions;
   return options;
 }
@@ -31,7 +31,7 @@ describe('getContent()', () => {
   });
 
   it('returns all story pages', async () => {
-    const data = await CMS.getContent(toSBlokOpt(multiPageSlug, 1, 1), mockAPI.get);
+    const data = await CMS.getContent(toSBlokOpt(multiPageSlug, 1), mockAPI.get);
     expect(data.length).toBe(3);
   });
 
@@ -53,17 +53,8 @@ describe('getContent()', () => {
     }
   });
 
-  it('throws an error if "per_page" is greater than 100', async () => {
-    const error = await tryCatchAsync(CMS.getContent(toSBlokOpt(singlePageSlug, 1, 101), mockAPI.get));
-    const isError = error instanceof Error;
-    expect(isError).toBeTruthy();
-    if (isError) {
-      expect(error.message).toContain('getStories()::Max stories');
-    }
-  });
-
   it ('does NOT loop through pages when page param set to 0', async () => {
-    const data = await CMS.getContent(toSBlokOpt(multiPageSlug, 0, 1), mockAPI.get);
+    const data = await CMS.getContent(toSBlokOpt(multiPageFailSlug, 0), mockAPI.get);
     expect(data.length).toBe(1);
   });
 });
@@ -161,7 +152,7 @@ describe('toCMSEntry()', () => {
 });
 
 
-describe('toSBOptions(url, starts_with, sort_by?)', () => {
+describe('toCMSOptions(url, starts_with, sort_by?)', () => {
   it('returns StoryBlok options with specified params', () => {
     const options = toCMSOptions('test/path', 'test', 'created_at:desc');
     expect(options.url).toBe('test/path');
@@ -173,6 +164,5 @@ describe('toSBOptions(url, starts_with, sort_by?)', () => {
     const options = toCMSOptions('test/path', 'test');
     expect(options.version).toBe('draft');
     expect(options.sort_by).toBe('created_at:asc');
-    expect(options.per_page).toBe(100);
   });
 });

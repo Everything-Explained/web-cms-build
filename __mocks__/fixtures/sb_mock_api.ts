@@ -23,8 +23,13 @@ const emptyResult = {
 
 async function get(slug: string, params: StoryOptions): Promise<StoryblokResult> {
   const page         = params.page || 1;
-  const { per_page } = params;
-  const slugIs       = (tslug: string) => slug == tslug;
+  const specialSlug = 'test/multipage/fail';
+  const per_page =  (slug == specialSlug) ? 1 : params.per_page;
+  const slugIs = (testSlug: string) => {
+    const isSpecialSlug = testSlug == 'test/multipage' && slugIs(specialSlug);
+    if (isSpecialSlug) return true;
+    return slug == testSlug;
+  };
 
   if (!per_page) throw Error('"per_page" param must be > 0');
 
