@@ -34,7 +34,7 @@ export interface StoryContent {
   author     : string;
   category  ?: string;
   summary   ?: string;
-  body       : string;
+  body      ?: string;
   timestamp ?: ISODateString;
 }
 
