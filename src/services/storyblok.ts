@@ -1,12 +1,72 @@
-
-import { StoryblokResult } from 'storyblok-js-client';
-import { ISODateString } from '../global_interfaces';
-import { toShortHash } from '../utilities';
-import { useMarkdown } from './markdown/md_core';
-import { StoryOptions, StoryEntry, StorySortString, StoryVersion } from './storyblok';
-
+import { ISODateString } from "../global_interfaces";
+import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
+import config from '../../config.json';
+import { setIfInDev, toShortHash } from "../utilities";
+import { useMarkdown } from "./markdown/md_core";
 
 
+
+
+
+
+
+export type StoryVersion    = 'published'|'draft';
+export type StorySortString =
+   'created_at:desc'
+  |'created_at:asc'
+  |'content.category:asc'
+  |'content.category:desc'
+  |'content.timestamp:asc'
+  |'content.timestamp:desc'
+;
+export type StoryCategoryTableBody = Array<[
+  title       : { value: string },
+  category    : { value: string },
+  description : { value: string },
+]>
+
+export interface Story {
+  id                 : number;
+  name               : string;
+  slug               : string;
+  created_at         : ISODateString;
+  published_at       : ISODateString|null;
+  first_published_at : ISODateString|null;
+}
+
+export interface StoryEntry extends Story {
+  content: StoryContent;
+}
+
+export interface StoryContent {
+  id        ?: string;
+  title      : string;
+  author     : string;
+  category  ?: string;
+  summary   ?: string;
+  body      ?: string;
+  timestamp ?: ISODateString;
+}
+
+export interface StoryVideoCategories extends Story {
+  content: StoryVideoCategoryTable;
+}
+
+export interface StoryVideoCategoryTable {
+  categories: {
+    tbody: StoryCategoryTableBody
+  }
+}
+
+export interface StoryOptions {
+  /** Slug pointing to CMS content */
+  starts_with : string;
+  sort_by     : StorySortString;
+  version     : StoryVersion;
+  page       ?: number;
+  /** How many stories per page */
+  per_page   ?: number;
+}
 
 export interface CMSOptions {
   url         : string; // cdn/stories/
@@ -47,7 +107,22 @@ export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<Storybl
 
 
 
+
+
+
 const md = useMarkdown();
+
+const blok = new StoryblokClient({
+  accessToken: config.apis.storyBlokToken,
+  cache: { type: 'memory', clear: 'auto' }
+});
+
+
+export function useStoryblok() {
+  return {
+    getCMSEntries: (opt: CMSOptions) => getCMSEntries(opt, blok.get)
+  };
+}
 
 
 export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
@@ -61,7 +136,7 @@ export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySo
 }
 
 
-async function getContent(opt: CMSOptions, exec: CMSGetFunc) {
+async function getCMSEntries(opt: CMSOptions, exec: CMSGetFunc) {
   const stories = await getRawStories(opt, exec);
   return stories.map(toCMSEntry);
 }
@@ -108,13 +183,18 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
 }
 
 
-export function useCMS() {
-  return {
-    getContent,
-    getRawStories,
-    toCMSEntry,
-  };
-}
+export const _tdd_storyblok = setIfInDev({
+  getStories(slug: string, params?: any) {
+    return blok.get(slug, params);
+  },
+  getCMSEntries,
+  getRawStories,
+  toCMSEntry,
+});
+
+
+
+
 
 
 
