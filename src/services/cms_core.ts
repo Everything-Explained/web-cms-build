@@ -29,18 +29,17 @@ interface PartialCMSEntry {
   id         : string|number;
   title      : string;
   author     : string;
-  summary   ?: string;
-  body      ?: string;
+  summary?   : string;
+  body?      : string;
   /** Video Category */
-  category  ?: string;
-  /** Video Timestamp */
-  timestamp ?: ISODateString;
+  category?  : string;
+  /** A Hash of all the Entry's data, excluding this property. */
+  hash?      : string;
   /** Should default to the most relevant date property of the content */
   date       : ISODateString;
 }
 
 export interface CMSEntry extends PartialCMSEntry {
-  /** A hash of all the Entry's data, excluding this property. */
   hash       : string;
 }
 
@@ -95,16 +94,17 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
   const { first_published_at, created_at } = story;
   const { title, author, summary, body, timestamp, category } = story.content;
   const categoryNone = '--';
-  const pCMSEntry: PartialCMSEntry = {
+  const cmsEntry: PartialCMSEntry = {
     id: story.content.id || story.id, // Videos have content.id
     title,
     author,
     date: timestamp || first_published_at || created_at,
   };
-  if (summary) pCMSEntry.summary = md.renderInline(summary);
-  if (body) pCMSEntry.body = md.render(body);
-  if (category && category != categoryNone) pCMSEntry.category = category;
-  return { ...pCMSEntry, hash: toShortHash(pCMSEntry) };
+  if (summary) cmsEntry.summary = md.renderInline(summary);
+  if (body) cmsEntry.body = md.render(body);
+  if (category && category != categoryNone) cmsEntry.category = category;
+  cmsEntry.hash = toShortHash(cmsEntry);
+  return cmsEntry as CMSEntry;
 }
 
 
@@ -114,7 +114,6 @@ export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySo
     starts_with,
     version: 'draft',
     sort_by: sort_by ?? 'created_at:asc',
-    per_page: 100,
   } as CMSOptions;
 }
 
