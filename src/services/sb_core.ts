@@ -13,6 +13,8 @@ export type StorySortString =
   |'created_at:asc'
   |'content.category:asc'
   |'content.category:desc'
+  |'content.timestamp:asc'
+  |'content.timestamp:desc'
 ;
 export type StoryCategoryTableBody = Array<[
   title       : { value: string },
