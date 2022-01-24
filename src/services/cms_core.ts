@@ -52,12 +52,14 @@ export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<Storybl
 const md = useMarkdown();
 
 
-export function useCMS() {
-  return {
-    getContent,
-    getRawStories,
-    toCMSEntry,
+export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
+  const opts: CMSOptions = {
+    url,
+    starts_with,
+    version: 'draft',
+    sort_by: sort_by ?? 'created_at:asc',
   };
+  return opts;
 }
 
 
@@ -108,13 +110,12 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
 }
 
 
-export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
+export function useCMS() {
   return {
-    url,
-    starts_with,
-    version: 'draft',
-    sort_by: sort_by ?? 'created_at:asc',
-  } as CMSOptions;
+    getContent,
+    getRawStories,
+    toCMSEntry,
+  };
 }
 
 
