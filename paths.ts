@@ -27,3 +27,4 @@ const paths = {
 };
 
 export = paths;
+
