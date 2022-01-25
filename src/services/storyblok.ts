@@ -63,28 +63,18 @@ export interface StoryOptions {
   starts_with : string;
   sort_by     : StorySortString;
   version     : StoryVersion;
-  page       ?: number;
-  /** How many stories per page */
-  per_page   ?: number;
+  page?       : number;
+  /** Utilized in **mocks only** */
+  per_page?   : number;
 }
 
-export interface CMSOptions {
+export interface CMSOptions extends StoryOptions {
   url         : string; // cdn/stories/
-  starts_with : string;
-  sort_by     : StorySortString;
-  version     : StoryVersion;
-  page?       : number;
-  /** For callback only */
+  /** Utilized for **recursive calls only** */
   stories?    : StoryEntry[];
 }
 
-export interface CMSData extends CMSEntry {
-  id: string|number;
-  date: ISODateString;
-}
-
 interface PartialCMSEntry {
-  /** Story ID or Custom ID */
   id         : string|number;
   title      : string;
   author     : string;
@@ -94,7 +84,7 @@ interface PartialCMSEntry {
   category?  : string;
   /** A Hash of all the Entry's data, excluding this property. */
   hash?      : string;
-  /** Should default to the most relevant date property of the content */
+  /** Defaults to the most relevant date property of the content */
   date       : ISODateString;
 }
 
@@ -102,7 +92,9 @@ export interface CMSEntry extends PartialCMSEntry {
   hash       : string;
 }
 
-export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+export type MockStoryBlokAPI = {
+  get: (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+}
 
 
 
@@ -112,49 +104,29 @@ export type CMSGetFunc = (slug: string, params: StoryOptions) => Promise<Storybl
 
 const md = useMarkdown();
 
-const blok = new StoryblokClient({
-  accessToken: config.apis.storyBlokToken,
-  cache: { type: 'memory', clear: 'auto' }
-});
 
-
-export function useStoryblok() {
+export function useStoryblok(api: MockStoryBlokAPI|StoryblokClient) {
   return {
-    getCMSEntries: (opt: CMSOptions) => getCMSEntries(opt, blok.get)
+    getCMSEntries: async (options: CMSOptions) => {
+      const stories = await getRawStories(options, api);
+      return stories.map(toCMSEntry);
+    }
   };
 }
 
 
-export function toCMSOptions(url: string, starts_with: string, sort_by?: StorySortString) {
-  const opts: CMSOptions = {
-    url,
-    starts_with,
-    version: 'draft',
-    sort_by: sort_by ?? 'created_at:asc',
-  };
-  return opts;
-}
+async function getRawStories(opt: CMSOptions, api: MockStoryBlokAPI|StoryblokClient): Promise<StoryEntry[]> {
+  opt.page    ||= 1;
+  opt.stories ??= [];
 
-
-async function getCMSEntries(opt: CMSOptions, exec: CMSGetFunc) {
-  const stories = await getRawStories(opt, exec);
-  return stories.map(toCMSEntry);
-}
-
-
-async function getRawStories(opt: CMSOptions, exec: CMSGetFunc): Promise<StoryEntry[]> {
-  opt.page     = opt.page     ?? 1;
-  opt.stories  = opt.stories  || [];
-
-  const { starts_with, version, sort_by, page } = opt;
-  const resp = await exec(opt.url, { starts_with, version, sort_by, page, per_page: 100, });
-
+  const { url, starts_with, version, sort_by, page } = opt;
+  const resp = await api.get(url, { starts_with, version, sort_by, page, per_page: opt.per_page || 100, });
   const stories = resp.data.stories;
+
   if (stories.length) {
-    if (!page) return stories;
     opt.stories.push(...stories);
     opt.page += 1;
-    return getRawStories(opt, exec);
+    return getRawStories(opt, api);
   }
 
   // We want our build process to fail if stories can't be found
@@ -184,10 +156,7 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
 
 
 export const _tdd_storyblok = setIfInDev({
-  getStories(slug: string, params?: any) {
-    return blok.get(slug, params);
-  },
-  getCMSEntries,
+  useStoryblok,
   getRawStories,
   toCMSEntry,
 });
