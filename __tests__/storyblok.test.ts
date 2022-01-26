@@ -66,30 +66,30 @@ describe('toCMSEntry(story)', () => {
     expect(entry.category).toBeUndefined();
   });
 
-  it('uses story.created_at as date, if story.first_published_at and story.content.timestamp are null or undefined.', () => {
+  it('sets date to created_at, if first_published_at and content.timestamp are null or undefined.', () => {
     const story = { ...litStory, first_published_at: null };
     const entry = sb.toCMSEntry(story);
     expect(entry.date).toEqual('2021-09-03T19:48:44.930Z');
   });
 
-  it('uses story.first_published_at as date, if story.content.timestamp is null or undefined.', () => {
+  it('sets date to first_published_at, if content.timestamp is null or undefined.', () => {
     const entry = sb.toCMSEntry(litStory);
     expect(entry.date).toBe('2021-05-19T21:50:32.720Z');
   });
 
-  it('uses story.content.timestamp as date, if it is defined.', () => {
+  it('sets date to content.timestamp, if it is defined.', () => {
     const story = { ...litStory, content: { ...litStory.content, timestamp: '2022-01-23T23:22:26.993Z'} };
     const entry = sb.toCMSEntry(story);
     expect(entry.date).toBe('2022-01-23T23:22:26.993Z');
   });
 
-  it('uses story.id as id, if story.content.id is undefined.', () => {
+  it('sets id to story.id, if content.id is undefined.', () => {
     const storyWithNoContentID = { ...litStory };
     const entry = sb.toCMSEntry(storyWithNoContentID);
     expect(entry.id).toBe(69852066);
   });
 
-  it('uses story.content.id as id, if it defined.', () => {
+  it('sets id to content.id, if it defined.', () => {
     const storyWithContentID = { ...litStory, content: { ...litStory.content, id: 'faFE_FQf'} };
     const entry = sb.toCMSEntry(storyWithContentID);
     expect(entry.id).toBe('faFE_FQf');
