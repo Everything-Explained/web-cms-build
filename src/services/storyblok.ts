@@ -92,9 +92,11 @@ export interface CMSEntry extends PartialCMSEntry {
   hash       : string;
 }
 
-export type MockStoryBlokAPI = {
+type MockStoryBlokAPI = {
   get: (slug: string, params: StoryOptions) => Promise<StoryblokResult>
 }
+
+export type StoryblokAPI = MockStoryBlokAPI|StoryblokClient;
 
 
 
@@ -105,7 +107,7 @@ export type MockStoryBlokAPI = {
 const md = useMarkdown();
 
 
-export function useStoryblok(api: MockStoryBlokAPI|StoryblokClient) {
+export function useStoryblok(api: StoryblokAPI) {
   return {
     getCMSEntries: async (options: CMSOptions) => {
       const stories = await getRawStories(options, api);
@@ -115,7 +117,7 @@ export function useStoryblok(api: MockStoryBlokAPI|StoryblokClient) {
 }
 
 
-async function getRawStories(opt: CMSOptions, api: MockStoryBlokAPI|StoryblokClient): Promise<StoryEntry[]> {
+async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryEntry[]> {
   opt.page    ||= 1;
   opt.stories ??= [];
 
