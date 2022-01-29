@@ -1,5 +1,5 @@
 import { CMSOptions, _tdd_storyblok } from "../src/services/storyblok";
-import { tryCatchAsync } from "../src/utilities";
+import { toShortHash, tryCatchAsync } from "../src/utilities";
 import litStory from '../__mocks__/fixtures/lit_item.json';
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 
@@ -106,6 +106,13 @@ describe('toCMSEntry(story)', () => {
     const entry = sb.toCMSEntry(litStory);
     expect(entry.body).toBe('<p>This is some body content</p>\n');
     expect(entry.body).toContain('<p>');
+  });
+
+  it('sets a hash property using the calculated hash of all sanitized properties.', () => {
+    const cmsEntry = sb.toCMSEntry(litStory);
+    const partialEntry = { ...cmsEntry, hash: undefined };
+    const testHash = toShortHash(partialEntry);
+    expect(cmsEntry.hash).toBe(testHash);
   });
 
   it('returns a sanitized version of Storyblok content called a CMS entry.', () => {
