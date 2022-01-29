@@ -89,7 +89,14 @@ interface PartialCMSEntry {
 }
 
 export interface CMSEntry extends PartialCMSEntry {
-  hash       : string;
+  readonly id        : string|number;
+  readonly title     : string;
+  readonly author    : string;
+  readonly summary?  : string;
+  readonly body?     : string;
+  readonly category? : string;
+  readonly hash      : string;
+  readonly date      : ISODateString;
 }
 
 type MockStoryBlokAPI = {
