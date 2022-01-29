@@ -1,11 +1,10 @@
-import { CMSEntry, CMSGetFunc, toCMSOptions, useCMS } from "./services/cms_core";
 import { writeFile, readFile, access }  from 'fs/promises';
 import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
 import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
 import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
-
+import { CMSEntry, CMSOptions, StoryblokAPI, StorySortString, StoryVersion, useStoryblok } from './services/storyblok';
 
 
 
@@ -22,18 +21,18 @@ type ManifestEntry = {
 type Manifest = ManifestEntry[];
 
 
-// TODO - add sort_by option
 export interface BuildOptions {
   /** CDN Root Slug */
   url           : string;
-  /** CDN Resource Name */
   starts_with   : string;
+  version       : StoryVersion;
+  sort_by       : StorySortString;
   /** Path to build manifest */
   buildPath     : string;
   /** Will overwrite default manifest file name. */
   manifestName? : string;
-  /** CMS get function to use */
-  exec          : CMSGetFunc;
+  /** Storyblok API Object or Mock API Object */
+  api           : StoryblokAPI;
   /** Callback when an entry has been deleted. */
   onDelete?     : (entry: CMSEntry) => void;
   /** Callback when an entry has been updated. */
@@ -55,11 +54,15 @@ const cc = console_colors;
 
 
 export async function buildManifest(opts: BuildOptions) {
-  const { url, exec, starts_with } = opts;
+  const { url, api, starts_with, sort_by, version } = opts;
   opts.buildPath = pathResolve(opts.buildPath);
   opts.manifestName ??= pathBasename(opts.buildPath);
 
-  const latestEntries  = await useCMS().getContent(toCMSOptions(url, starts_with), exec);
+  const cmsOptions: CMSOptions = {
+    url, starts_with, sort_by, version,
+  };
+
+  const latestEntries  = await useStoryblok(api).getCMSEntries(cmsOptions);
   const oldEntries     = await getManifestEntries(latestEntries, opts as BuildOptionsInternal);
   const detectionFuncs = [
     detectAddedEntries(opts.onAdd),
