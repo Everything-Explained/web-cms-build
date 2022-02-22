@@ -1,0 +1,26 @@
+[
+  {
+    "id": 420691337,
+    "title": "A New Lit Post that contains an Image",
+    "author": "Jaeiya",
+    "hash": "abracadabra",
+    "date": "2021-09-04T20:19:21.969Z",
+    "summary": "This is a fake summary for the purpose of testing"
+  },
+  {
+    "id": 69866783,
+    "title": "Another Lit Post with an Internal Link",
+    "author": "Jaeiya",
+    "hash": "540ac8279b1cc",
+    "date": "2021-09-04T21:17:25.820Z",
+    "summary": "This is a fake summary for the purpose of testing"
+  },
+  {
+    "id": 133769420,
+    "title": "And Yet Another Lit Post",
+    "author": "Jaeiya",
+    "hash": "bighashdaddy",
+    "date": "2021-09-04T21:17:59.210Z",
+    "summary": "This is a fake summary for the purpose of testing"
+  }
+]

@@ -1,8 +1,8 @@
-import { writeFile, readFile, access }  from 'fs/promises';
+import { readFile, access }  from 'fs/promises';
 import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve } from 'path';
-import { console_colors, lact, lnfo, lwarn } from "./lib/logger";
+import { console_colors as cc, lnfo, lwarn } from "./lib/logger";
 import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
 import { CMSEntry, CMSOptions, StoryblokAPI, StorySortString, StoryVersion, useStoryblok } from './services/storyblok';
 
@@ -49,10 +49,6 @@ export interface BuildOptionsInternal extends BuildOptions {
 
 
 
-/** Console Colors */
-const cc = console_colors;
-
-
 export async function buildManifest(opts: BuildOptions) {
   const { url, api, starts_with, sort_by, version } = opts;
   opts.buildPath = pathResolve(opts.buildPath);
@@ -72,7 +68,9 @@ export async function buildManifest(opts: BuildOptions) {
   const hasUpdatedEntries =
     detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
   ;
-  if (hasUpdatedEntries) saveAsManifest(opts.buildPath, opts.manifestName)(latestEntries);
+  if (hasUpdatedEntries) {
+    await saveAsManifest(opts.buildPath, opts.manifestName)(latestEntries);
+  }
 }
 
 
@@ -124,8 +122,8 @@ function detectAddedEntries(onAddEntries?: (entry: CMSEntry) => void) {
     for (const newEntry of latestEntries) {
       if (!oldEntries.find(hasSameID(newEntry))) {
         lnfo('add', `${cc.gy(newEntry.hash)}/${newEntry.title}`);
-        hasAdded = true;
         onAddEntries && onAddEntries(newEntry);
+        hasAdded = true;
         // saveBodyToFile(cmsEntry);
       }
     }
@@ -134,7 +132,7 @@ function detectAddedEntries(onAddEntries?: (entry: CMSEntry) => void) {
 }
 
 
-function detectDeletedEntries(onDelete?: (newEntry: CMSEntry) => void) {
+function detectDeletedEntries(onDelete?: (oldEntry: CMSEntry) => void) {
   return (oldEntries: ManifestEntry[], latestEntries: CMSEntry[]) => {
     let hasDeleted = false;
     for (const oldEntry of oldEntries) {
@@ -150,17 +148,17 @@ function detectDeletedEntries(onDelete?: (newEntry: CMSEntry) => void) {
 }
 
 
-function detectUpdatedEntries(onUpdate?: (newEntry: CMSEntry) => void) {
+function detectUpdatedEntries(onUpdate?: (updatedEntry: CMSEntry) => void) {
   return (oldEntries: ManifestEntry[], latestEntries: CMSEntry[]) => {
     let hasUpdated = false;
-    for (const newEntry of latestEntries) {
-      const oldEntry = oldEntries.find(hasSameID(newEntry));
-      if (oldEntry && oldEntry.hash != newEntry.hash) {
+    for (const latestEntry of latestEntries) {
+      const oldEntry = oldEntries.find(hasSameID(latestEntry));
+      if (oldEntry && oldEntry.hash != latestEntry.hash) {
         lnfo('upd',
-          `${cc.yw('(')}${cc.gy(`${oldEntry.hash} ${cc.yw('=>')} ${newEntry.hash}`)}`
-          +`${cc.yw(')')}/${newEntry.title}`
+          `${cc.yw('(')}${cc.gy(`${oldEntry.hash} ${cc.yw('=>')} ${latestEntry.hash}`)}`
+          +`${cc.yw(')')}/${latestEntry.title}`
         );
-        onUpdate && onUpdate(newEntry);
+        onUpdate && onUpdate(latestEntry);
         hasUpdated = true;
         // saveBodyToFile(story);
       }
@@ -176,6 +174,7 @@ function detectUpdatedEntries(onUpdate?: (newEntry: CMSEntry) => void) {
 
 
 export const _tdd_buildManifest = setIfInDev({
+  buildManifest,
   getManifestEntries,
   initManifest,
   readManifestFile,
