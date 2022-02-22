@@ -138,7 +138,7 @@ describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', ()
 });
 
 
-describe('initManifest(entries, opts)', () => {
+describe('initManifest(entries, options)', () => {
 
   it('initializes a new manifest using specified entries and options.', async () => {
     const dir = `${mockDir}/initManifest`;
@@ -167,10 +167,27 @@ describe('initManifest(entries, opts)', () => {
     const filePath = `${dir}/init_manifest_add.json`;
     const latestEntries = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
     let addCount = 0;
-    const options = mockBuildOptions({ manifestName: 'init_manifest_add', buildPath: dir, onAdd: () => ++addCount });
+    const options = mockBuildOptions({
+      manifestName: 'init_manifest_add',
+      buildPath: dir,
+      onAdd: () => ++addCount
+    });
     await tdd.initManifest(latestEntries, options);
     expect(addCount).toBe(3);
     del(filePath);
+  });
+
+  it('should not save manifest if options.canSave is set to false.', async () => {
+    const dir = `${mockDir}/initManifest`;
+    const filePath = `${dir}/should_not_save.json`;
+    const options = mockBuildOptions({
+      manifestName: 'should_not_save',
+      buildPath: dir,
+      canSave: false
+    });
+    const latestEntries = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
+    await tdd.initManifest(latestEntries, options);
+    expect(existsSync(filePath)).toBe(false);
   });
 
 });
@@ -232,6 +249,17 @@ describe('buildManifest(options)', () => {
     await writeFile(filePath, testFileContent);
   });
 
+  it('does not save manifest if options.canSave is set to false.', async () => {
+    const filePath = `${dir}/should_not_save.json`;
+    const options = mockBuildOptions({
+      manifestName: 'should_not_save',
+      buildPath: dir,
+      canSave: false
+    });
+    await tdd.buildManifest(options);
+    expect(existsSync(filePath)).toBe(false);
+  });
+
   it('returns a tuple of buildPath and manifest.', async () => {
     const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
     const [buildPath, latestEntries] = await tdd.buildManifest(options);
@@ -239,17 +267,8 @@ describe('buildManifest(options)', () => {
     expect(latestEntries.length).toBe(3);
     expect(buildPath).toBe(correctBuildPath);
   });
-
 });
 
-
-describe('', () => {
-
-  it('', () => {
-    //
-  });
-
-});
 
 
 

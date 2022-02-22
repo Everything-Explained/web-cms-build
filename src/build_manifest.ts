@@ -33,6 +33,8 @@ export interface BuildOptions {
   manifestName? : string;
   /** Storyblok API Object or Mock API Object */
   api           : StoryblokAPI;
+  /** Saves the manifest. Default: **true** */
+  canSave?         : boolean;
   /** Callback when an entry has been deleted. */
   onDelete?     : (entry: CMSEntry) => void;
   /** Callback when an entry has been updated. */
@@ -53,8 +55,9 @@ type BuildResult = Promise<[buildPath: string, latestEntries: CMSEntry[]]>;
 
 export async function buildManifest(opts: BuildOptions): BuildResult {
   const { url, api, starts_with, sort_by, version } = opts;
-  opts.buildPath = pathResolve(opts.buildPath);
+  opts.buildPath      = pathResolve(opts.buildPath);
   opts.manifestName ??= pathBasename(opts.buildPath);
+  opts.canSave         ??= true;
 
   const cmsOptions: CMSOptions = { url, starts_with, sort_by, version, };
 
@@ -67,9 +70,10 @@ export async function buildManifest(opts: BuildOptions): BuildResult {
   ];
 
   const hasUpdatedEntries = detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true);
-  const manifest          = latestEntries.map(toManifestEntry);
+  let manifest            = oldEntries;
 
-  if (hasUpdatedEntries) {
+  if (hasUpdatedEntries && opts.canSave) {
+    manifest = latestEntries.map(toManifestEntry);
     await saveAsJSON(opts.buildPath, opts.manifestName)(manifest);
   }
 
@@ -88,12 +92,17 @@ async function getManifestEntries(latestEntries: CMSEntry[], opts: BuildOptionsI
 
 
 function initManifest(entries: CMSEntry[], opts: BuildOptionsInternal) {
-  const { buildPath, manifestName } = opts;
+  const { buildPath, manifestName, onAdd, canSave } = opts;
   tryCreateDir(opts.buildPath);
-  if (opts.onAdd) {
-    entries.forEach(opts.onAdd);
+  if (onAdd) {
+    entries.forEach(onAdd);
   }
-  return saveAsJSON(buildPath, manifestName)(entries.map(toManifestEntry));
+  const manifest = entries.map(toManifestEntry);
+  return (
+    canSave == undefined || canSave
+      ? saveAsJSON(buildPath, manifestName)(manifest)
+      : Promise.resolve(manifest)
+  );
 }
 
 
