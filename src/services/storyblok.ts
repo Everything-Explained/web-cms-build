@@ -156,9 +156,15 @@ function toCMSEntry(story: StoryEntry): CMSEntry {
     author,
     date: timestamp || first_published_at || created_at,
   };
-  if (summary) cmsEntry.summary = md.renderInline(summary);
-  if (body) cmsEntry.body = md.render(body);
-  if (category && category != categoryNone) cmsEntry.category = category;
+  if (summary)
+    cmsEntry.summary = md.renderInline(summary)
+  ;
+  if (body)
+    cmsEntry.body = md.render(body)
+  ;
+  if (category && category != categoryNone)
+    cmsEntry.category = category
+  ;
   cmsEntry.hash = toShortHash(cmsEntry);
   return cmsEntry as CMSEntry;
 }
