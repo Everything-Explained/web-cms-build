@@ -1,7 +1,7 @@
 import { readFile, access }  from 'fs/promises';
 import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
-import { basename as pathBasename, resolve as pathResolve } from 'path';
+import { basename as pathBasename, resolve as pathResolve, join as pathJoin } from 'path';
 import { console_colors as cc, lnfo, lwarn } from "./lib/logger";
 import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
 import { CMSEntry, CMSOptions, StoryblokAPI, StorySortString, StoryVersion, useStoryblok } from './services/storyblok';
@@ -48,7 +48,7 @@ export interface BuildOptionsInternal extends BuildOptions {
   manifestName: string;
 }
 
-type BuildResult = Promise<[buildPath: string, latestEntries: CMSEntry[]]>;
+type BuildResult = Promise<[filePath: string, latestEntries: CMSEntry[], hasUpdated: boolean]>;
 
 
 
@@ -77,7 +77,7 @@ export async function buildManifest(opts: BuildOptions): BuildResult {
     await saveAsJSON(opts.buildPath, opts.manifestName)(manifest);
   }
 
-  return [opts.buildPath, manifest];
+  return [pathJoin(opts.buildPath, `/${opts.manifestName}.json`), manifest, hasUpdatedEntries];
 }
 
 

@@ -260,12 +260,13 @@ describe('buildManifest(options)', () => {
     expect(existsSync(filePath)).toBe(false);
   });
 
-  it('returns a tuple of buildPath and manifest.', async () => {
+  it('returns a tuple of filePath, manifest and entries update status.', async () => {
     const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
-    const [buildPath, latestEntries] = await tdd.buildManifest(options);
-    const correctBuildPath = pathResolve(`${mockDir}/buildManifest`);
+    const [filePath, latestEntries, isUpdated] = await tdd.buildManifest(options);
+    const correctBuildPath = pathResolve(`${mockDir}/buildManifest/test_manifest.json`);
+    expect(filePath).toBe(correctBuildPath);
     expect(latestEntries.length).toBe(3);
-    expect(buildPath).toBe(correctBuildPath);
+    expect(isUpdated).toBe(false);
   });
 });
 
