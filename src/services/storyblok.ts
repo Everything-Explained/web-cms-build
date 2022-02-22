@@ -129,7 +129,14 @@ async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryE
   opt.stories ??= [];
 
   const { url, starts_with, version, sort_by, page } = opt;
-  const resp = await api.get(url, { starts_with, version, sort_by, page, per_page: opt.per_page || 100, });
+  const apiOptions: StoryOptions = {
+    starts_with,
+    version,
+    sort_by,
+    page,
+    per_page: opt.per_page || 100
+  };
+  const resp = await api.get(url, apiOptions);
   const stories = resp.data.stories;
 
   if (stories.length) {
