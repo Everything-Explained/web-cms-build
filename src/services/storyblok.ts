@@ -1,6 +1,6 @@
 import { ISODateString } from "../global_interfaces";
 import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
-import { setIfInDev, toShortHash } from "../utilities";
+import { setIfInDev, toShortHash, tryCatchAsync } from "../utilities";
 import { useMarkdown } from "./markdown/md_core";
 
 
@@ -128,7 +128,10 @@ async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryE
     page: page || 1,
     per_page: opt.per_page || 100
   };
-  const sbResp = await api.get(url, apiOptions);
+
+  const sbResp = await tryCatchAsync(api.get(url, apiOptions));
+  if (sbResp instanceof Error) throw Error(sbResp.message);
+
   let currentStories: StoryEntry[] = sbResp.data.stories;
   const totalStories: StoryEntry[] = [];
 
