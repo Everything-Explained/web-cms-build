@@ -107,11 +107,18 @@ function saveAsManifest(path: string, fileName: string) {
   ;
 }
 
-
+// todo - make sure all properties are tested
 export function toManifestEntry(newEntry: CMSEntry) {
-  const { id, title, author, date, hash, summary } = newEntry;
-  const entry: ManifestEntry = { id, title, author, hash, date, };
-  if (summary) entry.summary = summary;
+  const { id, title, author, date, hash, summary, category } = newEntry;
+  const entry: ManifestEntry = {
+    id,
+    title,
+    author,
+    summary,
+    category,
+    hash,
+    date,
+  };
   return entry;
 }
 

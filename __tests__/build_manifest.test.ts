@@ -227,7 +227,7 @@ describe('buildManifest(options)', () => {
     const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
     const fileStats = statSync(filePath);
     await tdd.buildManifest(options);
-    expect(fileStats.mtimeMs).toBe(1645318462758.2097);
+    expect(fileStats.mtimeMs).toBe(1645548235897.6943);
   });
 
   it('saves manifest when entries have been modified.', async () => {
