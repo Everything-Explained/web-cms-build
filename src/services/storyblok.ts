@@ -1,15 +1,12 @@
 import { ISODateString } from "../global_interfaces";
 import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
-import config from '../../config.json';
 import { setIfInDev, toShortHash } from "../utilities";
 import { useMarkdown } from "./markdown/md_core";
 
 
 
-
-
-
-
+//##################################
+//#region Types and Interfaces
 export type StoryVersion    = 'published'|'draft';
 export type StorySortString =
    'created_at:desc'
@@ -104,10 +101,8 @@ type MockStoryBlokAPI = {
 }
 
 export type StoryblokAPI = MockStoryBlokAPI|StoryblokClient;
-
-
-
-
+//#endregion
+//##################################
 
 
 
@@ -125,31 +120,30 @@ export function useStoryblok(api: StoryblokAPI) {
 
 
 async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryEntry[]> {
-  opt.page    ||= 1;
-  opt.stories ??= [];
-
   const { url, starts_with, version, sort_by, page } = opt;
   const apiOptions: StoryOptions = {
     starts_with,
     version,
     sort_by,
-    page,
+    page: page || 1,
     per_page: opt.per_page || 100
   };
-  const resp = await api.get(url, apiOptions);
-  const stories = resp.data.stories;
+  const sbResp = await api.get(url, apiOptions);
+  let currentStories: StoryEntry[] = sbResp.data.stories;
+  const totalStories: StoryEntry[] = [];
 
-  if (stories.length) {
-    opt.stories.push(...stories);
-    opt.page += 1;
-    return getRawStories(opt, api);
+  while (currentStories.length) {
+    totalStories.push(...currentStories);
+    apiOptions.page! += 1;
+    const sbResp = await api.get(url, apiOptions);
+    currentStories = sbResp.data.stories;
   }
 
   // We want our build process to fail if stories can't be found
-  if (!opt.stories.length)
+  if (!totalStories.length)
     throw Error(`Missing Stories From "${starts_with}"`)
   ;
-  return opt.stories;
+  return totalStories;
 }
 
 
