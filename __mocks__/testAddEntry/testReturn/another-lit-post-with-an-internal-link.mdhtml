@@ -1,1 +1,0 @@
-<p>This is some body text with an internal link <a href="/changelog" onclick="event.preventDefault(); window.app.$router.push('/changelog')">link</a></p>
