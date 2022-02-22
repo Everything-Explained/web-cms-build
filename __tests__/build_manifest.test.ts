@@ -4,6 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 import { BuildOptionsInternal, _tdd_buildManifest } from "../src/build_manifest";
 import { CMSEntry, CMSOptions, useStoryblok } from "../src/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
+import { resolve as pathResolve } from "path";
 
 
 
@@ -55,18 +56,6 @@ describe('readManifestFile(path, filename)', () => {
     expect(entries instanceof Array).toBe(true);
     expect('hash' in entries[0]).toBe(true);
     expect(typeof entries[0]).toBe('object');
-  });
-
-});
-
-
-describe('saveAsManifest(path, filename)(cmsEntries)', () => {
-
-  it('saves CMS Entries as Manifest entries to the specified path and filename.', async () => {
-    const path     = `${mockDir}/saveAsManifest`;
-    const filename = 'saveAsManifest';
-    const entries  = await sb.getCMSEntries(toSBlokOpt('test/simple'));
-    await tdd.saveAsManifest(path, filename)(entries);
   });
 
 });
@@ -241,6 +230,14 @@ describe('buildManifest(options)', () => {
     const entries = JSON.parse(rawEntries);
     expect(entries[0].id).toBe(69866748);
     await writeFile(filePath, testFileContent);
+  });
+
+  it('returns a tuple of buildPath and manifest.', async () => {
+    const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
+    const [buildPath, latestEntries] = await tdd.buildManifest(options);
+    const correctBuildPath = pathResolve(`${mockDir}/buildManifest`);
+    expect(latestEntries.length).toBe(3);
+    expect(buildPath).toBe(correctBuildPath);
   });
 
 });

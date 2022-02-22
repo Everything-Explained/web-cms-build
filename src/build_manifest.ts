@@ -46,17 +46,17 @@ export interface BuildOptionsInternal extends BuildOptions {
   manifestName: string;
 }
 
+type BuildResult = Promise<[buildPath: string, latestEntries: CMSEntry[]]>;
 
 
 
-export async function buildManifest(opts: BuildOptions) {
+
+export async function buildManifest(opts: BuildOptions): BuildResult {
   const { url, api, starts_with, sort_by, version } = opts;
   opts.buildPath = pathResolve(opts.buildPath);
   opts.manifestName ??= pathBasename(opts.buildPath);
 
-  const cmsOptions: CMSOptions = {
-    url, starts_with, sort_by, version,
-  };
+  const cmsOptions: CMSOptions = { url, starts_with, sort_by, version, };
 
   const latestEntries  = await useStoryblok(api).getCMSEntries(cmsOptions);
   const oldEntries     = await getManifestEntries(latestEntries, opts as BuildOptionsInternal);
@@ -65,12 +65,15 @@ export async function buildManifest(opts: BuildOptions) {
     detectUpdatedEntries(opts.onUpdate),
     detectDeletedEntries(opts.onDelete),
   ];
-  const hasUpdatedEntries =
-    detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true)
-  ;
+
+  const hasUpdatedEntries = detectionFuncs.map(f => f(oldEntries, latestEntries)).includes(true);
+  const manifest          = latestEntries.map(toManifestEntry);
+
   if (hasUpdatedEntries) {
-    await saveAsManifest(opts.buildPath, opts.manifestName)(latestEntries);
+    await saveAsJSON(opts.buildPath, opts.manifestName)(manifest);
   }
+
+  return [opts.buildPath, manifest];
 }
 
 
@@ -86,12 +89,11 @@ async function getManifestEntries(latestEntries: CMSEntry[], opts: BuildOptionsI
 
 function initManifest(entries: CMSEntry[], opts: BuildOptionsInternal) {
   const { buildPath, manifestName } = opts;
-  const emptyFunc = (e: CMSEntry) => e;
-  return pipe(
-    tryCreateDir(opts.buildPath),
-    forEach<CMSEntry>(opts.onAdd ?? emptyFunc),
-    saveAsManifest(buildPath, manifestName)
-  )(entries);
+  tryCreateDir(opts.buildPath);
+  if (opts.onAdd) {
+    entries.forEach(opts.onAdd);
+  }
+  return saveAsJSON(buildPath, manifestName)(entries.map(toManifestEntry));
 }
 
 
@@ -100,12 +102,6 @@ async function readManifestFile(path: string, fileName: string) {
   return JSON.parse(file) as Manifest;
 }
 
-
-function saveAsManifest(path: string, fileName: string) {
-  return (entries: CMSEntry[]) =>
-    saveAsJSON(path, fileName)(entries.map(toManifestEntry))
-  ;
-}
 
 // todo - make sure all properties are tested
 export function toManifestEntry(newEntry: CMSEntry) {
@@ -186,7 +182,6 @@ export const _tdd_buildManifest = setIfInDev({
   initManifest,
   readManifestFile,
   tryCreateDir,
-  saveAsManifest,
   toManifestEntry,
   saveAsJSON,
   detectAddedEntries,
