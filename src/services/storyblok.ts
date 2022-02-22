@@ -67,8 +67,6 @@ export interface StoryOptions {
 
 export interface CMSOptions extends StoryOptions {
   url         : string; // cdn/stories/
-  /** Utilized for **recursive calls only** */
-  stories?    : StoryEntry[];
 }
 
 interface PartialCMSEntry {
