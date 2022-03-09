@@ -1,4 +1,4 @@
-import { readFile, access }  from 'fs/promises';
+import { readFile, open, stat }  from 'fs/promises';
 import { pipe, is, both, forEach }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve, join as pathJoin } from 'path';
@@ -83,8 +83,10 @@ export async function buildManifest(opts: BuildOptions): BuildResult {
 
 async function getManifestEntries(latestEntries: CMSEntry[], opts: BuildOptionsInternal) {
   const { buildPath, manifestName} = opts;
-  const accessResponse = await tryCatchAsync(access(`${buildPath}/${manifestName}.json`));
-  return both(is(Error), isENOENT)(accessResponse)
+  const accessResponse = await tryCatchAsync(stat(`${buildPath}/${manifestName}.json`));
+  const isFileENOENT = is(Error)(accessResponse) && isENOENT(accessResponse);
+
+  return isFileENOENT
     ? await initManifest(latestEntries, opts)
     : await readManifestFile(buildPath, manifestName)
   ;
