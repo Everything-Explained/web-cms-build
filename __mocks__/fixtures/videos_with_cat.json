@@ -51,7 +51,6 @@
         "timestamp": "2021-04-11T10:21:29.000Z"
       },
       "slug": "story-three",
-      "full_slug": "library/videos/general-spirituality-meta-spirituality/exploring-the-body",
       "tag_list": [],
       "first_published_at": "2021-04-11T16:03:44.212Z"
     },
@@ -88,7 +87,42 @@
         "timestamp": "2021-06-23T11:30:04.000Z"
       },
       "slug": "story-five",
-      "full_slug": "library/videos/enlightenment/how-to-get-what-you-are",
+      "tag_list": [],
+      "first_published_at": "2021-06-23T12:31:50.974Z"
+    },
+    {
+      "name": "Story Six",
+      "created_at": "2021-06-23T12:05:27.998Z",
+      "published_at": "2021-06-23T12:31:50.974Z",
+      "id": 68136589,
+      "content": {
+        "id": "f3iKJe089f",
+        "summary": "Oooo a summary huh?",
+        "title": "Story Six",
+        "author": "Giggle Gadget",
+        "category": "AC",
+        "component": "video",
+        "timestamp": "2021-06-23T11:30:04.000Z"
+      },
+      "slug": "story-six",
+      "tag_list": [],
+      "first_published_at": "2021-06-23T12:31:50.974Z"
+    },
+    {
+      "name": "Story Seven",
+      "created_at": "2021-06-23T12:05:27.998Z",
+      "published_at": "2021-06-23T12:31:50.974Z",
+      "id": 68136589,
+      "content": {
+        "id": "34Ij189aI90M",
+        "summary": "I like shooting my web at strangers.",
+        "title": "Story Seven",
+        "author": "Peter Parker",
+        "category": "AA",
+        "component": "video",
+        "timestamp": "2021-06-23T11:30:04.000Z"
+      },
+      "slug": "story-seven",
       "tag_list": [],
       "first_published_at": "2021-06-23T12:31:50.974Z"
     }

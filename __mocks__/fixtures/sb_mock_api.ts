@@ -2,6 +2,7 @@ import { StoryblokResult } from "storyblok-js-client";
 import { StoryOptions } from "../../src/services/storyblok";
 import simpleData from './simple_data.json';
 import videoCatData from './videos_with_cat.json';
+import categoryList from './category_list.json';
 
 
 
@@ -24,11 +25,11 @@ const emptyResult = {
 async function get(slug: string, params: StoryOptions): Promise<StoryblokResult> {
   const page     = params.page ?? 1;
   const per_page =  params.per_page ?? 1;
-  const slugIs   = (testSlug: string) => slug == testSlug;
+  const uriIs   = (testSlug: string) => params.starts_with == testSlug;
 
   if (!per_page) throw Error('"per_page" param must be > 0');
 
-  if (slugIs('test/simple')) {
+  if (uriIs('test/simple')) {
     if (page > 1) return emptyResult;
     return {
       ...emptyResult,
@@ -36,12 +37,12 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     };
   }
 
-  if (slugIs('test/singlepage') && page == 1) return {
+  if (uriIs('test/singlepage') && page == 1) return {
     ...emptyResult,
     data: { stories: simpleData.stories }
   };
 
-  if (slugIs('test/videos_with_categories')) {
+  if (uriIs('test/category/videos')) {
     if (page > 1) return emptyResult;
     return {
       ...emptyResult,
@@ -51,7 +52,17 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     };
   }
 
-  if (slugIs('test/multipage')) {
+  if (uriIs('test/category/list')) {
+    if (page > 1) return emptyResult;
+    return {
+      ...emptyResult,
+      data: {
+        stories: categoryList.stories
+      }
+    };
+  }
+
+  if (uriIs('test/multipage')) {
     const index = findIndexByPage(page, per_page);
     return {
       ...emptyResult,
@@ -62,6 +73,7 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
   }
   return emptyResult;
 }
+
 
 
 function findIndexByPage(page: number, perPage: number) {
