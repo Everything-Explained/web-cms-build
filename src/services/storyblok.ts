@@ -187,7 +187,10 @@ async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryE
 
   while (currentStories.length) {
     totalStories.push(...currentStories);
-    apiOptions.page! += 1;
+    //* Prevent excess requests
+    //! An extra request WILL happen when length == per_page
+    if (totalStories.length < apiOptions.per_page) break;
+    apiOptions.page += 1;
     const sbResp = await api.get(url, apiOptions);
     currentStories = sbResp.data.stories;
   }
