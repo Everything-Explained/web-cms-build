@@ -1,7 +1,9 @@
+
+
 import del from "del";
-import { existsSync, statSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
-import { BuildOptionsInternal, _tdd_buildManifest } from "../src/build_manifest";
+import { existsSync } from "fs";
+import { readFile, stat } from "fs/promises";
+import { BuildOptionsInternal, HashManifestEntry, _tdd_buildManifest } from "../src/build_manifest";
 import { CMSEntry, CMSOptions, useStoryblok } from "../src/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import { resolve as pathResolve } from "path";
@@ -15,6 +17,17 @@ import { resolve as pathResolve } from "path";
 const tdd = _tdd_buildManifest!;
 const sb = useStoryblok(mockStoryblokAPI);
 const mockDir = './__mocks__/build_manifest';
+const mockCMSEntry: CMSEntry = {
+  id: 38123974,
+  title: 'hello world',
+  author: 'author',
+  summary: 'summary',
+  categoryTable: [],
+  category: 'AB',
+  hash: '42O691ee7',
+  date: '2022-03-10T22:09:42.359Z'
+};
+
 
 function toSBlokOpt(slug: string, page?: number, per_page?: number) {
   const options: CMSOptions = {
@@ -36,6 +49,9 @@ function mockBuildOptions(opts: {[key: string]: any}) {
     sort_by: 'created_at:desc',
     manifestName: 'temp_name',
     api: mockStoryblokAPI,
+    isInit: false,
+    canSave: true,
+    isHashManifest: false,
     buildPath: ''
   };
   return { ...defaultOptions, ...opts };
@@ -48,7 +64,6 @@ function mockBuildOptions(opts: {[key: string]: any}) {
 
 
 describe('readManifestFile(path, filename)', () => {
-
   it('returns an array of manifest entries from the manifest file.', async () => {
     const path     = `${mockDir}/readManifestFile`;
     const filename = 'readManifestFile';
@@ -57,13 +72,42 @@ describe('readManifestFile(path, filename)', () => {
     expect('hash' in entries[0]).toBe(true);
     expect(typeof entries[0]).toBe('object');
   });
-
 });
+
+
+
+describe('toManifestEntry(cmsEntry)', () => {
+  it('return ManifestEntry object.', async () => {
+    const manifestEntry = tdd.toManifestEntry(mockCMSEntry);
+    expect(manifestEntry).toEqual({
+      id       : 38123974,
+      title    : 'hello world',
+      author   : 'author',
+      summary  : 'summary',
+      category : 'AB',
+      hash     : '42O691ee7',
+      date     : '2022-03-10T22:09:42.359Z'
+    });
+  });
+});
+
+
+
+describe('toHashManifestEntry(cmsEntry)', () => {
+  it('return HashManifestEntry object.', async () => {
+    const manifestEntry = tdd.toHashManifestEntry(mockCMSEntry);
+    expect(manifestEntry).toEqual({
+      id    : 38123974,
+      title : 'hello world',
+      hash  : '42O691ee7',
+    });
+  });
+});
+
 
 
 // TODO - Change to detect**New**Entries()
 describe('detectAddedEntries(onAddEntries)(oldEntries, latestEntries)', () => {
-
   it('returns true if new entries have been detected.', async () => {
     const path = `${mockDir}/detectAddedEntries`;
     const latestEntries   = await sb.getCMSEntries(toSBlokOpt('test/simple'));
@@ -81,12 +125,11 @@ describe('detectAddedEntries(onAddEntries)(oldEntries, latestEntries)', () => {
     tdd.detectAddedEntries(onAddedEntries)(oldEntries, latestEntries);
     expect(counter).toBe(3);
   });
-
 });
 
 
-describe('detectDeletedEntries(onDeletedEntry)(oldEntries, latestEntries)', () => {
 
+describe('detectDeletedEntries(onDeletedEntry)(oldEntries, latestEntries)', () => {
   it('returns true if deleted entries have been detected.', async () => {
     const path = `${mockDir}/detectDeletedEntries`;
     const latestEntries     = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
@@ -101,7 +144,7 @@ describe('detectDeletedEntries(onDeletedEntry)(oldEntries, latestEntries)', () =
     const oldEntries    = await tdd.readManifestFile(path, 'detectDeletedEntries');
     let counter = 0;
     tdd.detectDeletedEntries(
-      (deletedEntry: CMSEntry) => {
+      (deletedEntry: CMSEntry|HashManifestEntry) => {
         ++counter;
         if (counter == 1) expect(deletedEntry.hash).toBe('abracadabra');
         if (counter == 2) expect(deletedEntry.hash).toBe('bighashdaddy');
@@ -109,12 +152,11 @@ describe('detectDeletedEntries(onDeletedEntry)(oldEntries, latestEntries)', () =
     )(oldEntries, latestEntries);
     expect(counter).toBe(2);
   });
-
 });
 
 
-describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', () => {
 
+describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', () => {
   it('return true if updated entries have been detected.', async () => {
     const path = `${mockDir}/detectUpdatedEntries`;
     const latestEntries = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
@@ -134,12 +176,11 @@ describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', ()
     })(oldEntries, latestEntries);
     expect(counter).toBe(1);
   });
-
 });
 
 
-describe('initManifest(entries, options)', () => {
 
+describe('initManifest(entries, options)', () => {
   it('initializes a new manifest using specified entries and options.', async () => {
     const dir = `${mockDir}/initManifest`;
     const filePath = `${dir}/init_manifest.json`;
@@ -189,12 +230,11 @@ describe('initManifest(entries, options)', () => {
     await tdd.initManifest(latestEntries, options);
     expect(existsSync(filePath)).toBe(false);
   });
-
 });
 
 
-describe('getManifestEntries(latestEntries, options)', () => {
 
+describe('getManifestEntries(latestEntries, options)', () => {
   const dir = `${mockDir}/getManifestEntries`;
 
   it('initialize a manifest using the latest entries, if it does not exist.', async () => {
@@ -212,63 +252,112 @@ describe('getManifestEntries(latestEntries, options)', () => {
     const entries = await tdd.getManifestEntries(latestEntries, options);
     expect(entries[0].id).toBe(420691337);
   });
-
 });
 
 
-describe('buildManifest(options)', () => {
 
-  const dir = `${mockDir}/buildManifest`;
+describe('buildManifest(options)', () => {
+  const _dir = `${mockDir}/buildManifest`;
+  const _filePath = `${_dir}/buildManifest.json`;
+  const _options = mockBuildOptions({ manifestName: undefined, buildPath: _dir });
+
+  beforeEach(async () => {
+    await tdd.buildManifest(_options);
+  });
+
+  afterEach(async () => {
+    await del(_filePath);
+  });
 
   it('uses buildPath folder as default manifest file name.', async () => {
-    const filePath = `${dir}/buildManifest.json`;
-    const options = mockBuildOptions({ manifestName: undefined, buildPath: dir });
-    await tdd.buildManifest(options);
-    expect(existsSync(filePath)).toBe(true);
-    del(filePath);
+    expect(existsSync(_filePath)).toBe(true);
   });
 
   it('does not save entries if no entries are modified.', async () => {
-    const filePath = `${dir}/test_manifest.json`;
-    const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
-    const fileStats = statSync(filePath);
-    await tdd.buildManifest(options);
-    expect(fileStats.mtimeMs).toBe(1645548235897.6943);
+    const fileStats1 = await stat(_filePath);
+    await tdd.buildManifest(_options);
+    const fileStats2 = await stat(_filePath);
+    expect(fileStats2.mtimeMs).toBe(fileStats1.mtimeMs);
   });
 
   it('saves manifest when entries have been modified.', async () => {
-    const fileName = 'modified_manifest';
-    const filePath = `${dir}/${fileName}.json`;
-    const testFileContent = await readFile(filePath, { encoding: 'utf-8' });
-    const options = mockBuildOptions({ manifestName: `${fileName}`, buildPath: dir });
-    expect(testFileContent.includes('420691337')).toBe(true);
+    const testFileContent = await readFile(_filePath, { encoding: 'utf-8' });
+    expect(testFileContent.includes('69866748')).toBe(true);
+    const options = { ..._options, starts_with: 'test/category/videos' };
     await tdd.buildManifest(options);
-    const rawEntries = await readFile(filePath, { encoding: 'utf-8'});
+    const rawEntries = await readFile(_filePath, { encoding: 'utf-8'});
     const entries = JSON.parse(rawEntries);
-    expect(entries[0].id).toBe(69866748);
-    await writeFile(filePath, testFileContent);
+    expect(entries[0].id).toBe('rbkzASVI7wg');
   });
 
   it('does not save manifest if options.canSave is set to false.', async () => {
-    const filePath = `${dir}/should_not_save.json`;
+    const filePath = `${_dir}/should_not_save.json`;
     const options = mockBuildOptions({
       manifestName: 'should_not_save',
-      buildPath: dir,
+      buildPath: _dir,
       canSave: false
     });
     await tdd.buildManifest(options);
     expect(existsSync(filePath)).toBe(false);
   });
 
+  it('does not create folder when options.canSave is set to false.', async () => {
+    const buildPath = `${_dir}/should_not_save_folder`;
+    const options = mockBuildOptions({
+      manifestName: 'should_not_save',
+      buildPath,
+      canSave: false
+    });
+    await tdd.buildManifest(options);
+    expect(existsSync(buildPath)).toBe(false);
+  });
+
+  it('saves hash-only manifest when isHashManifest set to true.', async () => {
+    const fileName = 'hashOnly';
+    const options = { ..._options, manifestName: fileName, isHashManifest: true };
+    await tdd.buildManifest(options);
+    const file = await readFile(`${_dir}/${fileName}.json`, { encoding: 'utf-8'});
+    const entry = JSON.parse(file)[0];
+    expect(entry).toEqual({
+      "id": 69866748,
+      "title": "A New Lit Post that contains an Image",
+      "hash": "2c6181fe83007"
+    });
+    await del(`${_dir}/${fileName}.json`);
+  });
+
+  it('saves hash-only manifest when updates are discovered and isHashManifest is set to true.', async () => {
+    const oldFile = await readFile(_filePath, { encoding: 'utf-8'});
+    const oldEntry = JSON.parse(oldFile)[0];
+    const options = { ..._options, starts_with: 'test/category/videos', isHashManifest: true };
+    await tdd.buildManifest(options);
+    const newFile = await readFile(_filePath, { encoding: 'utf-8'});
+    const newEntry = JSON.parse(newFile)[0];
+    expect(oldEntry.id).toBe(69866748);
+    expect(newEntry.id).toBe('rbkzASVI7wg');
+  });
+
   it('returns a tuple of filePath, manifest and entries update status.', async () => {
-    const options = mockBuildOptions({ manifestName: 'test_manifest', buildPath: dir });
-    const [filePath, latestEntries, isUpdated] = await tdd.buildManifest(options);
-    const correctBuildPath = pathResolve(`${mockDir}/buildManifest/test_manifest.json`);
+    const [filePath, latestEntries, isUpdated] = await tdd.buildManifest(_options);
+    const correctBuildPath = pathResolve(_filePath);
     expect(filePath).toBe(correctBuildPath);
     expect(latestEntries.length).toBe(3);
     expect(isUpdated).toBe(false);
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

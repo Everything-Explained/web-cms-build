@@ -1,5 +1,5 @@
-import { readFile, open, stat }  from 'fs/promises';
-import { pipe, is, both, forEach }  from "ramda";
+import { readFile, stat }  from 'fs/promises';
+import { is }  from "ramda";
 import { ISODateString }                from "./global_interfaces";
 import { basename as pathBasename, resolve as pathResolve, join as pathJoin } from 'path';
 import { console_colors as cc, lnfo, lwarn } from "./lib/logger";
@@ -138,7 +138,7 @@ async function readManifestFile(path: string, fileName: string) {
 
 
 // todo - make sure all properties are tested
-export function toManifestEntry(newEntry: CMSEntry) {
+function toManifestEntry(newEntry: CMSEntry) {
   const { id, title, author, date, hash, summary, category } = newEntry;
   const entry: ManifestEntry = {
     id,
@@ -153,7 +153,7 @@ export function toManifestEntry(newEntry: CMSEntry) {
 }
 
 
-export function toHashManifestEntry(newEntry: CMSEntry) {
+function toHashManifestEntry(newEntry: CMSEntry) {
   const {id, title, hash} = newEntry;
   const entry: HashManifestEntry = {
     id, title, hash,
@@ -226,6 +226,7 @@ export const _tdd_buildManifest = setIfInDev({
   readManifestFile,
   tryCreateDir,
   toManifestEntry,
+  toHashManifestEntry,
   saveAsJSON,
   detectAddedEntries,
   detectDeletedEntries,
