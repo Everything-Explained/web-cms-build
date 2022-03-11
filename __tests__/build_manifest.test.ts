@@ -106,7 +106,6 @@ describe('toHashManifestEntry(cmsEntry)', () => {
 
 
 
-// TODO - Change to detect**New**Entries()
 describe('detectAddedEntries(onAddEntries)(oldEntries, latestEntries)', () => {
   it('returns true if new entries have been detected.', async () => {
     const path = `${mockDir}/detectAddedEntries`;

@@ -137,7 +137,6 @@ async function readManifestFile(path: string, fileName: string) {
 }
 
 
-// todo - make sure all properties are tested
 function toManifestEntry(newEntry: CMSEntry) {
   const { id, title, author, date, hash, summary, category } = newEntry;
   const entry: ManifestEntry = {
