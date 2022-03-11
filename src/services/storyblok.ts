@@ -1,12 +1,29 @@
+
+
 import { ISODateString } from "../global_interfaces";
 import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
 import { setIfInDev, toShortHash, tryCatchAsync } from "../utilities";
 import { useMarkdown } from "./markdown/md_core";
+import config from '../../config.json';
+
+
+
+
 
 
 
 //##################################
 //#region Types and Interfaces
+interface InternalStoryOptions {
+  /** Slug pointing to CMS content */
+  starts_with : string;
+  sort_by     : StorySortString;
+  version     : StoryVersion;
+  page        : number;
+  /** Utilized in **mocks only** */
+  per_page    : number;
+}
+
 export type StoryVersion    = 'published'|'draft';
 export type StorySortString =
    'created_at:desc'
@@ -16,11 +33,17 @@ export type StorySortString =
   |'content.timestamp:asc'
   |'content.timestamp:desc'
 ;
-export type StoryCategoryTableBody = Array<[
+export type StoryCategoryTableBody = [
   title       : { value: string },
-  category    : { value: string },
+  code        : { value: string },
   description : { value: string },
-]>
+]
+
+export type StoryCategory = {
+  name : string,
+  code  : string,
+  desc  : string,
+}
 
 export interface Story {
   id                 : number;
@@ -36,13 +59,14 @@ export interface StoryEntry extends Story {
 }
 
 export interface StoryContent {
-  id        ?: string;
-  title      : string;
-  author     : string;
-  category  ?: string;
-  summary   ?: string;
-  body      ?: string;
-  timestamp ?: ISODateString;
+  id?         : string;
+  title       : string;
+  author      : string;
+  category?   : string;
+  summary?    : string;
+  body?       : string;
+  categories? : { tbody: { body: StoryCategoryTableBody }[] };
+  timestamp?  : ISODateString;
 }
 
 export interface StoryVideoCategories extends Story {
@@ -70,28 +94,29 @@ export interface CMSOptions extends StoryOptions {
 }
 
 interface PartialCMSEntry {
-  id         : string|number;
-  title      : string;
-  author     : string;
-  summary?   : string;
-  body?      : string;
+  id             : string|number;
+  title          : string;
+  author         : string;
+  summary?       : string;
+  body?          : string;
+  categoryTable? : StoryCategoryTableBody[];
   /** Video Category */
-  category?  : string;
+  category?      : string;
   /** A Hash of all the Entry's data, excluding this property. */
-  hash?      : string;
+  hash?          : string;
   /** Defaults to the most relevant date property of the content */
-  date       : ISODateString;
+  date           : ISODateString;
 }
 
 export interface CMSEntry extends PartialCMSEntry {
-  readonly id        : string|number;
-  readonly title     : string;
-  readonly author    : string;
-  readonly summary?  : string;
-  readonly body?     : string;
-  readonly category? : string;
-  readonly hash      : string;
-  readonly date      : ISODateString;
+  readonly id       : string|number;
+  readonly title    : string;
+  readonly author   : string;
+  readonly summary? : string;
+  readonly body?    : string;
+  category?         : string;
+  hash              : string;
+  readonly date     : ISODateString;
 }
 
 type MockStoryBlokAPI = {
@@ -104,7 +129,16 @@ export type StoryblokAPI = MockStoryBlokAPI|StoryblokClient;
 
 
 
+
+
+
+
 const md = useMarkdown();
+
+export const storyBlokAPI = new StoryblokClient({
+  accessToken: config.apis.storyBlokToken,
+  cache: { type: 'memory', clear: 'auto' }
+});
 
 
 export function useStoryblok(api: StoryblokAPI) {
@@ -112,14 +146,32 @@ export function useStoryblok(api: StoryblokAPI) {
     getCMSEntries: async (options: CMSOptions) => {
       const stories = await getRawStories(options, api);
       return stories.map(toCMSEntry);
+    },
+    getCategoryList: async (options: CMSOptions) => {
+      const categoryList = await getRawStories(options, api);
+      const categories = categoryList[0].content.categories;
+      if (categories) {
+        return categories.tbody.reduce(toCategory, []);
+      }
+      throw Error('No Categories Found');
     }
   };
+}
+
+function toCategory(pv: StoryCategory[], cv: { body: StoryCategoryTableBody }) {
+  const [title, code, description] = cv.body;
+  pv.push({
+    name: title.value,
+    code: code.value,
+    desc: description.value
+  } as StoryCategory);
+  return pv;
 }
 
 
 async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryEntry[]> {
   const { url, starts_with, version, sort_by, page } = opt;
-  const apiOptions: StoryOptions = {
+  const apiOptions: InternalStoryOptions = {
     starts_with,
     version,
     sort_by,
@@ -139,7 +191,6 @@ async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryE
     const sbResp = await api.get(url, apiOptions);
     currentStories = sbResp.data.stories;
   }
-
   // We want our build process to fail if stories can't be found
   if (!totalStories.length)
     throw Error(`Missing Stories From "${starts_with}"`)
