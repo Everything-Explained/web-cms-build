@@ -162,7 +162,6 @@ describe('buildVideos(options, withCategories)', () => {
   });
 
   it('saves entries as video categories with hash-only manifest.', async () => {
-    const fileName = 'categoryVideos';
     const isUpdated = await tdd.buildVideos(
       toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list'),
       true
@@ -173,8 +172,6 @@ describe('buildVideos(options, withCategories)', () => {
     expect(categories[0]).toBe('General Spirituality (Meta-Spirituality)');
     expect(categories.length).toBe(5);
     expect(isUpdated).toBe(true);
-    await del(`${path}/${fileName}.json`);
-    await del(`${path}/${fileName}Manifest.json`);
   });
 });
 
