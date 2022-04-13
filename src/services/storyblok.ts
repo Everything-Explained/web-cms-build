@@ -93,7 +93,7 @@ export interface CMSOptions extends StoryOptions {
   url         : string; // cdn/stories/
 }
 
-interface PartialCMSEntry {
+export interface PartialCMSEntry {
   id             : string|number;
   title          : string;
   author         : string;
