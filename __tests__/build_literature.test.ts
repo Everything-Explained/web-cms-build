@@ -1,6 +1,7 @@
 import del from "del";
 import { existsSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { join as pathJoin } from "path";
+import { copyFile, readdir, readFile, writeFile } from "fs/promises";
 import { _tdd_buildLiterature } from "../src/build_literature";
 import { CMSEntry, CMSOptions, PartialCMSEntry, useStoryblok } from "../src/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
@@ -35,6 +36,15 @@ function build(starts_with: string, path: string) {
     sort_by: 'created_at:asc',
     api: mockStoryblokAPI,
   });
+}
+
+async function copyFiles(src: string, dest: string) {
+  const fileNames = await readdir(src);
+  for (const fileName of fileNames) {
+    const filePath = pathJoin(src, fileName);
+    const fileDestPath = pathJoin(dest, fileName);
+    await copyFile(filePath, fileDestPath);
+  }
 }
 
 
@@ -101,20 +111,20 @@ describe('buildLiterature()', () => {
     const entry = (await mockSB.getCMSEntries(toSBlokOpt('test/multipage')))[0];
     const mockFolder = `${mockDir}/addEntry`;
     const mockFilepath = `${mockFolder}/addEntry.json`;
-    const oldManifest = await readFile(`${mockFilepath}`, 'utf-8');
+    await copyFiles(`${mockFolder}/mock_files`, `${mockFolder}`);
     expect(existsSync(`${mockFolder}/69866748.mdhtml`)).toBe(false);
     await build('test/multipage', 'addEntry');
     expect(existsSync(`${mockFolder}/69866748.mdhtml`)).toBe(true);
     const addedEntry = JSON.parse(await readFile(`${mockFilepath}`, 'utf-8'))[0];
     expect(addedEntry.id).toEqual(entry.id);
     // reset files
-    await writeFile(`${mockFilepath}`, oldManifest);
     await del(`${mockFolder}/69866748.mdhtml`);
   });
 
   it('save literature when updating an entry', async () => {
     const mockFolder = `${mockDir}/updateEntry`;
     const mockFilepath = `${mockFolder}/updateEntry.json`;
+    await copyFiles(`${mockFolder}/mock_files`, `${mockFolder}`);
     const oldManifest = await readFile(`${mockFilepath}`, 'utf-8');
     const oldContent = await readFile(`${mockFolder}/69866748.mdhtml`, 'utf-8');
     const oldEntry = JSON.parse(oldManifest)[0];
@@ -123,18 +133,13 @@ describe('buildLiterature()', () => {
     const updatedContent = await readFile(`${mockFolder}/69866748.mdhtml`, 'utf-8');
     expect(updatedContent).not.toBe(oldContent);
     expect(updatedEntry.hash).not.toBe(oldEntry.hash);
-    // reset files
-    await writeFile(`${mockFilepath}`, oldManifest);
-    await writeFile(`${mockFolder}/69866748.mdhtml`, oldContent);
   });
 
   it('delete literature when removing an entry', async () => {
     const mockFolder = `${mockDir}/deleteEntry`;
     const mockFilepath = `${mockFolder}/deleteEntry.json`;
-    const oldManifest = await readFile(`${mockFilepath}`, 'utf-8');
+    await copyFiles(`${mockFolder}/mock_files`, `${mockFolder}`);
     const oldEntries = JSON.parse(await readFile(`${mockFilepath}`, 'utf-8'));
-    const oldEntry1 = await readFile(`${mockFolder}/69866783.mdhtml`, 'utf-8');
-    const oldEntry2 = await readFile(`${mockFolder}/69866784.mdhtml`, 'utf-8');
     expect(oldEntries.length).toBe(3);
     expect(existsSync(`${mockFolder}/69866783.mdhtml`)).toBe(true);
     expect(existsSync(`${mockFolder}/69866784.mdhtml`)).toBe(true);
@@ -143,10 +148,6 @@ describe('buildLiterature()', () => {
     expect(existsSync(`${mockFolder}/69866784.mdhtml`)).toBe(false);
     const newEntries = JSON.parse(await readFile(`${mockFilepath}`, 'utf-8'));
     expect(newEntries.length).toBe(1);
-    // reset files
-    await writeFile(`${mockFilepath}`, oldManifest);
-    await writeFile(`${mockFolder}/69866783.mdhtml`, oldEntry1);
-    await writeFile(`${mockFolder}/69866784.mdhtml`, oldEntry2);
   });
 });
 
