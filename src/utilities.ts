@@ -8,10 +8,16 @@ import { console_colors as cc, lact } from "./lib/logger";
 
 
 
+
+
+
 interface ObjWithID {
   id: string|number;
   [key: string]: any;
 }
+
+
+
 
 
 
@@ -97,6 +103,11 @@ export function setIfInDev<T>(data: T) {
 
 export function isENOENT(err: Error) {
   return err.message.includes('ENOENT');
+}
+
+
+export function delayExec(timeInMs: number) {
+  return (cb: () => void) => setTimeout(cb, timeInMs);
 }
 
 

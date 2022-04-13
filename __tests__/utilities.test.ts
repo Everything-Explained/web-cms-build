@@ -1,6 +1,6 @@
 import del from 'del';
 import { readFile } from 'fs/promises';
-import { hasSameID, isENOENT, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
+import { delayExec, hasSameID, isENOENT, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
 
 
 
@@ -167,6 +167,23 @@ describe('isENOENT(error)', () => {
 
   it('returns false if error code is not ENOENT.', () => {
     expect(isENOENT(Error('no error code'))).toBe(false);
+  });
+});
+
+
+describe('delayExec(timeInMs)(cb)', () => {
+  it('delays the execution of the callback function by timeInMs', async () => {
+    const now = Date.now();
+    await (new Promise<boolean>((rs) => {
+      delayExec(20)(() => {
+        const timeDiff = Date.now() - now;
+        // Code execution timing is highly irregular and unpredictable
+        // so we have to go with a range of possible valid time differences.
+        expect(timeDiff).toBeGreaterThan(18);
+        expect(timeDiff).toBeLessThan(20 * 1.9);
+        rs(true);
+      });
+    }));
   });
 });
 
