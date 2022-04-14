@@ -1,7 +1,7 @@
 import { createHmac } from "crypto";
-import { mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { writeFile } from "fs/promises";
-import { basename as pathBasename } from "path";
+import { basename as pathBasename, resolve as pathResolve } from "path";
 import { pipe } from "ramda";
 import { console_colors as cc, lact } from "./lib/logger";
 
@@ -109,5 +109,28 @@ export function isENOENT(err: Error) {
 export function delayExec(timeInMs: number) {
   return (cb: () => void) => setTimeout(cb, timeInMs);
 }
+
+
+export function mkDirs(dirs: string[]) {
+  for (const dir of dirs) {
+    const fullDirPath = pathResolve(dir);
+    if (existsSync(fullDirPath)) continue;
+    lact('create', fullDirPath);
+    mkdirSync(dir);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,6 +1,7 @@
 import del from 'del';
+import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { delayExec, hasSameID, isENOENT, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
+import { delayExec, hasSameID, isENOENT, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
 
 
 
@@ -184,6 +185,34 @@ describe('delayExec(timeInMs)(cb)', () => {
         rs(true);
       });
     }));
+  });
+});
+
+
+describe('mkDirs(dirs)', () => {
+  const mockDir = `${MOCK_DIR}/mkDirs`;
+
+  it('skip directories that already exist', () => {
+    expect(() => mkDirs([`${mockDir}/skipThisDir1`, `${mockDir}/skipThisDir2`])).not.toThrow();
+  });
+
+  it('create all directories from array of dirs', async () => {
+    mkDirs([`${mockDir}/testDir1`, `${mockDir}/testDir2`]);
+    expect(existsSync(`${mockDir}/testDir1`)).toBe(true);
+    expect(existsSync(`${mockDir}/testDir2`)).toBe(true);
+    await del([`${mockDir}/testDir1`, `${mockDir}/testDir2`]);
+  });
+
+  it('create only directories that have not been skipped', async () => {
+    mkDirs([
+      `${mockDir}/skipThisDir1`,
+      `${mockDir}/testDir3`,
+      `${mockDir}/skipThisDir2`,
+      `${mockDir}/testDir4`,
+    ]);
+    expect(existsSync(`${mockDir}/testDir3`)).toBe(true);
+    expect(existsSync(`${mockDir}/testDir4`)).toBe(true);
+    await del([`${mockDir}/testDir3`, `${mockDir}/testDir4`]);
   });
 });
 
