@@ -5,7 +5,6 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { VideoBuildOptions, VideoCategories, _tdd_buildVideos } from "../src/build/build_videos";
 import { CMSEntry, CMSOptions, StoryCategory, useStoryblok } from "../src/services/storyblok";
-import { tryCatchAsync } from "../src/utilities";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 
 
@@ -133,27 +132,12 @@ describe('buildVideos(options, withCategories)', () => {
     expect(Object.hasOwn(manifest[0], 'id')).toBe(true);
   });
 
-  it('throw error when category list URI is missing, if withCategories is true.', async () => {
-    const error = await tryCatchAsync(
-      tdd.buildVideos(
-        toVideoOptions('test/category/videos', `${fileName}`, path),
-        true
-      )
-    );
-    const isError = error instanceof Error;
-    expect(isError).toBe(true);
-    if (isError) {
-      expect(error.message.includes('Category List')).toBe(true);
-    }
-  });
-
   it('skip processing if entries have not been updated.', async () => {
     const fileName = 'normalTestFile';
     const catFileName = 'catTestFile';
     const isUpdated = await tdd.buildVideos(toVideoOptions('test/singlepage', `${fileName}`, path));
     const isCatUpdated = await tdd.buildVideos(
-      toVideoOptions('test/category/videos', `${catFileName}`, path, 'test/category/list'),
-      true
+      toVideoOptions('test/category/videos', `${catFileName}`, path, 'test/category/list')
     );
     expect(isUpdated).toBe(false);
     expect(isCatUpdated).toBe(false);
@@ -163,9 +147,7 @@ describe('buildVideos(options, withCategories)', () => {
 
   it('saves entries as video categories with hash-only manifest.', async () => {
     const isUpdated = await tdd.buildVideos(
-      toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list'),
-      true
-    );
+      toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list'));
     const file = await readFile(`${path}/${fileName}.json`, { encoding: 'utf-8'});
     const categoryVideos = JSON.parse(file);
     const categories = Object.keys(categoryVideos);

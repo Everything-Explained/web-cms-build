@@ -51,7 +51,7 @@ export type VideoCategories = {
 
 
 
-export async function buildVideos(options: VideoBuildOptions, withCategories = false) {
+export async function buildVideos(options: VideoBuildOptions) {
   const buildOptions: BuildOptions = {
     ...options,
     url            : 'cdn/stories',
@@ -61,10 +61,6 @@ export async function buildVideos(options: VideoBuildOptions, withCategories = f
 
   const [filePath, entries, isUpdated] = await buildManifest(buildOptions);
   const saveVideos = saveAsJSON(pathDirname(filePath), options.fileName);
-
-  if (withCategories && !options.catList_starts_with) {
-    throw Error('Missing Category List URI');
-  }
 
   if (!isUpdated) return false;
 
