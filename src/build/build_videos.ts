@@ -6,8 +6,8 @@ import {
   CMSEntry, StoryblokAPI, StoryCategory,
   StorySortString, StoryVersion,
   useStoryblok
-} from "./services/storyblok";
-import { saveAsJSON, setIfInDev } from "./utilities";
+} from "../services/storyblok";
+import { saveAsJSON, setIfInDev } from "../utilities";
 import { dirname as pathDirname } from "path";
 
 

@@ -1,10 +1,10 @@
 import { readFile, stat }  from 'fs/promises';
 import { is }  from "ramda";
-import { ISODateString }                from "./global_interfaces";
+import { ISODateString }                from "../global_interfaces";
 import { basename as pathBasename, resolve as pathResolve, join as pathJoin } from 'path';
-import { console_colors as cc, lnfo, lwarn } from "./lib/logger";
-import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "./utilities";
-import { CMSEntry, CMSOptions, StoryblokAPI, StorySortString, StoryVersion, useStoryblok } from './services/storyblok';
+import { console_colors as cc, lnfo, lwarn } from "../lib/logger";
+import { hasSameID, isENOENT, saveAsJSON, setIfInDev, tryCatchAsync, tryCreateDir } from "../utilities";
+import { CMSEntry, CMSOptions, StoryblokAPI, StorySortString, StoryVersion, useStoryblok } from '../services/storyblok';
 
 
 

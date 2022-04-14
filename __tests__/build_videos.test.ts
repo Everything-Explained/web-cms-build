@@ -3,7 +3,7 @@
 import del from "del";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
-import { VideoBuildOptions, VideoCategories, _tdd_buildVideos } from "../src/build_videos";
+import { VideoBuildOptions, VideoCategories, _tdd_buildVideos } from "../src/build/build_videos";
 import { CMSEntry, CMSOptions, StoryCategory, useStoryblok } from "../src/services/storyblok";
 import { tryCatchAsync } from "../src/utilities";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
