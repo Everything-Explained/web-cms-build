@@ -35,7 +35,7 @@ function build(starts_with: string, path: string) {
     version: 'draft',
     sort_by: 'created_at:asc',
     api: mockStoryblokAPI,
-  });
+  })();
 }
 
 async function copyFiles(src: string, dest: string) {
@@ -106,7 +106,7 @@ describe('saveLiterature(folderPath)(litEntry)', () => {
 });
 
 
-describe('buildLiterature()', () => {
+describe('buildLiterature(options)()', () => {
   it('save literature when adding an entry', async () => {
     const entry = (await mockSB.getCMSEntries(toSBlokOpt('test/multipage')))[0];
     const mockFolder = `${mockDir}/addEntry`;

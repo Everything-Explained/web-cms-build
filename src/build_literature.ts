@@ -34,7 +34,7 @@ export function buildLiterature(options: LiteratureBuildOptions) {
   buildOptions.onUpdate = saveLiterature(folderPath);
   buildOptions.onAdd    = saveLiterature(folderPath);
   buildOptions.onDelete = deleteLiterature(folderPath);
-  return buildManifest(buildOptions);
+  return () => buildManifest(buildOptions);
 }
 
 
