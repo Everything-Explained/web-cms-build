@@ -67,6 +67,8 @@ export async function buildVideos(options: VideoBuildOptions) {
   if (options.catList_starts_with) {
     const sb = useStoryblok(options.api);
     buildOptions.starts_with = options.catList_starts_with;
+    // Category list is not published
+    buildOptions.version = 'draft';
     const categoryList = await sb.getCategoryList(buildOptions);
     saveVideos(createVideoCategories(entries, categoryList));
   } else {
