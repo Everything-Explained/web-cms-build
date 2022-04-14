@@ -112,13 +112,13 @@ describe('buildLiterature(options)()', () => {
     const mockFolder = `${mockDir}/addEntry`;
     const mockFilepath = `${mockFolder}/addEntry.json`;
     await copyFiles(`${mockFolder}/mock_files`, `${mockFolder}`);
+    await del(`${mockFolder}/69866748.mdhtml`);
     expect(existsSync(`${mockFolder}/69866748.mdhtml`)).toBe(false);
     await build('test/multipage', 'addEntry');
     expect(existsSync(`${mockFolder}/69866748.mdhtml`)).toBe(true);
     const addedEntry = JSON.parse(await readFile(`${mockFilepath}`, 'utf-8'))[0];
     expect(addedEntry.id).toEqual(entry.id);
-    // reset files
-    await del(`${mockFolder}/69866748.mdhtml`);
+
   });
 
   it('save literature when updating an entry', async () => {
