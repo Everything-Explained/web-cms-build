@@ -107,7 +107,12 @@ export function isENOENT(err: Error) {
 
 
 export function delayExec(timeInMs: number) {
-  return (cb: () => void) => setTimeout(cb, timeInMs);
+  return (cb: () => void) =>
+    new Promise((rs) => {
+      setTimeout(() => {
+        rs(cb());
+      }, timeInMs);
+    });
 }
 
 
