@@ -60,7 +60,7 @@ export interface BuildOptionsInternal extends BuildOptions {
   isInit         : boolean;
 }
 
-type BuildResult = Promise<[filePath: string, latestEntries: CMSEntry[], hasUpdated: boolean]>;
+export type BuildResult = Promise<[filePath: string, latestEntries: CMSEntry[], hasUpdated: boolean]>;
 
 
 

@@ -1,7 +1,7 @@
 
-const releaseRoot = './release/web_client/_data';
-const distRoot = './dist';
-const devRoot = '../web-client/release/web_client/_data';
+const releaseRoot = '../release/web_client/_data';
+const localReleaseRoot = '../../web-client/release/web_client/_data';
+const devRoot = '../_data';
 
 const paths = {
   release: {
@@ -10,19 +10,19 @@ const paths = {
     library: `${releaseRoot}/library`,
     red33m: `${releaseRoot}/red33m`,
   },
-  dist: {
-    root: distRoot,
-    pages: `${distRoot}/`,
-    library: `${distRoot}/library`,
-    red33m: `${distRoot}/red33m`,
-  },
   dev: {
     root: devRoot,
     pages: `${devRoot}/`,
     library: `${devRoot}/library`,
     red33m: `${devRoot}/red33m`,
-    utility: `${devRoot}/src/views/utility`,
-    release: `${devRoot}/release/web_client/_data`,
+  },
+  local: {
+    root: localReleaseRoot,
+    pages: `${localReleaseRoot}/`,
+    library: `${localReleaseRoot}/library`,
+    red33m: `${localReleaseRoot}/red33m`,
+    utility: `${localReleaseRoot}/src/views/utility`,
+    release: `${localReleaseRoot}/release/web_client/_data`,
   }
 };
 
