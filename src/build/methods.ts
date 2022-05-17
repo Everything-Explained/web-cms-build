@@ -24,28 +24,28 @@ const partialBuildOptions = {
 export const buildBlog = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'blog',
-  sort_by: 'content.category:desc',
+  sort_by: 'created_at:desc',
   ...partialBuildOptions,
 });
 
 export const buildChangelog = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'changelog',
-  sort_by: 'content.category:desc',
+  sort_by: 'created_at:desc',
   ...partialBuildOptions,
 });
 
 export const buildLibraryLit = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'library/literature',
-  sort_by: 'content.category:desc',
+  sort_by: 'created_at:asc',
   ...partialBuildOptions,
 });
 
 export const buildRed33mLit = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'red33m/literature',
-  sort_by: 'content.category:desc',
+  sort_by: 'created_at:asc',
   ...partialBuildOptions,
 });
 
