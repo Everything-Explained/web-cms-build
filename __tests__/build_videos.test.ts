@@ -3,7 +3,7 @@
 import del from "del";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
-import { VideoBuildOptions, VideoCategories, _tdd_buildVideos } from "../src/build/build_videos";
+import { VideoBuildOptions, VideoCategoryArray, _tdd_buildVideos } from "../src/build/build_videos";
 import { CMSEntry, CMSOptions, StoryCategory, useStoryblok } from "../src/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 
@@ -66,23 +66,21 @@ describe('toVideoEntry(CMSEntry)', () => {
 describe('createVideoCategories(videos, categoryList)', () => {
   let entries: CMSEntry[];
   let catList: StoryCategory[];
-  let videoCategories: VideoCategories;
-  let categoryKeys: string[];
+  let videoCategories: VideoCategoryArray;
 
   beforeEach(async () => {
     entries = await mockSB.getCMSEntries(toSBlokOpt('test/category/videos'));
     catList = await mockSB.getCategoryList(toSBlokOpt('test/category/list'));
     videoCategories = tdd.createVideoCategories(entries, catList);
-    categoryKeys = Object.keys(videoCategories);
   });
 
   it('only create categories that have associated videos.', async () => {
-    expect(categoryKeys.length).toBe(5);
+    expect(videoCategories.length).toBe(5);
   });
 
   it('filters videos into their proper categories.', async () => {
-    expect(videoCategories[categoryKeys[1]].videos.length).toBe(2);
-    expect(videoCategories[categoryKeys[2]].videos.length).toBe(2);
+    expect(videoCategories[1].videos.length).toBe(2);
+    expect(videoCategories[2].videos.length).toBe(2);
   });
 
   it('maintain order of category list when categories are created with videos.', async () => {
@@ -92,7 +90,7 @@ describe('createVideoCategories(videos, categoryList)', () => {
         }
       }).filter(cl => cl != undefined)
     ;
-    expect(categoryKeys).toEqual(filteredCats);
+    expect(videoCategories.map(vc => vc.name)).toEqual(filteredCats);
   });
 
   it('throws error when video has an unknown category.', async () => {
@@ -147,12 +145,12 @@ describe('buildVideos(options, withCategories)', () => {
 
   it('saves entries as video categories with hash-only manifest.', async () => {
     const isUpdated = await tdd.buildVideos(
-      toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list'));
+      toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list')
+    );
     const file = await readFile(`${path}/${fileName}.json`, { encoding: 'utf-8'});
-    const categoryVideos = JSON.parse(file);
-    const categories = Object.keys(categoryVideos);
-    expect(categories[0]).toBe('General Spirituality (Meta-Spirituality)');
-    expect(categories.length).toBe(5);
+    const categoryVideos = JSON.parse(file) as VideoCategoryArray;
+    expect(categoryVideos[0].name).toBe('General Spirituality (Meta-Spirituality)');
+    expect(categoryVideos.length).toBe(5);
     expect(isUpdated).toBe(true);
   });
 });

@@ -45,6 +45,12 @@ export type VideoCategories = {
   }
 }
 
+export type VideoCategoryArray = Array<{
+  name: string[];
+  desc: string;
+  videos: VideoEntry[]
+}>;
+
 
 
 
@@ -100,7 +106,18 @@ function createVideoCategories(videos: CMSEntry[], categoryList: StoryCategory[]
     throw Error('Detected Unknown or Missing Categories');
   }
 
-  return categories;
+  return objectToArray(categories);
+}
+
+
+function objectToArray(obj: { [key: string]: any }): VideoCategoryArray {
+  const objArray = [];
+
+  for (const key in obj) {
+    objArray.push({ name: key, ...obj[key] });
+  }
+
+  return objArray;
 }
 
 
