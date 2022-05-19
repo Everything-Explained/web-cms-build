@@ -59,7 +59,7 @@ function applyVueRouterLinks(tokens: Token[], idx: number, link: string) {
   const linkOpen = tokens[idx];
   linkOpen.attrSet(
     'onclick',
-    `event.preventDefault(); window.app.$router.push('${link}')`
+    `event.preventDefault(); window.$router.push('${link}')`
   );
 }
 
