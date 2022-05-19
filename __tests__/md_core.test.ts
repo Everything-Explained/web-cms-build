@@ -20,7 +20,7 @@ describe('Markdown Renderer', () => {
   it('renders internal links to use $router', () => {
     const mdWithInternalLink = '[link](/test)';
     const validOutput = '<p><a href="/test" onclick="event.preventDefault(); ' +
-                        'window.app.$router.push(\'/test\')">link</a></p>\n';
+                        'window.$router.push(\'/test\')">link</a></p>\n';
     expect(md.render(mdWithInternalLink)).toBe(validOutput);
   });
 
