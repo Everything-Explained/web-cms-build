@@ -151,13 +151,8 @@ export function saveCMSDataVersionFile(versionData: CMSDataVersions) {
 
 
 
-async function execBuildData(buildFunc: () => BuildResult|Promise<boolean>, version: string) {
-  const result = await buildFunc();
-  const isUpdated =
-    (typeof result == 'boolean')
-      ? result
-      : result[2]
-  ;
+async function execBuildData(buildFunc: () => BuildResult, version: string) {
+  const [,,isUpdated] = await buildFunc();
   if (isUpdated) return Date.now().toString(36);
   return version;
 }

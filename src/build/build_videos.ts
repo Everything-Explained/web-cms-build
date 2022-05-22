@@ -1,7 +1,7 @@
 
 
 
-import { buildManifest, BuildOptions } from "./build_manifest";
+import { buildManifest, BuildOptions, BuildResult } from "./build_manifest";
 import {
   CMSEntry, StoryblokAPI, StoryCategory,
   StorySortString, StoryVersion,
@@ -57,7 +57,7 @@ export type VideoCategoryArray = Array<{
 
 
 
-export async function buildVideos(options: VideoBuildOptions) {
+export async function buildVideos(options: VideoBuildOptions): BuildResult {
   const buildOptions: BuildOptions = {
     ...options,
     url            : 'cdn/stories',
@@ -68,7 +68,7 @@ export async function buildVideos(options: VideoBuildOptions) {
   const [filePath, entries, isUpdated] = await buildManifest(buildOptions);
   const saveVideos = saveAsJSON(pathDirname(filePath), options.fileName);
 
-  if (!isUpdated) return false;
+  if (!isUpdated) return [filePath, entries, false];
 
   if (options.catList_starts_with) {
     const sb = useStoryblok(options.api);
@@ -80,7 +80,7 @@ export async function buildVideos(options: VideoBuildOptions) {
   } else {
     saveVideos(entries.map(toVideoEntry));
   }
-  return true;
+  return [filePath, entries, true];
 }
 
 
