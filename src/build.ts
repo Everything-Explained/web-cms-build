@@ -1,3 +1,5 @@
+
+
 import paths from "../paths";
 import { buildBlog, buildChangelog, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos } from "./build/methods";
 import { delayExec, mkDirs } from "./utilities";
@@ -12,30 +14,8 @@ import { CMSEntry } from "./services/storyblok";
 
 
 
-
-/** Generated after each successful build */
-type CMSDataVersionTypes = {
-  build: string;
-  blog: string;
-  chglog: string;
-  home: string;
-  libLit: string;
-  libVid: string;
-  r3dLit: string;
-  r3dVid: string;
-  pickle: string;
-}
-
-type Versions<T> = {
-  [key in keyof T]: {
-    /** Version */
-    v: string;
-    /** Has new content */
-    n: boolean;
-  }
-}
-
-type CMSDataVersions = Versions<CMSDataVersionTypes>;
+type VersionTypes    = 'build'|'blog'|'chglog'|'home'|'libLit'|'libVid'|'r3dLit'|'r3dVid'
+type CMSDataVersions = Record<VersionTypes, { v: string; n: boolean; }>;
 
 
 
@@ -45,7 +25,7 @@ type CMSDataVersions = Versions<CMSDataVersionTypes>;
 
 const _dataRoot = pathResolve(paths.local.root);
 const _versionsFileName = 'versions';
-const _versionNames: Array<keyof CMSDataVersionTypes> = [
+const _versionNames: Array<VersionTypes> = [
   'build',
   'blog',
   'chglog',
