@@ -12,8 +12,8 @@ import { existsSync, writeFileSync } from "fs";
 
 
 
-type CMSDataVersions = {
-  /** Generated after each successful build */
+/** Generated after each successful build */
+type CMSDataVersionTypes = {
   build: string;
   blog: string;
   chglog: string;
@@ -22,7 +22,19 @@ type CMSDataVersions = {
   libVid: string;
   r3dLit: string;
   r3dVid: string;
+  pickle: string;
 }
+
+type Versions<T> = {
+  [key in keyof T]: {
+    /** Version */
+    v: string;
+    /** Has new content */
+    n: boolean;
+  }
+}
+
+type CMSDataVersions = Versions<CMSDataVersionTypes>;
 
 
 
@@ -32,6 +44,16 @@ type CMSDataVersions = {
 
 const _dataRoot = pathResolve(paths.local.root);
 const _versionsFileName = 'versions';
+const _versionNames: Array<keyof CMSDataVersionTypes> = [
+  'build',
+  'blog',
+  'chglog',
+  'home',
+  'libLit',
+  'libVid',
+  'r3dLit',
+  'r3dVid',
+];
 
 
 
@@ -43,36 +65,36 @@ export async function buildCMSData(done: () => void) {
   mkDirs([`${_dataRoot}/library`, `${_dataRoot}/red33m`, `${_dataRoot}/static`]);
 
   await delayExec(0)(async () => {
-    dataVersions.blog =
-      await execBuildData(buildBlog(`${_dataRoot}/blog`), dataVersions.blog);
+    dataVersions.blog.v =
+      await execBuildData(buildBlog(`${_dataRoot}/blog`), dataVersions.blog.v);
   });
 
   delayExec(70)(async () => {
-    dataVersions.chglog =
-      await execBuildData(buildChangelog(`${_dataRoot}/changelog`), dataVersions.chglog);
+    dataVersions.chglog.v =
+      await execBuildData(buildChangelog(`${_dataRoot}/changelog`), dataVersions.chglog.v);
   });
 
   delayExec(140)(async () => {
-    dataVersions.libLit =
-      await execBuildData(buildLibraryLit(`${_dataRoot}/library/literature`), dataVersions.libLit);
+    dataVersions.libLit.v =
+      await execBuildData(buildLibraryLit(`${_dataRoot}/library/literature`), dataVersions.libLit.v);
   });
 
   delayExec(210)(async () => {
-    dataVersions.r3dLit =
-      await execBuildData(buildRed33mLit(`${_dataRoot}/red33m/literature`), dataVersions.r3dLit);
+    dataVersions.r3dLit.v =
+      await execBuildData(buildRed33mLit(`${_dataRoot}/red33m/literature`), dataVersions.r3dLit.v);
   });
 
   delayExec(280)(async () => {
-    dataVersions.libVid =
-      await execBuildData(() => buildLibraryVideos(`${_dataRoot}/library/videos`), dataVersions.libVid);
+    dataVersions.libVid.v =
+      await execBuildData(() => buildLibraryVideos(`${_dataRoot}/library/videos`), dataVersions.libVid.v);
   });
 
   await (await delayExec(350)(async () => {
-    dataVersions.r3dVid =
-      await execBuildData(() => buildRed33mVideos(`${_dataRoot}/red33m/videos`), dataVersions.r3dVid);
+    dataVersions.r3dVid.v =
+      await execBuildData(() => buildRed33mVideos(`${_dataRoot}/red33m/videos`), dataVersions.r3dVid.v);
   }));
 
-  dataVersions.build = Date.now().toString(16);
+  dataVersions.build.v = Date.now().toString(16);
   saveCMSDataVersionFile(dataVersions);
   done();
 }
@@ -81,14 +103,44 @@ export async function buildCMSData(done: () => void) {
 export async function tryGetCMSVersionFile() {
   createCMSDataVersionFile();
   const file = await readFile(`${_dataRoot}/${_versionsFileName}.json`, { encoding: 'utf-8' });
-  return JSON.parse(file) as CMSDataVersions;
+  const versionData: CMSDataVersions = JSON.parse(file);
+  tryVersionPropertyUpdates(versionData);
+  return versionData;
 }
 
 
 export function createCMSDataVersionFile() {
   if (existsSync(`${_dataRoot}/${_versionsFileName}.json`)) return;
-  writeFileSync(`${_dataRoot}/${_versionsFileName}.json`, JSON.stringify({}));
+  const emptyVersionData = _versionNames.reduce((pv, cv) => {
+    pv[cv] = { v: '', n: false };
+    return pv;
+  }, {} as CMSDataVersions);
+  writeFileSync(`${_dataRoot}/${_versionsFileName}.json`, JSON.stringify(emptyVersionData));
   return;
+}
+
+
+/** Mutates version data with any property changes discovered. */
+export function tryVersionPropertyUpdates(versionData: CMSDataVersions) {
+  const dataKeys = Object.keys(versionData) as Array<keyof CMSDataVersions>;
+
+  // Remove deleted/missing versions
+  for (const key of dataKeys) {
+    if (_versionNames.includes(key)) {
+      continue;
+    }
+    delete versionData[key];
+    saveCMSDataVersionFile(versionData);
+  }
+
+  // Add new versions
+  for (const name of _versionNames) {
+    if (versionData[name]) {
+      continue;
+    }
+    versionData[name] = { v: '', n: false };
+    saveCMSDataVersionFile(versionData);
+  }
 }
 
 
