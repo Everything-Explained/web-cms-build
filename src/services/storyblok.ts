@@ -154,6 +154,15 @@ export function useStoryblok(api: StoryblokAPI) {
         return categories.tbody.reduce(toCategory, []);
       }
       throw Error('No Categories Found');
+    },
+    getStaticPage: async (pageName: string, version: StoryVersion) => {
+      const story = await getRawStories({
+        url: 'cdn/stories',
+        starts_with: `single-pages/${pageName}`,
+        version,
+        sort_by: 'created_at:asc',
+      }, storyBlokAPI);
+      return story[0].content.body;
     }
   };
 }
