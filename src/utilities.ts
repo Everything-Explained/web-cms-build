@@ -126,6 +126,11 @@ export function mkDirs(dirs: string[]) {
 }
 
 
+export function isDev() {
+  return process.env.NODE_ENV == 'development';
+}
+
+
 
 
 
