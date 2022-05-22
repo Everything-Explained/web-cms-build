@@ -8,6 +8,7 @@ import { mkdir, readFile } from "fs/promises";
 import { BuildResult } from "./build/build_manifest";
 import { existsSync, writeFileSync } from "fs";
 import { CMSEntry } from "./services/storyblok";
+import { ISODateString } from "./global_interfaces";
 
 
 
@@ -15,7 +16,7 @@ import { CMSEntry } from "./services/storyblok";
 
 
 type VersionTypes    = 'build'|'blog'|'chglog'|'home'|'libLit'|'libVid'|'r3dLit'|'r3dVid'
-type CMSDataVersions = Record<VersionTypes, { v: string; n: boolean; }>;
+type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
 
@@ -50,6 +51,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(buildBlog(`${_dataRoot}/blog`), dataVersions.blog.v)
     ;
     dataVersions.blog.v = version;
+    dataVersions.blog.n = entries[0].date;
   });
 
   delayExec(70)(async () => {
@@ -57,6 +59,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(buildChangelog(`${_dataRoot}/changelog`), dataVersions.chglog.v)
     ;
     dataVersions.chglog.v = version;
+    dataVersions.chglog.n = entries[0].date;
   });
 
   delayExec(140)(async () => {
@@ -64,6 +67,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(buildLibraryLit(`${_dataRoot}/library/literature`), dataVersions.libLit.v)
     ;
     dataVersions.libLit.v = version;
+    dataVersions.libLit.n = entries[entries.length - 1].date;
   });
 
   delayExec(210)(async () => {
@@ -71,6 +75,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(buildRed33mLit(`${_dataRoot}/red33m/literature`), dataVersions.r3dLit.v)
     ;
     dataVersions.r3dLit.v = version;
+    dataVersions.r3dLit.n = entries[entries.length - 1].date;
   });
 
   delayExec(280)(async () => {
@@ -78,6 +83,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(() => buildLibraryVideos(`${_dataRoot}/library/videos`), dataVersions.libVid.v)
     ;
     dataVersions.libVid.v = version;
+    dataVersions.libVid.n = entries[entries.length - 1].date;
   });
 
   await (await delayExec(350)(async () => {
@@ -85,6 +91,7 @@ export async function buildCMSData(done: () => void) {
       await execBuildData(() => buildRed33mVideos(`${_dataRoot}/red33m/videos`), dataVersions.r3dVid.v)
     ;
     dataVersions.r3dVid.v = version;
+    dataVersions.r3dVid.n = entries[entries.length - 1].date;
   }));
 
   dataVersions.build.v = Date.now().toString(16);
@@ -105,7 +112,7 @@ export async function tryGetCMSVersionFile() {
 export function createCMSDataVersionFile() {
   if (existsSync(`${_dataRoot}/${_versionsFileName}.json`)) return;
   const emptyVersionData = _versionNames.reduce((pv, cv) => {
-    pv[cv] = { v: '', n: false };
+    pv[cv] = { v: '', n: '' };
     return pv;
   }, {} as CMSDataVersions);
   writeFileSync(`${_dataRoot}/${_versionsFileName}.json`, JSON.stringify(emptyVersionData));
@@ -131,7 +138,7 @@ export function tryVersionPropertyUpdates(versionData: CMSDataVersions) {
     if (versionData[name]) {
       continue;
     }
-    versionData[name] = { v: '', n: false };
+    versionData[name] = { v: '', n: '' };
     saveCMSDataVersionFile(versionData);
   }
 }
