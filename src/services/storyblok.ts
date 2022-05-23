@@ -162,7 +162,11 @@ export function useStoryblok(api: StoryblokAPI) {
         version,
         sort_by: 'created_at:asc',
       }, storyBlokAPI);
-      return story[0].content.body;
+
+      return {
+        title: story[0].content.title,
+        content: story[0].content.body!
+      };
     }
   };
 }

@@ -106,6 +106,11 @@ export function isENOENT(err: Error) {
 }
 
 
+export function isError<T>(obj: T|Error): obj is Error {
+  return obj instanceof Error ? true : false;
+}
+
+
 export function delayExec(timeInMs: number) {
   return (cb: () => void) =>
     new Promise((rs) => {
