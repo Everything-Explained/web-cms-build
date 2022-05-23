@@ -54,7 +54,7 @@ export async function buildCMSData(done: () => void) {
     dataVersions.blog.n = entries[0].date;
   });
 
-  delayExec(70)(async () => {
+  delayExec(30)(async () => {
     const [version, entries] =
       await execBuildData(buildChangelog(`${_dataRoot}/changelog`), dataVersions.chglog.v)
     ;
@@ -62,7 +62,7 @@ export async function buildCMSData(done: () => void) {
     dataVersions.chglog.n = entries[0].date;
   });
 
-  delayExec(140)(async () => {
+  delayExec(60)(async () => {
     const [version, entries] =
       await execBuildData(buildLibraryLit(`${_dataRoot}/library/literature`), dataVersions.libLit.v)
     ;
@@ -70,7 +70,7 @@ export async function buildCMSData(done: () => void) {
     dataVersions.libLit.n = entries[entries.length - 1].date;
   });
 
-  delayExec(210)(async () => {
+  delayExec(120)(async () => {
     const [version, entries] =
       await execBuildData(buildRed33mLit(`${_dataRoot}/red33m/literature`), dataVersions.r3dLit.v)
     ;
@@ -78,7 +78,7 @@ export async function buildCMSData(done: () => void) {
     dataVersions.r3dLit.n = entries[entries.length - 1].date;
   });
 
-  delayExec(280)(async () => {
+  delayExec(150)(async () => {
     const [version, entries] =
       await execBuildData(() => buildLibraryVideos(`${_dataRoot}/library/videos`), dataVersions.libVid.v)
     ;
