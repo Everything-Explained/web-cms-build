@@ -101,7 +101,7 @@ export async function buildCMSData(done: () => void) {
 
 
 export async function tryGetCMSVersionFile() {
-  createCMSDataVersionFile();
+  tryCreateCMSDataVersionFile();
   const file = await readFile(`${_dataRoot}/${_versionsFileName}.json`, { encoding: 'utf-8' });
   const versionData: CMSDataVersions = JSON.parse(file);
   tryVersionPropertyUpdates(versionData);
@@ -109,7 +109,7 @@ export async function tryGetCMSVersionFile() {
 }
 
 
-export function createCMSDataVersionFile() {
+export function tryCreateCMSDataVersionFile() {
   if (existsSync(`${_dataRoot}/${_versionsFileName}.json`)) return;
   const emptyVersionData = _versionNames.reduce((pv, cv) => {
     pv[cv] = { v: '', n: '' };
