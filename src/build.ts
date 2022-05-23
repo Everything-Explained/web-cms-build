@@ -1,7 +1,7 @@
 
 
 import paths from "../paths";
-import { buildBlog, buildChangelog, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos } from "./build/methods";
+import { buildBlog, buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos } from "./build/methods";
 import { delayExec, mkDirs } from "./utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
@@ -86,12 +86,17 @@ export async function buildCMSData(done: () => void) {
     dataVersions.libVid.n = entries[entries.length - 1].date;
   });
 
-  await (await delayExec(350)(async () => {
+  await delayExec(180)(async () => {
     const [version, entries] =
       await execBuildData(() => buildRed33mVideos(`${_dataRoot}/red33m/videos`), dataVersions.r3dVid.v)
     ;
     dataVersions.r3dVid.v = version;
     dataVersions.r3dVid.n = entries[entries.length - 1].date;
+  });
+
+  await (await delayExec(210)(async () => {
+    const isUpdated = await buildHomePage(`${_dataRoot}`);
+    dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
   }));
 
   dataVersions.build.v = Date.now().toString(16);

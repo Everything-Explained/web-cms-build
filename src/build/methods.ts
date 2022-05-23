@@ -1,6 +1,7 @@
-import { storyBlokAPI, StoryVersion, useStoryblok } from "../services/storyblok";
+import { storyBlokAPI, StoryVersion } from "../services/storyblok";
 import { isDev } from "../utilities";
 import { buildLiterature } from "./build_literature";
+import { buildStatic as buildStaticPage } from "./build_static";
 import { buildVideos } from "./build_videos";
 
 
@@ -9,7 +10,6 @@ import { buildVideos } from "./build_videos";
 
 
 
-const sb = useStoryblok(storyBlokAPI);
 const storyBlokVersion: StoryVersion = (isDev() ? 'draft' : 'published');
 
 const partialBuildOptions = {
@@ -68,8 +68,12 @@ export const buildRed33mVideos = (buildPath: string) => buildVideos({
   ...partialBuildOptions
 });
 
-export const buildHomePage = (version: StoryVersion = storyBlokVersion) => {
-  return sb.getStaticPage('home', version);
+export const buildHomePage = async (path: string, version: StoryVersion = storyBlokVersion) => {
+  return buildStaticPage({
+    folderPath: path,
+    pageName: 'home',
+    version,
+  });
 };
 
 
