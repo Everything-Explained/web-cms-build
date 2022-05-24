@@ -3,6 +3,7 @@ import { StoryOptions } from "../../src/services/storyblok";
 import simpleData from './simple_data.json';
 import videoCatData from './videos_with_cat.json';
 import categoryList from './category_list.json';
+import staticPage from './static_page.json';
 
 
 
@@ -34,6 +35,13 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     return {
       ...emptyResult,
       data: { stories: [simpleData.stories[0]] }
+    };
+  }
+
+  if (uriIs('single-pages/static')) {
+    return {
+      ...emptyResult,
+      data: { stories: staticPage }
     };
   }
 
