@@ -1,7 +1,7 @@
 import { createHmac } from "crypto";
 import { existsSync, mkdirSync } from "fs";
 import { writeFile } from "fs/promises";
-import { basename as pathBasename, resolve as pathResolve } from "path";
+import { basename, resolve, dirname } from "path";
 import { pipe } from "ramda";
 import { console_colors as cc, lact } from "./lib/logger";
 
@@ -17,7 +17,9 @@ interface ObjWithID {
 }
 
 
-
+export const pathBasename = basename;
+export const pathResolve = resolve;
+export const pathDirname = dirname;
 
 
 
@@ -134,9 +136,6 @@ export function mkDirs(dirs: string[]) {
 export function isDev() {
   return process.env.NODE_ENV == 'development';
 }
-
-
-
 
 
 
