@@ -133,8 +133,8 @@ describe('buildVideos(options, withCategories)', () => {
   it('skip processing if entries have not been updated.', async () => {
     const fileName = 'normalTestFile';
     const catFileName = 'catTestFile';
-    const isUpdated = await tdd.buildVideos(toVideoOptions('test/singlepage', `${fileName}`, path));
-    const isCatUpdated = await tdd.buildVideos(
+    const [,,isUpdated] = await tdd.buildVideos(toVideoOptions('test/singlepage', `${fileName}`, path));
+    const [,,isCatUpdated] = await tdd.buildVideos(
       toVideoOptions('test/category/videos', `${catFileName}`, path, 'test/category/list')
     );
     expect(isUpdated).toBe(false);
@@ -144,7 +144,7 @@ describe('buildVideos(options, withCategories)', () => {
   });
 
   it('saves entries as video categories with hash-only manifest.', async () => {
-    const isUpdated = await tdd.buildVideos(
+    const [,,isUpdated] = await tdd.buildVideos(
       toVideoOptions('test/category/videos', `${fileName}`, path, 'test/category/list')
     );
     const file = await readFile(`${path}/${fileName}.json`, { encoding: 'utf-8'});
