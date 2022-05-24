@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'fs/promises';
 import { resolve as pathResolve } from 'path';
 import { console_colors, lact } from '../lib/logger';
 import { useMarkdown } from '../services/markdown/md_core';
-import { storyBlokAPI, StoryVersion, useStoryblok } from '../services/storyblok';
+import { StoryblokAPI, StoryVersion, useStoryblok } from '../services/storyblok';
 import { isENOENT, isError, toShortHash, tryCatchAsync } from '../utilities';
 
 
@@ -23,13 +23,13 @@ type BuildStaticOptions = {
   folderPath : string;
   pageName : string;
   version: StoryVersion;
+  api: StoryblokAPI;
 }
 
 
 
 
 
-const sb = useStoryblok(storyBlokAPI);
 const cc = console_colors;
 const md = useMarkdown();
 
@@ -37,7 +37,7 @@ const md = useMarkdown();
 export async function buildStatic(options: BuildStaticOptions) {
   const path             = pathResolve(options.folderPath);
   const filePath         = pathResolve(`${path}/static/${options.pageName}.json`);
-  const cmsStaticContent = await sb.getStaticPage(options.pageName, 'draft');
+  const cmsStaticContent = await useStoryblok(options.api).getStaticPage(options.pageName, 'draft');
   const fileResponse     = await tryCatchAsync(readFile(filePath, { encoding: 'utf-8'}));
 
   if (isError(fileResponse) && !isENOENT(fileResponse)) {

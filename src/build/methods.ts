@@ -68,11 +68,11 @@ export const buildRed33mVideos = (buildPath: string) => buildVideos({
   ...partialBuildOptions
 });
 
-export const buildHomePage = async (path: string, version: StoryVersion = storyBlokVersion) => {
+export const buildHomePage = async (path: string) => {
   return buildStaticPage({
     folderPath: path,
     pageName: 'home',
-    version,
+    ...partialBuildOptions
   });
 };
 
