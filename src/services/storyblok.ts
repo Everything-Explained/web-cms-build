@@ -161,7 +161,7 @@ export function useStoryblok(api: StoryblokAPI) {
         starts_with: `single-pages/${pageName}`,
         version,
         sort_by: 'created_at:asc',
-      }, storyBlokAPI);
+      }, api);
 
       return {
         title: story[0].content.title,
