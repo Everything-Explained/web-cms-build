@@ -1,11 +1,11 @@
 
 
+import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import { resolve as pathResolve } from 'path';
 import { console_colors, lact } from '../lib/logger';
 import { useMarkdown } from '../services/markdown/md_core';
 import { StoryblokAPI, StoryVersion, useStoryblok } from '../services/storyblok';
-import { isENOENT, isError, toShortHash, tryCatchAsync } from '../utilities';
+import { isError, pathDirname, pathResolve, toShortHash, tryCatchAsync } from '../utilities';
 
 
 
@@ -19,7 +19,7 @@ type StaticPage = {
   hash    : string;
 }
 
-type BuildStaticOptions = {
+export type BuildStaticOptions = {
   folderPath : string;
   pageName : string;
   version: StoryVersion;
@@ -40,10 +40,6 @@ export async function buildStatic(options: BuildStaticOptions) {
   const cmsStaticContent = await useStoryblok(options.api).getStaticPage(options.pageName, 'draft');
   const fileResponse     = await tryCatchAsync(readFile(filePath, { encoding: 'utf-8'}));
 
-  if (isError(fileResponse) && !isENOENT(fileResponse)) {
-    throw Error(`buildStatic::ERROR ACCESSING FILE::"${fileResponse.message}"`);
-  }
-
   const cmsContentHash = toShortHash(cmsStaticContent);
   const newStaticContent: StaticPage = {
     title   : cmsStaticContent.title,
@@ -52,15 +48,20 @@ export async function buildStatic(options: BuildStaticOptions) {
   };
 
   if (isError(fileResponse)) {
+    const dirPath = pathDirname(filePath);
+    if (!existsSync(pathDirname(dirPath))) {
+      throw Error(`buildStatic::CANNOT FIND PATH::${pathDirname(dirPath)}`);
+    }
+
     lact('create', `${filePath}`);
-    writeFile(filePath, JSON.stringify(newStaticContent));
+    await writeFile(filePath, JSON.stringify(newStaticContent));
     return true;
   }
 
   const page: StaticPage = JSON.parse(fileResponse);
   if (cmsContentHash != page.hash) {
     lact('upd', `Static ${cc.gn(options.pageName.toUpperCase())} page`);
-    writeFile(filePath, JSON.stringify(newStaticContent));
+    await writeFile(filePath, JSON.stringify(newStaticContent));
     return true;
   }
 
