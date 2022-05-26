@@ -1,14 +1,22 @@
-import { task, series, parallel } from 'gulp';
-import { buildVideoMap } from './scripts/build_categories';
-import { buildChangelog, bundleMDPages } from './scripts/build_views';
-import {
-  compressFiles,
-  releaseLibraryData,
-  copyPageData,
-  releaseRed33mData,
-  createPageDirs,
-  generateVersion
-} from './scripts/build';
+import { task, series } from 'gulp';
+import { resolve as pathResolve } from 'path';
+import { buildCMSData } from './src/build';
+import paths from './paths';
+import { buildChangelog, buildHomePage } from './src/build/methods';
+
+
+
+task('build', series(buildCMSData));
+
+task('changelog', async (done) => {
+  await buildChangelog(`${pathResolve(paths.local.root)}/changelog`)();
+  done();
+});
+
+task('home', async (done) => {
+  await buildHomePage(`${pathResolve(paths.local.root)}`);
+  done();
+});
 
 
 
@@ -16,21 +24,11 @@ import {
 
 
 
-task('build',
-  series(
-    parallel(createPageDirs, generateVersion()),
-    parallel(bundleMDPages, buildVideoMap),
-    compressFiles(),
-    parallel(copyPageData, releaseLibraryData, releaseRed33mData)
-  )
-);
 
 
-task('changelog', series(
-  parallel(buildChangelog, generateVersion(true)),
-  compressFiles(true)
-));
 
-task('genver', generateVersion(true));
 
-task('test', buildVideoMap);
+
+
+
+
