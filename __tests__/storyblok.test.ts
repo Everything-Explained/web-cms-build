@@ -160,4 +160,31 @@ describe('useStoryblok(api).getCMSEntries(options)', () => {
 });
 
 
+describe('useStoryblok(api).getCategoryList(options)', () => {
+  it('throws error if no categories are found', async () => {
+    const resp = await tryCatchAsync(sb.useStoryblok(mockAPI).getCategoryList(toSBlokOpt('test/multipage', 1)));
+    const isError = resp instanceof Error;
+    expect(isError).toBe(true);
+    if (isError) expect(resp.message).toEqual('No Categories Found');
+  });
+
+  it('returns categories from CMS', async () => {
+    const resp = await tryCatchAsync(sb.useStoryblok(mockAPI).getCategoryList(toSBlokOpt('test/category/list', 1)));
+    const isError = resp instanceof Error;
+    expect(isError).toBe(false);
+    if (!isError) expect(resp.length).toBe(12);
+  });
+});
+
+
+describe('useStoryblok(api).getStaticPage(options)', () => {
+  it('returns an object containing the title and content of the static page', async () => {
+    const pageData = await sb.useStoryblok(mockAPI).getStaticPage('static', 'draft');
+    expect(pageData.content).toBe('This is a static page with some **body** text and *markdown*');
+    expect(pageData.title).toBe('Static Page');
+    expect(Object.keys(pageData).length).toEqual(2);
+  });
+});
+
+
 
