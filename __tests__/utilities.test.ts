@@ -1,7 +1,7 @@
 import del from 'del';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { delayExec, hasSameID, isENOENT, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
+import { delayExec, hasSameID, isENOENT, isError, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
 
 
 
@@ -168,6 +168,17 @@ describe('isENOENT(error)', () => {
 
   it('returns false if error code is not ENOENT.', () => {
     expect(isENOENT(Error('no error code'))).toBe(false);
+  });
+});
+
+describe('isError(obj)', () => {
+  it('returns whether or not any type is an error type', () => {
+    const error = new Error('some error');
+    expect(isError(error)).toBe(true);
+    expect(isError('hello')).toBe(false);
+    expect(isError(['hello'])).toBe(false);
+    expect(isError({ hello: 'world'})).toBe(false);
+    expect(isError(5)).toBe(false);
   });
 });
 
