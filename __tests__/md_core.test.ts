@@ -26,14 +26,7 @@ describe('Markdown Renderer', () => {
 
   it('renders Video Plugin Syntax to YouTube embed code', () => {
     const mdWithVideo = '@[youtube](5JqzCjg4YRU)';
-    const validVideoEmbedCode =
-      `<p><div class="embed-responsive embed-responsive-16by9">` +
-      `<iframe class="embed-responsive-item youtube-player" ` +
-      `type="text/html" width="auto" height="auto" ` +
-      `src="https://www.youtube-nocookie.com/embed/5JqzCjg4YRU?rel=0" ` +
-      `frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen>` +
-      `</iframe></div></p>\n`
-    ;
+    const validVideoEmbedCode = `<p><youtube id="5JqzCjg4YRU" /></p>\n`;
     expect(md.render(mdWithVideo)).toBe(validVideoEmbedCode);
   });
 
