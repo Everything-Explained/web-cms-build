@@ -4,9 +4,10 @@
   "description": "Everything Explained CMS builder",
   "main": "",
   "scripts": {
-    "changelog": "cross-env NODE_ENV=development gulp changelog",
-    "dev-build": "cross-env NODE_ENV=development gulp build",
-    "build": "cross-env NODE_ENV=production gulp build"
+    "changelog": "run-changelog.bat",
+    "dev-build": "run-dev-build.bat",
+    "build": "run-build.bat",
+    "test": "test.bat"
   },
   "wallaby": {
     "files": [
@@ -40,7 +41,6 @@
     "@types/ramda": "^0.27.66",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "cross-env": "^7.0.3",
     "del": "^6.0.0",
     "eslint": "^7.32.0",
     "jest": "^27.2.4",
