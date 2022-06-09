@@ -39,15 +39,15 @@ export const buildChangelog = (buildPath: string) => buildLiterature({
 
 export const buildLibraryLit = (buildPath: string) => buildLiterature({
   buildPath,
-  sort_by: 'created_at:asc',
   starts_with: 'page-data/literature/public',
+  sort_by: 'first_published_at:asc',
   ...partialBuildOptions,
 });
 
 export const buildRed33mLit = (buildPath: string) => buildLiterature({
   buildPath,
-  sort_by: 'created_at:asc',
   starts_with: 'page-data/literature/red33m',
+  sort_by: 'first_published_at:asc',
   ...partialBuildOptions,
 });
 

@@ -28,6 +28,8 @@ export type StoryVersion    = 'published'|'draft';
 export type StorySortString =
    'created_at:desc'
   |'created_at:asc'
+  |'first_published_at:asc'
+  |'first_published_at:desc'
   |'content.category:asc'
   |'content.category:desc'
   |'content.timestamp:asc'
