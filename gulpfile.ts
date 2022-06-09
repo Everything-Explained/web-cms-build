@@ -9,6 +9,7 @@ import { buildChangelog, buildHomePage } from './src/build/methods';
 task('build', series(buildCMSData));
 
 task('changelog', async (done) => {
+  lnfo('ENV', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
   await buildChangelog(`${pathResolve(paths.local.root)}/changelog`)();
   done();
 });

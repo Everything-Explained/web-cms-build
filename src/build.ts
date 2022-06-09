@@ -1,7 +1,7 @@
 
 
 import paths from "../paths";
-import { buildBlog, buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos } from "./build/methods";
+import { buildBlog, buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/methods";
 import { delayExec, mkDirs } from "./utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
@@ -9,6 +9,7 @@ import { BuildResult } from "./build/build_manifest";
 import { existsSync, writeFileSync } from "fs";
 import { CMSEntry } from "./services/storyblok";
 import { ISODateString } from "./global_interfaces";
+import { console_colors, lnfo } from "./lib/logger";
 
 
 
@@ -24,6 +25,7 @@ type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
 
+const cc = console_colors;
 const _dataRoot = pathResolve(paths.local.root);
 const _versionsFileName = 'versions';
 const _versionNames: Array<VersionTypes> = [
@@ -40,7 +42,8 @@ const _versionNames: Array<VersionTypes> = [
 
 
 export async function buildCMSData(done: () => void) {
-  console.log(`Building to: ${_dataRoot}`);
+  lnfo('build', `Building to ${cc.gn(_dataRoot)}`);
+  lnfo('env', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
   const dataVersions = await tryGetCMSVersionFile();
 
   await mkdir(_dataRoot, { recursive: true });

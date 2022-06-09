@@ -10,7 +10,7 @@ import { buildVideos } from "./build_videos";
 
 
 
-const storyBlokVersion: StoryVersion = (isDev() ? 'draft' : 'published');
+export const storyBlokVersion: StoryVersion = (isDev() ? 'draft' : 'published');
 
 const partialBuildOptions = {
   version: storyBlokVersion,
