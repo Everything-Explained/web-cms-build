@@ -44,7 +44,15 @@ export async function buildCMSData(done: () => void) {
   const dataVersions = await tryGetCMSVersionFile();
 
   await mkdir(_dataRoot, { recursive: true });
-  mkDirs([`${_dataRoot}/library`, `${_dataRoot}/red33m`, `${_dataRoot}/static`]);
+  mkDirs([
+    `${_dataRoot}/literature`,
+    `${_dataRoot}/literature/public`,
+    `${_dataRoot}/literature/red33m`,
+    `${_dataRoot}/videos`,
+    `${_dataRoot}/videos/public`,
+    `${_dataRoot}/videos/red33m`,
+    `${_dataRoot}/standalone`
+  ]);
 
   await delayExec(0)(async () => {
     const [version, entries] =
@@ -64,7 +72,7 @@ export async function buildCMSData(done: () => void) {
 
   delayExec(60)(async () => {
     const [version, entries] =
-      await execBuildData(buildLibraryLit(`${_dataRoot}/library/literature`), dataVersions.libLit.v)
+      await execBuildData(buildLibraryLit(`${_dataRoot}/literature/public`), dataVersions.libLit.v)
     ;
     dataVersions.libLit.v = version;
     dataVersions.libLit.n = entries[entries.length - 1].date;
@@ -72,7 +80,7 @@ export async function buildCMSData(done: () => void) {
 
   delayExec(120)(async () => {
     const [version, entries] =
-      await execBuildData(buildRed33mLit(`${_dataRoot}/red33m/literature`), dataVersions.r3dLit.v)
+      await execBuildData(buildRed33mLit(`${_dataRoot}/literature/red33m`), dataVersions.r3dLit.v)
     ;
     dataVersions.r3dLit.v = version;
     dataVersions.r3dLit.n = entries[entries.length - 1].date;
@@ -80,7 +88,7 @@ export async function buildCMSData(done: () => void) {
 
   delayExec(150)(async () => {
     const [version, entries] =
-      await execBuildData(() => buildLibraryVideos(`${_dataRoot}/library/videos`), dataVersions.libVid.v)
+      await execBuildData(() => buildLibraryVideos(`${_dataRoot}/videos/public`), dataVersions.libVid.v)
     ;
     dataVersions.libVid.v = version;
     dataVersions.libVid.n = entries[entries.length - 1].date;
@@ -88,7 +96,7 @@ export async function buildCMSData(done: () => void) {
 
   await delayExec(180)(async () => {
     const [version, entries] =
-      await execBuildData(() => buildRed33mVideos(`${_dataRoot}/red33m/videos`), dataVersions.r3dVid.v)
+      await execBuildData(() => buildRed33mVideos(`${_dataRoot}/videos/red33m`), dataVersions.r3dVid.v)
     ;
     dataVersions.r3dVid.v = version;
     dataVersions.r3dVid.n = entries[entries.length - 1].date;

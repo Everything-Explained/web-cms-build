@@ -158,7 +158,7 @@ export function useStoryblok(api: StoryblokAPI) {
     getStaticPage: async (pageName: string, version: StoryVersion) => {
       const story = await getRawStories({
         url: 'cdn/stories',
-        starts_with: `single-pages/${pageName}`,
+        starts_with: `page-data/standalone/${pageName}`,
         version,
         sort_by: 'created_at:asc',
       }, api);

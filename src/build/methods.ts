@@ -1,7 +1,7 @@
 import { storyBlokAPI, StoryVersion } from "../services/storyblok";
 import { isDev } from "../utilities";
 import { buildLiterature } from "./build_literature";
-import { buildStatic as buildStaticPage } from "./build_static";
+import { buildStaticPage } from "./build_static";
 import { buildVideos } from "./build_videos";
 
 
@@ -25,45 +25,45 @@ const partialBuildOptions = {
 
 export const buildBlog = (buildPath: string) => buildLiterature({
   buildPath,
-  starts_with: 'blog',
+  starts_with: 'page-data/blog',
   sort_by: 'created_at:desc',
   ...partialBuildOptions,
 });
 
 export const buildChangelog = (buildPath: string) => buildLiterature({
   buildPath,
-  starts_with: 'changelog',
+  starts_with: 'page-data/changelog',
   sort_by: 'created_at:desc',
   ...partialBuildOptions,
 });
 
 export const buildLibraryLit = (buildPath: string) => buildLiterature({
   buildPath,
-  starts_with: 'library/literature',
   sort_by: 'created_at:asc',
+  starts_with: 'page-data/literature/public',
   ...partialBuildOptions,
 });
 
 export const buildRed33mLit = (buildPath: string) => buildLiterature({
   buildPath,
-  starts_with: 'red33m/literature',
   sort_by: 'created_at:asc',
+  starts_with: 'page-data/literature/red33m',
   ...partialBuildOptions,
 });
 
 export const buildLibraryVideos = (buildPath: string) => buildVideos({
   buildPath,
   fileName: 'videos',
-  starts_with: 'test/tlit',
+  starts_with: 'page-data/videos/public',
   sort_by: 'content.timestamp:asc',
-  catList_starts_with: 'library/category-list',
+  catList_starts_with: 'utils/category-list',
   ...partialBuildOptions
 });
 
 export const buildRed33mVideos = (buildPath: string) => buildVideos({
   buildPath,
   fileName: 'videos',
-  starts_with: 'testred33m/red33m/videos',
+  starts_with: 'page-data/videos/red33m',
   sort_by: 'content.timestamp:asc',
   ...partialBuildOptions
 });

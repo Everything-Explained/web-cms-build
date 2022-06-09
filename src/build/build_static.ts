@@ -34,9 +34,9 @@ const cc = console_colors;
 const md = useMarkdown();
 
 
-export async function buildStatic(options: BuildStaticOptions) {
+export async function buildStaticPage(options: BuildStaticOptions) {
   const path             = pathResolve(options.folderPath);
-  const filePath         = pathResolve(`${path}/static/${options.pageName}.json`);
+  const filePath         = pathResolve(`${path}/standalone/${options.pageName}.json`);
   const cmsStaticContent = await useStoryblok(options.api).getStaticPage(options.pageName, 'draft');
   const fileResponse     = await tryCatchAsync(readFile(filePath, { encoding: 'utf-8'}));
 
