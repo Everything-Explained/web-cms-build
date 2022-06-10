@@ -38,7 +38,7 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     };
   }
 
-  if (uriIs('single-pages/static')) {
+  if (uriIs('page-data/standalone/static')) {
     return {
       ...emptyResult,
       data: { stories: staticPage }

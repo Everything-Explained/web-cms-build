@@ -56,8 +56,9 @@ describe('toVideoEntry(CMSEntry)', () => {
   it('returns an entry without the hash or category fields.', async () => {
     const entries = await mockSB.getCMSEntries(toSBlokOpt('test/category/videos'));
     const videoEntry = tdd.toVideoEntry(entries[0]);
-    expect(Object.hasOwn(videoEntry, 'category')).toBe(false);
-    expect(Object.hasOwn(videoEntry, 'hash')).toBe(false);
+    const objProps = Object.getOwnPropertyNames(videoEntry);
+    expect(objProps.includes('category')).toBe(false);
+    expect(objProps.includes('hash')).toBe(false);
   });
 });
 
@@ -125,9 +126,10 @@ describe('buildVideos(options, withCategories)', () => {
     const file = await readFile(`${path}/${fileName}Manifest.json`, { encoding: 'utf-8'});
     const manifest = JSON.parse(file);
     expect(Object.keys(manifest).length).toBe(3);
-    expect(Object.hasOwn(manifest[0], 'hash')).toBe(true);
-    expect(Object.hasOwn(manifest[0], 'title')).toBe(true);
-    expect(Object.hasOwn(manifest[0], 'id')).toBe(true);
+    const objProperties = Object.getOwnPropertyNames(manifest[0]);
+    expect(objProperties.includes('hash')).toBe(true);
+    expect(objProperties.includes('id')).toBe(true);
+    expect(objProperties.includes('title')).toBe(true);
   });
 
   it('skip processing if entries have not been updated.', async () => {

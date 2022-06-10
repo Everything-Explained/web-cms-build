@@ -1,6 +1,6 @@
 import del from "del";
 import { readFile, writeFile } from "fs/promises";
-import { buildStatic, BuildStaticOptions } from "../src/build/build_static";
+import { BuildStaticOptions, buildStaticPage } from "../src/build/build_static";
 import { tryCatchAsync } from "../src/utilities";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import staticFile from '../__mocks__/fixtures/static_page.json';
@@ -38,24 +38,24 @@ const setStaticOptions = (folder: string, name: string) => {
 
 describe('buildStatic(options)', () => {
   it('throws error if path cannot be found', async () => {
-    const resp = await tryCatchAsync(buildStatic(setStaticOptions('path_not_found', 'static')));
+    const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('path_not_found', 'static')));
     const isError = resp instanceof Error;
     expect(isError).toBe(true);
     if (isError) expect(resp.message).toContain('CANNOT FIND PATH');
   });
 
   it('creates static page data if it does not already exist', async () => {
-    const filePath = `${mockDir}/test_new_file/static/static.json`;
-    const resp = await tryCatchAsync(buildStatic(setStaticOptions('test_new_file', 'static')));
+    const filePath = `${mockDir}/test_new_file/standalone/static.json`;
+    const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('test_new_file', 'static')));
     expect(resp).toBe(true);
     await del(filePath);
   });
 
   it('updates static page data when there are changes', async () => {
-    const filePath = `${mockDir}/test_update/static/static.json`;
+    const filePath = `${mockDir}/test_update/standalone/static.json`;
     await writeFile(filePath, JSON.stringify(mockStaticFile));
     const oldFile = await readFile(filePath, { encoding: 'utf-8'});
-    const resp = await tryCatchAsync(buildStatic(setStaticOptions('test_update', 'static')));
+    const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('test_update', 'static')));
     const newFile = await readFile(filePath, { encoding: 'utf-8'});
     expect(JSON.parse(oldFile).hash).toBe('12345');
     expect(JSON.parse(newFile).hash).toBe('f71eb227d79a7');
@@ -64,16 +64,16 @@ describe('buildStatic(options)', () => {
   });
 
   it('does not update static page data if there are no changes', async () => {
-    const filePath = `${mockDir}/static/static.json`;
+    const filePath = `${mockDir}/standalone/static.json`;
     await writeFile(filePath, JSON.stringify(mockStaticFileAccurate));
-    const resp = await tryCatchAsync(buildStatic(setStaticOptions('', 'static')));
+    const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('', 'static')));
     expect(resp).toBe(false);
     await del(filePath);
   });
 
   it('renders body content as markdown', async () => {
-    const filePath = `${mockDir}/static/static.json`;
-    await tryCatchAsync(buildStatic(setStaticOptions('', 'static')));
+    const filePath = `${mockDir}/standalone/static.json`;
+    await tryCatchAsync(buildStaticPage(setStaticOptions('', 'static')));
     const file = await readFile(filePath, { encoding: 'utf8'});
     const pageObj = JSON.parse(file);
     expect(pageObj.content).toContain('<strong>');
