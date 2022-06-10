@@ -1,7 +1,7 @@
 import del from "del";
 import { readFile, writeFile } from "fs/promises";
-import { BuildStaticOptions, buildStaticPage } from "../src/lib/build/build_static";
-import { tryCatchAsync } from "../src/lib/utils/utilities";
+import { BuildStaticOptions, buildStaticPage } from "../src/build/build_static";
+import { tryCatchAsync } from "../src/utilities";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import staticFile from '../__mocks__/fixtures/static_page.json';
 
@@ -19,7 +19,7 @@ const mockStaticFile = {
 const mockStaticFileAccurate = {
   title: staticFile[0].content.title,
   body: 'This is a static page with some <strong>body</strong> text and <em>markdown</em>',
-  hash: '341cb2e2a601e'
+  hash: 'f71eb227d79a7'
 };
 
 const setStaticOptions = (folder: string, name: string) => {
@@ -58,7 +58,7 @@ describe('buildStatic(options)', () => {
     const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('test_update', 'static')));
     const newFile = await readFile(filePath, { encoding: 'utf-8'});
     expect(JSON.parse(oldFile).hash).toBe('12345');
-    expect(JSON.parse(newFile).hash).toBe('341cb2e2a601e');
+    expect(JSON.parse(newFile).hash).toBe('f71eb227d79a7');
     expect(resp).toBe(true);
     await del(filePath);
   });

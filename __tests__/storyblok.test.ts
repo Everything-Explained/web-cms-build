@@ -1,5 +1,5 @@
-import { CMSOptions, _tdd_storyblok } from "../src/lib/services/storyblok";
-import { toShortHash, tryCatchAsync } from "../src/lib/utils/utilities";
+import { CMSOptions, _tdd_storyblok } from "../src/services/storyblok";
+import { toShortHash, tryCatchAsync } from "../src/utilities";
 import litStory from '../__mocks__/fixtures/lit_item.json';
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 
@@ -42,6 +42,12 @@ describe('getRawStories(options, apiFunc)', () => {
     expect(stories.length).toBe(2);
   });
 
+  it('throws error if 0 stories are returned.', async () => {
+    const error = await tryCatchAsync(sb.getRawStories(toSBlokOpt('invalid/path'), mockAPI));
+    const isError = error instanceof Error;
+    expect(isError).toBeTruthy();
+    if (isError) { expect(error.message).toContain('Missing Stories'); }
+  });
 });
 
 
@@ -116,7 +122,7 @@ describe('toCMSEntry(story)', () => {
       author  : 'Ethan Kahn',
       summary : 'This is a summary string',
       body    : '<p>This is some body content</p>\n',
-      hash    : 'a0b9cf19117c3',
+      hash    : 'caeea493a03b2',
       date    : '2021-05-19T21:50:32.720Z',
     };
     const entry = sb.toCMSEntry(litStory);
@@ -147,7 +153,7 @@ describe('useStoryblok(api).getCMSEntries(options)', () => {
     const cms = sb.useStoryblok(mockAPI);
     const entries = await cms.getCMSEntries(toSBlokOpt(multiPageSlug, 1));
     expect(entries[0].id).toBe(69866748);
-    expect(entries[0].hash).toBe('da770dbf514bb');
+    expect(entries[0].hash).toBe('2c6181fe83007');
     expect(entries.length).toBe(3);
     expect('content' in entries[0]).toBe(false);
   });

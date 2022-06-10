@@ -1,7 +1,7 @@
 import del from 'del';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { delayExec, hasSameID, isENOENT, isError, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/lib/utils/utilities';
+import { delayExec, hasSameID, isENOENT, isError, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/utilities';
 
 
 
@@ -98,7 +98,7 @@ describe('truncateStr(number)(string)', () => {
 
 describe('toShortHash(data)', () => {
   it('returns a hash of the provided data', () => {
-    expect(toShortHash('hello world')).toBe('87c41abf1f72c');
+    expect(toShortHash('hello world')).toBe('fa56d5f74bb66');
   });
 
   it('truncates the hash to 13 characters', () => {

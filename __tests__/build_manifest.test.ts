@@ -3,8 +3,8 @@
 import del from "del";
 import { existsSync } from "fs";
 import { readFile, stat } from "fs/promises";
-import { BuildOptionsInternal, HashManifestEntry, _tdd_buildManifest } from "../src/lib/build/build_manifest";
-import { CMSEntry, CMSOptions, useStoryblok } from "../src/lib/services/storyblok";
+import { BuildOptionsInternal, HashManifestEntry, _tdd_buildManifest } from "../src/build/build_manifest";
+import { CMSEntry, CMSOptions, useStoryblok } from "../src/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import { resolve as pathResolve } from "path";
 
@@ -167,11 +167,11 @@ describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', ()
   it('calls onUpdatedEntries(updatedEntry) for each updated entry detected.', async () => {
     const path = `${mockDir}/detectUpdatedEntries`;
     const latestEntries = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
-    const oldEntries = await tdd.readManifestFile(path, 'detectUpdatedEntries');
+    const oldEntries    = await tdd.readManifestFile(path, 'detectUpdatedEntries');
     let counter = 0;
     tdd.detectUpdatedEntries((updatedEntry) => {
       ++counter;
-      expect(updatedEntry.hash).toBe('da770dbf514bb');
+      expect(updatedEntry.hash).toBe('2c6181fe83007');
     })(oldEntries, latestEntries);
     expect(counter).toBe(1);
   });
@@ -320,7 +320,7 @@ describe('buildManifest(options)', () => {
     expect(entry).toEqual({
       "id": 69866748,
       "title": "A New Lit Post that contains an Image",
-      "hash": "da770dbf514bb"
+      "hash": "2c6181fe83007"
     });
     await del(`${_dir}/${fileName}.json`);
   });

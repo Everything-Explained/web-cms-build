@@ -7,5 +7,9 @@
     "resolveJsonModule" : true,
     "removeComments"    : true,
     "esModuleInterop"   : true,
-  }
+    "outDir"            : "./bin"
+  },
+  "exclude": [
+    "./__tests__"
+  ]
 }
