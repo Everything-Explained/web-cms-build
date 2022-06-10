@@ -4,6 +4,7 @@ import simpleData from './simple_data.json';
 import videoCatData from './videos_with_cat.json';
 import categoryList from './category_list.json';
 import staticPage from './static_page.json';
+import staticPageVideo from './page_with_video.json';
 
 
 
@@ -42,6 +43,13 @@ async function get(slug: string, params: StoryOptions): Promise<StoryblokResult>
     return {
       ...emptyResult,
       data: { stories: staticPage }
+    };
+  }
+
+  if (uriIs('single-pages/static-video')) {
+    return {
+      ...emptyResult,
+      data: { stories: staticPageVideo }
     };
   }
 
