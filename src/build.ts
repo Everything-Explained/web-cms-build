@@ -2,7 +2,7 @@
 
 import paths from "../paths";
 import { buildBlog, buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/methods";
-import { delayExec, mkDirs } from "./utilities";
+import { delayExec, isDev, mkDirs } from "./utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
 import { BuildResult } from "./build/build_manifest";
@@ -26,7 +26,7 @@ type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
 const cc = console_colors;
-const _dataRoot = pathResolve(paths.local.root);
+const _dataRoot = pathResolve(isDev() ? paths.local.root : paths.release.root);
 const _versionsFileName = 'versions';
 const _versionNames: Array<VersionTypes> = [
   'build',
