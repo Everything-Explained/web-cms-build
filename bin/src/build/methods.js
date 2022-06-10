@@ -41,7 +41,7 @@ const buildRed33mLit = (buildPath) => (0, build_literature_1.buildLiterature)({
 exports.buildRed33mLit = buildRed33mLit;
 const buildLibraryVideos = (buildPath) => (0, build_videos_1.buildVideos)({
     buildPath,
-    fileName: 'videos',
+    fileName: 'public',
     starts_with: 'page-data/videos/public',
     sort_by: 'content.timestamp:asc',
     catList_starts_with: 'utils/category-list',
@@ -50,7 +50,7 @@ const buildLibraryVideos = (buildPath) => (0, build_videos_1.buildVideos)({
 exports.buildLibraryVideos = buildLibraryVideos;
 const buildRed33mVideos = (buildPath) => (0, build_videos_1.buildVideos)({
     buildPath,
-    fileName: 'videos',
+    fileName: 'red33m',
     starts_with: 'page-data/videos/red33m',
     sort_by: 'content.timestamp:asc',
     ...partialBuildOptions

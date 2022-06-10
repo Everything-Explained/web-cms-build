@@ -12,7 +12,7 @@ const promises_1 = require("fs/promises");
 const fs_1 = require("fs");
 const logger_1 = require("./lib/logger");
 const cc = logger_1.console_colors;
-const _dataRoot = (0, path_1.resolve)(paths_1.default.local.root);
+const _dataRoot = (0, path_1.resolve)((0, utilities_1.isDev)() ? paths_1.default.local.root : paths_1.default.release.root);
 const _versionsFileName = 'versions';
 const _versionNames = [
     'build',
