@@ -53,7 +53,7 @@ export const buildRed33mLit = (buildPath: string) => buildLiterature({
 
 export const buildLibraryVideos = (buildPath: string) => buildVideos({
   buildPath,
-  fileName: 'videos',
+  fileName: 'public',
   starts_with: 'page-data/videos/public',
   sort_by: 'content.timestamp:asc',
   catList_starts_with: 'utils/category-list',
@@ -62,7 +62,7 @@ export const buildLibraryVideos = (buildPath: string) => buildVideos({
 
 export const buildRed33mVideos = (buildPath: string) => buildVideos({
   buildPath,
-  fileName: 'videos',
+  fileName: 'red33m',
   starts_with: 'page-data/videos/red33m',
   sort_by: 'content.timestamp:asc',
   ...partialBuildOptions
