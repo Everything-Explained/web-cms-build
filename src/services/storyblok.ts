@@ -4,7 +4,7 @@ import { ISODateString } from "../global_interfaces";
 import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
 import { setIfInDev, toShortHash, tryCatchAsync } from "../utilities";
 import { useMarkdown } from "./markdown/md_core";
-import config from '../../config.json';
+import config from '../config.json';
 
 
 

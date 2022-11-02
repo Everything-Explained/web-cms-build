@@ -1,7 +1,7 @@
 
 
 import paths from "../paths";
-import { buildBlog, buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/methods";
+import { buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildPublicBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/methods";
 import { delayExec, isDev, mkDirs } from "./utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
@@ -16,7 +16,7 @@ import { console_colors, lnfo } from "./lib/logger";
 
 
 
-type VersionTypes    = 'build'|'blog'|'chglog'|'home'|'libLit'|'libVid'|'r3dLit'|'r3dVid'
+type VersionTypes    = 'build'|'pubBlog'|'r3dBlog'|'chglog'|'home'|'libLit'|'libVid'|'r3dLit'|'r3dVid'
 type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
@@ -30,7 +30,8 @@ const _dataRoot = pathResolve(isDev() ? paths.local.root : paths.release.root);
 const _versionsFileName = 'versions';
 const _versionNames: Array<VersionTypes> = [
   'build',
-  'blog',
+  'pubBlog',
+  'r3dBlog',
   'chglog',
   'home',
   'libLit',
@@ -48,6 +49,9 @@ export async function buildCMSData(done: () => void) {
 
   await mkdir(_dataRoot, { recursive: true });
   mkDirs([
+    `${_dataRoot}/blog`,
+    `${_dataRoot}/blog/public`,
+    `${_dataRoot}/blog/red33m`,
     `${_dataRoot}/literature`,
     `${_dataRoot}/literature/public`,
     `${_dataRoot}/literature/red33m`,
@@ -59,10 +63,18 @@ export async function buildCMSData(done: () => void) {
 
   await delayExec(0)(async () => {
     const [version, entries] =
-      await execBuildData(buildBlog(`${_dataRoot}/blog`), dataVersions.blog.v)
+      await execBuildData(buildPublicBlog(`${_dataRoot}/blog/public`), dataVersions.pubBlog.v)
     ;
-    dataVersions.blog.v = version;
-    dataVersions.blog.n = entries[0].date;
+    dataVersions.pubBlog.v = version;
+    dataVersions.pubBlog.n = entries[0].date;
+  });
+
+  await delayExec(15)(async () => {
+    const [version, entries] =
+      await execBuildData(buildPublicBlog(`${_dataRoot}/blog/red33m`), dataVersions.r3dBlog.v)
+    ;
+    dataVersions.r3dBlog.v = version;
+    dataVersions.r3dBlog.n = entries[0].date;
   });
 
   delayExec(30)(async () => {
