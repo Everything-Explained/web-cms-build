@@ -1,5 +1,5 @@
-import { CMSOptions, _tdd_storyblok } from "../src/services/storyblok";
-import { toShortHash, tryCatchAsync } from "../src/utilities";
+import { CMSOptions, _tdd_storyblok } from "../src/lib/services/storyblok";
+import { toShortHash, tryCatchAsync } from "../src/lib/utilities";
 import litStory from '../__mocks__/fixtures/lit_item.json';
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 

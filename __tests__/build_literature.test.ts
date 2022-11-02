@@ -2,8 +2,8 @@ import del from "del";
 import { existsSync } from "fs";
 import { join as pathJoin } from "path";
 import { copyFile, readdir, readFile, writeFile } from "fs/promises";
-import { _tdd_buildLiterature } from "../src/build/build_literature";
-import { CMSEntry, CMSOptions, PartialCMSEntry, useStoryblok } from "../src/services/storyblok";
+import { _tdd_buildLiterature } from "../src/lib/build_literature";
+import { CMSEntry, CMSOptions, PartialCMSEntry, useStoryblok } from "../src/lib/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 
 

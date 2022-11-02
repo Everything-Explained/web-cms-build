@@ -1,4 +1,4 @@
-import { useMarkdown } from "../src/services/markdown/md_core";
+import { useMarkdown } from "../src/lib/services/markdown/md_core";
 
 const md = useMarkdown();
 

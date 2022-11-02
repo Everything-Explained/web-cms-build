@@ -3,8 +3,8 @@
 import del from "del";
 import { existsSync } from "fs";
 import { readFile, stat } from "fs/promises";
-import { BuildOptionsInternal, HashManifestEntry, _tdd_buildManifest } from "../src/build/build_manifest";
-import { CMSEntry, CMSOptions, useStoryblok } from "../src/services/storyblok";
+import { BuildOptionsInternal, HashManifestEntry, _tdd_buildManifest } from "../src/lib/build_manifest";
+import { CMSEntry, CMSOptions, useStoryblok } from "../src/lib/services/storyblok";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import { resolve as pathResolve } from "path";
 
