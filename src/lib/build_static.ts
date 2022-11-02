@@ -3,9 +3,9 @@
 import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { console_colors, lact } from '../lib/logger';
-import { useMarkdown } from '../services/markdown/md_core';
-import { StoryblokAPI, StoryVersion, useStoryblok } from '../services/storyblok';
-import { isError, pathDirname, pathResolve, toShortHash, tryCatchAsync } from '../utilities';
+import { useMarkdown } from '../lib/services/markdown/md_core';
+import { StoryblokAPI, StoryVersion, useStoryblok } from '../lib/services/storyblok';
+import { isError, pathDirname, pathResolve, toShortHash, tryCatchAsync } from './utilities';
 
 
 

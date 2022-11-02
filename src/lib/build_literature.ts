@@ -1,10 +1,10 @@
 import { buildManifest, BuildOptions, HashManifestEntry } from "./build_manifest";
-import { CMSEntry, StoryblokAPI, StorySortString, StoryVersion } from "../services/storyblok";
+import { CMSEntry, StoryblokAPI, StorySortString, StoryVersion } from "./services/storyblok";
 import { resolve as pathResolve, basename as pathBasename } from 'path';
-import { lact } from "../lib/logger";
-import { console_colors as cc } from "../lib/logger";
+import { lact } from "./logger";
+import { console_colors as cc } from "./logger";
 import { writeFile, rm } from "fs/promises";
-import { setIfInDev, truncateStr } from "../utilities";
+import { setIfInDev, truncateStr } from "./utilities";
 
 
 

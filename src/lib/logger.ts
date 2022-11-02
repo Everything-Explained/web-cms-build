@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { state } from '../state';
+import { state } from './state';
 
 type ConsoleColor = 'red'|'green'|'yellow'|'gray'|'white';
 

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync } from "fs";
 import { writeFile } from "fs/promises";
 import { basename, resolve, dirname } from "path";
 import { pipe } from "ramda";
-import { console_colors as cc, lact } from "./lib/logger";
+import { console_colors as cc, lact } from "./logger";
 
 
 

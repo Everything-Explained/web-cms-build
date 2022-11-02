@@ -1,5 +1,5 @@
 import { StoryblokResult } from "storyblok-js-client";
-import { StoryOptions } from "../../src/services/storyblok";
+import { StoryOptions } from "../../src/lib/services/storyblok";
 import simpleData from './simple_data.json';
 import videoCatData from './videos_with_cat.json';
 import categoryList from './category_list.json';
