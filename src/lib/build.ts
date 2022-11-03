@@ -51,8 +51,8 @@ type BuilderData = Array<{
 export async function buildCMSData(done: () => void) {
   lnfo('build', `Building to ${cc.gn(_dataRoot)}`);
   lnfo('env', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
-  const dataVersions = await tryGetCMSVersionFile();
   await createDirs(_dataRoot);
+  const dataVersions = await tryGetCMSVersionFile();
 
   for (const builder of getBuilders(_dataRoot)) {
     const { path, dataKey, buildFn, order } = builder;
