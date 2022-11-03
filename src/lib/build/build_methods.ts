@@ -44,7 +44,7 @@ export const buildChangelog = (buildPath: string) => buildLiterature({
   ...partialBuildOptions,
 });
 
-export const buildLibraryLit = (buildPath: string) => buildLiterature({
+export const buildPublicLit = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'page-data/literature/public',
   sort_by: 'first_published_at:asc',
@@ -58,7 +58,7 @@ export const buildRed33mLit = (buildPath: string) => buildLiterature({
   ...partialBuildOptions,
 });
 
-export const buildLibraryVideos = (buildPath: string) => buildVideos({
+export const buildPublicVideos = (buildPath: string) => buildVideos({
   buildPath,
   fileName: 'public',
   starts_with: 'page-data/videos/public',

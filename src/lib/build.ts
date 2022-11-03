@@ -1,22 +1,22 @@
 
 
 import paths from "./utils/paths";
-import { buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildPublicBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/build_methods";
-import { delayExec, isDev, mkDirs } from "./utils/utilities";
+import { buildChangelog, buildHomePage, buildPublicLit, buildPublicVideos, buildPublicBlog, buildRed33mBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/build_methods";
+import { isDev, mkDirs } from "./utils/utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
 import { BuildResult } from "./build/build_manifest";
 import { existsSync, writeFileSync } from "fs";
 import { CMSEntry } from "./services/storyblok";
 import { ISODateString } from "./utils/global_interfaces";
-import { console_colors, lnfo } from "./utils/logger";
+import { console_colors, lact, lnfo } from "./utils/logger";
 
 
 
 
 
 
-type VersionTypes    = 'build'|'pubBlog'|'r3dBlog'|'chglog'|'home'|'libLit'|'libVid'|'r3dLit'|'r3dVid'
+type VersionTypes    = 'build'|'pubBlog'|'r3dBlog'|'chglog'|'home'|'pubLit'|'pubVid'|'r3dLit'|'r3dVid'
 type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
@@ -26,7 +26,7 @@ type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
 const cc = console_colors;
-const _dataRoot = pathResolve(isDev() ? paths.local.root : paths.release.root);
+const _dataRoot = pathResolve(isDev() ? paths.release.root : paths.local.root);
 const _versionsFileName = 'versions';
 const _versionNames: Array<VersionTypes> = [
   'build',
@@ -34,97 +34,105 @@ const _versionNames: Array<VersionTypes> = [
   'r3dBlog',
   'chglog',
   'home',
-  'libLit',
-  'libVid',
+  'pubLit',
+  'pubVid',
   'r3dLit',
   'r3dVid',
 ];
 
+type BuilderData = Array<{
+  path: string;
+  dataKey: VersionTypes;
+  order: 'asc'|'desc';
+  buildFn: (buildPath: string) => () => BuildResult;
+}>
 
 
 export async function buildCMSData(done: () => void) {
   lnfo('build', `Building to ${cc.gn(_dataRoot)}`);
   lnfo('env', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
   const dataVersions = await tryGetCMSVersionFile();
+  await createDirs(_dataRoot);
 
-  await mkdir(_dataRoot, { recursive: true });
-  mkDirs([
-    `${_dataRoot}/blog`,
-    `${_dataRoot}/blog/public`,
-    `${_dataRoot}/blog/red33m`,
-    `${_dataRoot}/literature`,
-    `${_dataRoot}/literature/public`,
-    `${_dataRoot}/literature/red33m`,
-    `${_dataRoot}/videos`,
-    `${_dataRoot}/videos/public`,
-    `${_dataRoot}/videos/red33m`,
-    `${_dataRoot}/standalone`
-  ]);
+  for (const builder of getBuilders(_dataRoot)) {
+    const { path, dataKey, buildFn, order } = builder;
+    const versionObj = dataVersions[dataKey];
+    lact('PARSING', `${cc.gn(dataKey)}`);
+    const [version, entries] = await execBuildData(buildFn(path), versionObj.v);
+    versionObj.v = version;
+    versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
+  }
 
-  await delayExec(0)(async () => {
-    const [version, entries] =
-      await execBuildData(buildPublicBlog(`${_dataRoot}/blog/public`), dataVersions.pubBlog.v)
-    ;
-    dataVersions.pubBlog.v = version;
-    dataVersions.pubBlog.n = entries[0].date;
-  });
-
-  await delayExec(15)(async () => {
-    const [version, entries] =
-      await execBuildData(buildPublicBlog(`${_dataRoot}/blog/red33m`), dataVersions.r3dBlog.v)
-    ;
-    dataVersions.r3dBlog.v = version;
-    dataVersions.r3dBlog.n = entries[0].date;
-  });
-
-  delayExec(30)(async () => {
-    const [version, entries] =
-      await execBuildData(buildChangelog(`${_dataRoot}/changelog`), dataVersions.chglog.v)
-    ;
-    dataVersions.chglog.v = version;
-    dataVersions.chglog.n = entries[0].date;
-  });
-
-  delayExec(60)(async () => {
-    const [version, entries] =
-      await execBuildData(buildLibraryLit(`${_dataRoot}/literature/public`), dataVersions.libLit.v)
-    ;
-    dataVersions.libLit.v = version;
-    dataVersions.libLit.n = entries[entries.length - 1].date;
-  });
-
-  delayExec(120)(async () => {
-    const [version, entries] =
-      await execBuildData(buildRed33mLit(`${_dataRoot}/literature/red33m`), dataVersions.r3dLit.v)
-    ;
-    dataVersions.r3dLit.v = version;
-    dataVersions.r3dLit.n = entries[entries.length - 1].date;
-  });
-
-  delayExec(150)(async () => {
-    const [version, entries] =
-      await execBuildData(() => buildLibraryVideos(`${_dataRoot}/videos/public`), dataVersions.libVid.v)
-    ;
-    dataVersions.libVid.v = version;
-    dataVersions.libVid.n = entries[entries.length - 1].date;
-  });
-
-  await delayExec(180)(async () => {
-    const [version, entries] =
-      await execBuildData(() => buildRed33mVideos(`${_dataRoot}/videos/red33m`), dataVersions.r3dVid.v)
-    ;
-    dataVersions.r3dVid.v = version;
-    dataVersions.r3dVid.n = entries[entries.length - 1].date;
-  });
-
-  await (await delayExec(210)(async () => {
-    const isUpdated = await buildHomePage(`${_dataRoot}`);
-    dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
-  }));
+  const isUpdated = await buildHomePage(`${_dataRoot}`);
+  dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
 
   dataVersions.build.v = Date.now().toString(16);
   saveCMSDataVersionFile(dataVersions);
   done();
+}
+
+async function createDirs(rootDir: string) {
+  await mkdir(rootDir, { recursive: true });
+  mkDirs([
+    `${rootDir}/blog`,
+    `${rootDir}/blog/public`,
+    `${rootDir}/blog/red33m`,
+    `${rootDir}/literature`,
+    `${rootDir}/literature/public`,
+    `${rootDir}/literature/red33m`,
+    `${rootDir}/videos`,
+    `${rootDir}/videos/public`,
+    `${rootDir}/videos/red33m`,
+    `${rootDir}/standalone`
+  ]);
+}
+
+function getBuilders(rootPath: string) {
+  const builders: BuilderData = [
+    {
+      path: `${rootPath}/blog/public`,
+      dataKey: 'pubBlog',
+      order: 'desc',
+      buildFn: buildPublicBlog
+    },
+    {
+      path: `${rootPath}/blog/red33m`,
+      dataKey: 'r3dBlog',
+      order: 'desc',
+      buildFn: buildRed33mBlog
+    },
+    {
+      path: `${rootPath}/changelog`,
+      dataKey: 'chglog',
+      order: 'desc',
+      buildFn: buildChangelog
+    },
+    {
+      path: `${rootPath}/literature/public`,
+      dataKey: 'pubLit',
+      order: 'asc',
+      buildFn: buildPublicLit
+    },
+    {
+      path: `${rootPath}/literature/red33m`,
+      dataKey: 'r3dLit',
+      order: 'asc',
+      buildFn: buildRed33mLit
+    },
+    {
+      path: `${rootPath}/videos/public`,
+      dataKey: 'pubVid',
+      order: 'asc',
+      buildFn: (buildPath: string) => () => buildPublicVideos(buildPath)
+    },
+    {
+      path: `${rootPath}/videos/red33m`,
+      dataKey: 'r3dVid',
+      order: 'asc',
+      buildFn: (buildPath: string) => () => buildRed33mVideos(buildPath)
+    },
+  ];
+  return builders;
 }
 
 
