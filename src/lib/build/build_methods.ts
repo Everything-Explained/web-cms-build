@@ -1,5 +1,5 @@
-import { storyBlokAPI, StoryVersion } from "../lib/services/storyblok";
-import { isDev } from "./utilities";
+import { storyBlokAPI, StoryVersion } from "../services/storyblok";
+import { isDev } from "../utils/utilities";
 import { buildLiterature } from "./build_literature";
 import { buildStaticPage } from "./build_static";
 import { buildVideos } from "./build_videos";

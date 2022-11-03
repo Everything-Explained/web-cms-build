@@ -26,5 +26,14 @@
     "editorInlayHint.background": "#49463f",
     "editorInlayHint.foreground": "#d4d0c1",
   },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/bin/**": true,
+  },
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }

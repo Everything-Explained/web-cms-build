@@ -7,7 +7,7 @@
     "changelog": "run-changelog.bat",
     "dev-build": "run-dev-build.bat",
     "build": "run-build.bat",
-    "test": "test.bat"
+    "test": "node ./bin/main.js"
   },
   "wallaby": {
     "files": [

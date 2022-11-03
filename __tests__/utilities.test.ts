@@ -1,7 +1,7 @@
 import del from 'del';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { delayExec, hasSameID, isENOENT, isError, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/lib/utilities';
+import { delayExec, hasSameID, isENOENT, isError, mkDirs, saveAsJSON, setIfInDev, slugify, toShortHash, truncateStr, tryCatchAsync, tryCreateDir } from '../src/lib/utils/utilities';
 
 
 

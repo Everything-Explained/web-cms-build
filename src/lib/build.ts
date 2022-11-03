@@ -1,15 +1,15 @@
 
 
-import paths from "../paths";
-import { buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildPublicBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./lib/build_methods";
-import { delayExec, isDev, mkDirs } from "./lib/utilities";
+import paths from "./utils/paths";
+import { buildChangelog, buildHomePage, buildLibraryLit, buildLibraryVideos, buildPublicBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/build_methods";
+import { delayExec, isDev, mkDirs } from "./utils/utilities";
 import { resolve as pathResolve } from 'path';
 import { mkdir, readFile } from "fs/promises";
-import { BuildResult } from "./lib/build_manifest";
+import { BuildResult } from "./build/build_manifest";
 import { existsSync, writeFileSync } from "fs";
-import { CMSEntry } from "./lib/services/storyblok";
-import { ISODateString } from "./lib/global_interfaces";
-import { console_colors, lnfo } from "./lib/logger";
+import { CMSEntry } from "./services/storyblok";
+import { ISODateString } from "./utils/global_interfaces";
+import { console_colors, lnfo } from "./utils/logger";
 
 
 

@@ -1,7 +1,7 @@
 import del from "del";
 import { readFile, writeFile } from "fs/promises";
-import { BuildStaticOptions, buildStaticPage } from "../src/lib/build_static";
-import { tryCatchAsync } from "../src/lib/utilities";
+import { BuildStaticOptions, buildStaticPage } from "../src/lib/build/build_static";
+import { tryCatchAsync } from "../src/lib/utils/utilities";
 import { mockStoryblokAPI } from "../__mocks__/fixtures/sb_mock_api";
 import staticFile from '../__mocks__/fixtures/static_page.json';
 

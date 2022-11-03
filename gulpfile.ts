@@ -1,9 +1,9 @@
 import { task, series } from 'gulp';
 import { resolve as pathResolve } from 'path';
-import { buildCMSData } from './src/build';
-import paths from './paths';
+import { buildCMSData } from './src/lib/build';
+import paths from './src/lib/utils/paths';
 import { buildChangelog, buildHomePage, storyBlokVersion } from './src/lib/build_methods';
-import { console_colors, lnfo } from './src/lib/logger';
+import { console_colors, lnfo } from './src/lib/utils/logger';
 
 const cc = console_colors;
 
