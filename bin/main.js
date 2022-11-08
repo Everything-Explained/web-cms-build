@@ -11,7 +11,10 @@ function build(rootPath, destPath, done = () => void (0)) {
 }
 exports.build = build;
 if (process.argv.length > 2) {
-    if (process.argv[2] == '-s') {
+    if (process.argv[1].includes('gulp')) {
+        (0, logger_1.lnfo)('[INFO]', 'Running CMS builder in script mode');
+    }
+    else if (process.argv[2] == '-s') {
         runAsCmdLine();
     }
     else {
