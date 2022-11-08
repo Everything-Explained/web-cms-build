@@ -1,9 +1,7 @@
 
 
-import paths from "./utils/paths";
 import { buildChangelog, buildHomePage, buildPublicLit, buildPublicVideos, buildPublicBlog, buildRed33mBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/build_methods";
-import { isDev, mkDirs } from "./utils/utilities";
-import { resolve as pathResolve } from 'path';
+import { mkDirs } from "./utils/utilities";
 import { mkdir, readFile } from "fs/promises";
 import { BuildResult } from "./build/build_manifest";
 import { existsSync, writeFileSync } from "fs";
@@ -26,7 +24,6 @@ type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
 const cc = console_colors;
-const _dataRoot = pathResolve(isDev() ? paths.release.root : paths.local.root);
 const _versionsFileName = 'versions';
 const _versionNames: Array<VersionTypes> = [
   'build',
@@ -48,13 +45,13 @@ type BuilderData = Array<{
 }>
 
 
-export async function buildCMSData(done: () => void) {
-  lnfo('build', `Building to ${cc.gn(_dataRoot)}`);
+export async function buildCMSData(rootDir: string) {
+  lnfo('build', `Building to ${cc.gn(rootDir)}`);
   lnfo('env', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
-  await createDirs(_dataRoot);
-  const dataVersions = await tryGetCMSVersionFile();
+  await createDirs(rootDir);
+  const dataVersions = await tryGetCMSVersionFile(rootDir);
 
-  for (const builder of getBuilders(_dataRoot)) {
+  for (const builder of getBuilders(rootDir)) {
     const { path, dataKey, buildFn, order } = builder;
     const versionObj = dataVersions[dataKey];
     lact('PARSING', `${cc.gn(dataKey)}`);
@@ -63,12 +60,11 @@ export async function buildCMSData(done: () => void) {
     versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
   }
 
-  const isUpdated = await buildHomePage(`${_dataRoot}`);
+  const isUpdated = await buildHomePage(`${rootDir}`);
   dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
 
   dataVersions.build.v = Date.now().toString(16);
-  saveCMSDataVersionFile(dataVersions);
-  done();
+  saveCMSDataVersionFile(dataVersions, rootDir);
 }
 
 async function createDirs(rootDir: string) {
@@ -136,28 +132,28 @@ function getBuilders(rootPath: string) {
 }
 
 
-export async function tryGetCMSVersionFile() {
-  tryCreateCMSDataVersionFile();
-  const file = await readFile(`${_dataRoot}/${_versionsFileName}.json`, { encoding: 'utf-8' });
+export async function tryGetCMSVersionFile(rootDir: string) {
+  tryCreateCMSDataVersionFile(rootDir);
+  const file = await readFile(`${rootDir}/${_versionsFileName}.json`, { encoding: 'utf-8' });
   const versionData: CMSDataVersions = JSON.parse(file);
-  tryVersionPropertyUpdates(versionData);
+  tryVersionPropertyUpdates(versionData, rootDir);
   return versionData;
 }
 
 
-export function tryCreateCMSDataVersionFile() {
-  if (existsSync(`${_dataRoot}/${_versionsFileName}.json`)) return;
+export function tryCreateCMSDataVersionFile(rootDir: string) {
+  if (existsSync(`${rootDir}/${_versionsFileName}.json`)) return;
   const emptyVersionData = _versionNames.reduce((pv, cv) => {
     pv[cv] = { v: '', n: '' };
     return pv;
   }, {} as CMSDataVersions);
-  writeFileSync(`${_dataRoot}/${_versionsFileName}.json`, JSON.stringify(emptyVersionData));
+  writeFileSync(`${rootDir}/${_versionsFileName}.json`, JSON.stringify(emptyVersionData));
   return;
 }
 
 
 /** Mutates version data with any property changes discovered. */
-export function tryVersionPropertyUpdates(versionData: CMSDataVersions) {
+export function tryVersionPropertyUpdates(versionData: CMSDataVersions, rootDir: string) {
   const dataKeys = Object.keys(versionData) as Array<keyof CMSDataVersions>;
 
   // Remove deleted/missing versions
@@ -166,7 +162,7 @@ export function tryVersionPropertyUpdates(versionData: CMSDataVersions) {
       continue;
     }
     delete versionData[key];
-    saveCMSDataVersionFile(versionData);
+    saveCMSDataVersionFile(versionData, rootDir);
   }
 
   // Add new versions
@@ -175,13 +171,13 @@ export function tryVersionPropertyUpdates(versionData: CMSDataVersions) {
       continue;
     }
     versionData[name] = { v: '', n: '' };
-    saveCMSDataVersionFile(versionData);
+    saveCMSDataVersionFile(versionData, rootDir);
   }
 }
 
 
-export function saveCMSDataVersionFile(versionData: CMSDataVersions) {
-  writeFileSync(`${_dataRoot}/${_versionsFileName}.json`, JSON.stringify(versionData, null, 2));
+export function saveCMSDataVersionFile(versionData: CMSDataVersions, rootDir: string) {
+  writeFileSync(`${rootDir}/${_versionsFileName}.json`, JSON.stringify(versionData, null, 2));
 }
 
 

@@ -7,7 +7,7 @@
     "changelog": "run-changelog.bat",
     "dev-build": "run-dev-build.bat",
     "build": "run-build.bat",
-    "test": "cross-env NODE_ENV=development node ./bin/main.js ./release"
+    "test": "cross-env NODE_ENV=development node ./bin/main.js -s . ./release/client/_data"
   },
   "wallaby": {
     "files": [
