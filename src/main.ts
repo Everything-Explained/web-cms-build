@@ -6,7 +6,7 @@ import { lwarn } from "./lib/utils/logger";
 import { pathResolve } from "./lib/utils/utilities";
 
 
-export function build(rootPath: string, destPath: string, done = () => void(0)) {
+export function build(rootPath: string, destPath: string, done = () => void(0) as void) {
   buildCMSData(validatePaths(rootPath, destPath), done);
 }
 
