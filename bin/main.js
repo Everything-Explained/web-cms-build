@@ -6,8 +6,8 @@ const fs_1 = require("fs");
 const build_1 = require("./lib/build");
 const logger_1 = require("./lib/utils/logger");
 const utilities_1 = require("./lib/utils/utilities");
-function build(rootPath, destPath) {
-    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath), () => void (0));
+function build(rootPath, destPath, done = () => void (0)) {
+    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath), done);
 }
 exports.build = build;
 if (process.argv.length > 2) {
