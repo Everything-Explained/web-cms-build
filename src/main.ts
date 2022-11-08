@@ -2,7 +2,7 @@
 
 import { existsSync } from "fs";
 import { buildCMSData } from "./lib/build";
-import { lwarn } from "./lib/utils/logger";
+import { lnfo, lwarn } from "./lib/utils/logger";
 import { pathResolve } from "./lib/utils/utilities";
 
 
@@ -11,7 +11,10 @@ export function build(rootPath: string, destPath: string, done = () => void(0) a
 }
 
 if (process.argv.length > 2) {
-  if (process.argv[2] == '-s') {
+  if (process.argv[1].includes('gulp')) {
+    lnfo('[INFO]', 'Running CMS builder in script mode');
+  }
+  else if (process.argv[2] == '-s') {
     runAsCmdLine();
   } else {
     lwarn('ERROR', 'To run script on cmd line, you need to include "-s" flag');
