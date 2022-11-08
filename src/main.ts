@@ -6,8 +6,8 @@ import { lwarn } from "./lib/utils/logger";
 import { pathResolve } from "./lib/utils/utilities";
 
 
-export function build(rootPath: string, destPath: string) {
-  buildCMSData(validatePaths(rootPath, destPath));
+export function build(rootPath: string, destPath: string, done = () => void(0)) {
+  buildCMSData(validatePaths(rootPath, destPath), done);
 }
 
 if (process.argv.length > 2) {
@@ -25,7 +25,7 @@ function runAsCmdLine() {
   if (!rootPath || !destPath) {
     throw Error('Missing either the root path or destination path argument');
   }
-  buildCMSData(validatePaths(rootPath, destPath));
+  buildCMSData(validatePaths(rootPath, destPath), () => void(0));
 }
 
 function validatePaths(rootPath: string, destPath: string) {

@@ -45,7 +45,7 @@ type BuilderData = Array<{
 }>
 
 
-export async function buildCMSData(rootDir: string) {
+export async function buildCMSData(rootDir: string, done: () => void) {
   lnfo('build', `Building to ${cc.gn(rootDir)}`);
   lnfo('env', `StoryBlok Version: ${cc.gn(storyBlokVersion)}`);
   await createDirs(rootDir);
@@ -65,6 +65,7 @@ export async function buildCMSData(rootDir: string) {
 
   dataVersions.build.v = Date.now().toString(16);
   saveCMSDataVersionFile(dataVersions, rootDir);
+  done();
 }
 
 async function createDirs(rootDir: string) {
