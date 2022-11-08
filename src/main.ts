@@ -6,6 +6,9 @@ import { lwarn } from "./lib/utils/logger";
 import { pathResolve } from "./lib/utils/utilities";
 
 
+export function build(rootPath: string, destPath: string) {
+  buildCMSData(validatePaths(rootPath, destPath));
+}
 
 if (process.argv.length > 2) {
   if (process.argv[2] == '-s') {
