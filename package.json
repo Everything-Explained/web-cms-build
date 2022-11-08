@@ -2,10 +2,16 @@
   "name": "@ev_ex/web-cms-build",
   "version": "2.0.0",
   "description": "Everything Explained CMS builder",
-  "main": "",
+  "main": "bin/main",
+  "types": "bin/main",
   "scripts": {
     "test": "cross-env NODE_ENV=development node ./bin/main.js -s . ./release/client/_data"
   },
+  "files": [
+    "bin/main.js",
+    "bin/main.d.ts",
+    "bin/lib"
+  ],
   "wallaby": {
     "files": [
       "./src/**/**.ts"
