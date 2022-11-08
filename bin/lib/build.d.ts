@@ -4,7 +4,7 @@ declare type CMSDataVersions = Record<VersionTypes, {
     v: string;
     n: ISODateString;
 }>;
-export declare function buildCMSData(rootDir: string): Promise<void>;
+export declare function buildCMSData(rootDir: string, done: () => void): Promise<void>;
 export declare function tryGetCMSVersionFile(rootDir: string): Promise<CMSDataVersions>;
 export declare function tryCreateCMSDataVersionFile(rootDir: string): void;
 export declare function tryVersionPropertyUpdates(versionData: CMSDataVersions, rootDir: string): void;

@@ -7,7 +7,7 @@ const build_1 = require("./lib/build");
 const logger_1 = require("./lib/utils/logger");
 const utilities_1 = require("./lib/utils/utilities");
 function build(rootPath, destPath) {
-    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath));
+    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath), () => void (0));
 }
 exports.build = build;
 if (process.argv.length > 2) {
@@ -24,7 +24,7 @@ function runAsCmdLine() {
     if (!rootPath || !destPath) {
         throw Error('Missing either the root path or destination path argument');
     }
-    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath));
+    (0, build_1.buildCMSData)(validatePaths(rootPath, destPath), () => void (0));
 }
 function validatePaths(rootPath, destPath) {
     const validRootPath = (0, utilities_1.pathResolve)(rootPath);

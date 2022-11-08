@@ -19,7 +19,7 @@ const _versionNames = [
     'r3dLit',
     'r3dVid',
 ];
-async function buildCMSData(rootDir) {
+async function buildCMSData(rootDir, done) {
     (0, logger_1.lnfo)('build', `Building to ${cc.gn(rootDir)}`);
     (0, logger_1.lnfo)('env', `StoryBlok Version: ${cc.gn(build_methods_1.storyBlokVersion)}`);
     await createDirs(rootDir);
@@ -36,6 +36,7 @@ async function buildCMSData(rootDir) {
     dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
     dataVersions.build.v = Date.now().toString(16);
     saveCMSDataVersionFile(dataVersions, rootDir);
+    done();
 }
 exports.buildCMSData = buildCMSData;
 async function createDirs(rootDir) {
