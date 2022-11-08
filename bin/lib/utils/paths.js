@@ -1,5 +1,5 @@
 "use strict";
-const releaseRoot = '../release/web_client/_data';
+const releaseRoot = './release/web_client/_data';
 const localReleaseRoot = '../../web-client/release/web_client/_data';
 const devRoot = '../_data';
 const paths = {
