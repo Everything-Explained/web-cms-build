@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.build = void 0;
+exports.buildChangelog = exports.build = void 0;
 const fs_1 = require("fs");
 const build_1 = require("./lib/build");
+const build_methods_1 = require("./lib/build/build_methods");
 const logger_1 = require("./lib/utils/logger");
 const utilities_1 = require("./lib/utils/utilities");
 function build(rootPath, destPath, done = () => void (0)) {
     (0, build_1.buildCMSData)(validatePaths(rootPath, destPath), done);
 }
 exports.build = build;
+async function buildChangelog(rootPath, destPath, done = () => void (0)) {
+    await (0, build_methods_1.buildChangelog)(validatePaths(rootPath, `${destPath}/changelog`))();
+    done();
+}
+exports.buildChangelog = buildChangelog;
 if (process.argv.length > 2) {
     if (process.argv[1].includes('gulp')) {
         (0, logger_1.lnfo)('[INFO]', 'Running CMS builder in script mode');
