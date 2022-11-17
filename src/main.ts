@@ -2,12 +2,18 @@
 
 import { existsSync } from "fs";
 import { buildCMSData } from "./lib/build";
+import { buildChangelog as buildChglog } from "./lib/build/build_methods";
 import { lnfo, lwarn } from "./lib/utils/logger";
 import { pathResolve } from "./lib/utils/utilities";
 
 
 export function build(rootPath: string, destPath: string, done = () => void(0) as void) {
   buildCMSData(validatePaths(rootPath, destPath), done);
+}
+
+export async function buildChangelog(rootPath: string, destPath: string, done = () => void(0) as void) {
+  await buildChglog(validatePaths(rootPath, `${destPath}/changelog`))();
+  done();
 }
 
 if (process.argv.length > 2) {
