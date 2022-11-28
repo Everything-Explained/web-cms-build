@@ -1,7 +1,7 @@
 
 
 import { ISODateString } from "../utils/global_interfaces";
-import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
+import StoryblokClient, { ISbResult } from 'storyblok-js-client';
 import { setIfInDev, toShortHash, tryCatchAsync } from "../utils/utilities";
 import { useMarkdown } from "./markdown/md_core";
 import config from '../../config.json';
@@ -122,7 +122,7 @@ export interface CMSEntry extends PartialCMSEntry {
 }
 
 type MockStoryBlokAPI = {
-  get: (slug: string, params: StoryOptions) => Promise<StoryblokResult>
+  get: (slug: string, params: StoryOptions) => Promise<ISbResult>
 }
 
 export type StoryblokAPI = MockStoryBlokAPI|StoryblokClient;
