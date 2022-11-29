@@ -57,7 +57,9 @@ export async function buildCMSData(rootDir: string, done: () => void) {
     lact('PARSING', `${cc.gn(dataKey)}`);
     const [version, entries] = await execBuildData(buildFn(path), versionObj.v);
     versionObj.v = version;
-    versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
+    if (entries.length) {
+      versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
+    }
   }
 
   const isUpdated = await buildHomePage(`${rootDir}`);
@@ -188,7 +190,7 @@ async function execBuildData(buildFunc: () => BuildResult, version: string): Pro
   const [,entries,isUpdated] = await buildFunc();
 
   return [
-    isUpdated ? Date.now().toString(36) : version,
+    isUpdated ? Date.now().toString(36) : version ?? Date.now().toString(36),
     entries,
   ];
 }

@@ -210,9 +210,9 @@ async function getRawStories(opt: CMSOptions, api: StoryblokAPI): Promise<StoryE
     currentStories = sbResp.data.stories;
   }
   // We want our build process to fail if stories can't be found
-  if (!totalStories.length)
-    throw Error(`Missing Stories From "${starts_with}"`)
-  ;
+  // if (!totalStories.length)
+  //   throw Error(`Missing Stories From "${starts_with}"`)
+  // ;
   return totalStories;
 }
 
