@@ -42,12 +42,6 @@ describe('getRawStories(options, apiFunc)', () => {
     expect(stories.length).toBe(2);
   });
 
-  it('throws error if 0 stories are returned.', async () => {
-    const error = await tryCatchAsync(sb.getRawStories(toSBlokOpt('invalid/path'), mockAPI));
-    const isError = error instanceof Error;
-    expect(isError).toBeTruthy();
-    if (isError) { expect(error.message).toContain('Missing Stories'); }
-  });
 });
 
 
