@@ -167,11 +167,11 @@ describe('detectUpdatedEntries(onUpdatedEntries)(oldEntries, latestEntries)', ()
   it('calls onUpdatedEntries(updatedEntry) for each updated entry detected.', async () => {
     const path = `${mockDir}/detectUpdatedEntries`;
     const latestEntries = await sb.getCMSEntries(toSBlokOpt('test/multipage'));
-    const oldEntries    = await tdd.readManifestFile(path, 'detectUpdatedEntries');
+    const oldEntries = await tdd.readManifestFile(path, 'detectUpdatedEntries');
     let counter = 0;
     tdd.detectUpdatedEntries((updatedEntry) => {
       ++counter;
-      expect(updatedEntry.hash).toBe('2c6181fe83007');
+      expect(updatedEntry.hash).toBe('da770dbf514bb');
     })(oldEntries, latestEntries);
     expect(counter).toBe(1);
   });
@@ -320,7 +320,7 @@ describe('buildManifest(options)', () => {
     expect(entry).toEqual({
       "id": 69866748,
       "title": "A New Lit Post that contains an Image",
-      "hash": "2c6181fe83007"
+      "hash": "da770dbf514bb"
     });
     await del(`${_dir}/${fileName}.json`);
   });

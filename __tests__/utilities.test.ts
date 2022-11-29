@@ -98,7 +98,7 @@ describe('truncateStr(number)(string)', () => {
 
 describe('toShortHash(data)', () => {
   it('returns a hash of the provided data', () => {
-    expect(toShortHash('hello world')).toBe('fa56d5f74bb66');
+    expect(toShortHash('hello world')).toBe('87c41abf1f72c');
   });
 
   it('truncates the hash to 13 characters', () => {

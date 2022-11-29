@@ -122,7 +122,7 @@ describe('toCMSEntry(story)', () => {
       author  : 'Ethan Kahn',
       summary : 'This is a summary string',
       body    : '<p>This is some body content</p>\n',
-      hash    : 'caeea493a03b2',
+      hash    : 'a0b9cf19117c3',
       date    : '2021-05-19T21:50:32.720Z',
     };
     const entry = sb.toCMSEntry(litStory);
@@ -153,7 +153,7 @@ describe('useStoryblok(api).getCMSEntries(options)', () => {
     const cms = sb.useStoryblok(mockAPI);
     const entries = await cms.getCMSEntries(toSBlokOpt(multiPageSlug, 1));
     expect(entries[0].id).toBe(69866748);
-    expect(entries[0].hash).toBe('2c6181fe83007');
+    expect(entries[0].hash).toBe('da770dbf514bb');
     expect(entries.length).toBe(3);
     expect('content' in entries[0]).toBe(false);
   });

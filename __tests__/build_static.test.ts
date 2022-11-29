@@ -19,7 +19,7 @@ const mockStaticFile = {
 const mockStaticFileAccurate = {
   title: staticFile[0].content.title,
   body: 'This is a static page with some <strong>body</strong> text and <em>markdown</em>',
-  hash: 'f71eb227d79a7'
+  hash: '341cb2e2a601e'
 };
 
 const setStaticOptions = (folder: string, name: string) => {
@@ -58,7 +58,7 @@ describe('buildStatic(options)', () => {
     const resp = await tryCatchAsync(buildStaticPage(setStaticOptions('test_update', 'static')));
     const newFile = await readFile(filePath, { encoding: 'utf-8'});
     expect(JSON.parse(oldFile).hash).toBe('12345');
-    expect(JSON.parse(newFile).hash).toBe('f71eb227d79a7');
+    expect(JSON.parse(newFile).hash).toBe('341cb2e2a601e');
     expect(resp).toBe(true);
     await del(filePath);
   });
