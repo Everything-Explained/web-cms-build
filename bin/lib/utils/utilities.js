@@ -54,7 +54,7 @@ function truncateStr(to) {
 }
 exports.truncateStr = truncateStr;
 function toShortHash(data) {
-    const toMd4Hash = (str) => (0, crypto_1.createHmac)('md4', 'EvEx1337').update(str).digest('hex');
+    const toMd4Hash = (str) => (0, crypto_1.createHmac)('md5', 'EvEx1337').update(str).digest('hex');
     return (0, ramda_1.pipe)(JSON.stringify, toMd4Hash, truncateStr(13))(data);
 }
 exports.toShortHash = toShortHash;
