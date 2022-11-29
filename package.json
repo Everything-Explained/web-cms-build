@@ -1,6 +1,6 @@
 {
   "name": "@ev_ex/web-cms-build",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Everything Explained CMS builder",
   "main": "bin/main",
   "types": "bin/main",
