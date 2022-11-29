@@ -5,8 +5,8 @@
   "main": "bin/main",
   "types": "bin/main",
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development node ./bin/main.js -s . ./release/client/_data",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production node ./bin/main.js -s . ./release/client/_data"
+    "test": "cross-env NODE_ENV=development node ./bin/main.js -s . ./release/client/_data",
+    "build": "cross-env NODE_ENV=production node ./bin/main.js -s . ./release/client/_data"
   },
   "files": [
     "bin/main.js",

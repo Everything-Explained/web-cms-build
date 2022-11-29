@@ -73,7 +73,7 @@ export function truncateStr(to: number) {
 
 
 export function toShortHash(data: any) {
-  const toMd4Hash = (str: string) => createHmac('md4', 'EvEx1337').update(str).digest('hex');
+  const toMd4Hash = (str: string) => createHmac('md5', 'EvEx1337').update(str).digest('hex');
   return pipe(
     JSON.stringify,
     toMd4Hash,
