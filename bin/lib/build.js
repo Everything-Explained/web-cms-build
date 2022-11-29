@@ -30,7 +30,9 @@ async function buildCMSData(rootDir, done) {
         (0, logger_1.lact)('PARSING', `${cc.gn(dataKey)}`);
         const [version, entries] = await execBuildData(buildFn(path), versionObj.v);
         versionObj.v = version;
-        versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
+        if (entries.length) {
+            versionObj.n = order == 'desc' ? entries[0].date : entries[entries.length - 1].date;
+        }
     }
     const isUpdated = await (0, build_methods_1.buildHomePage)(`${rootDir}`);
     dataVersions.home.v = isUpdated ? Date.now().toString(36) : dataVersions.home.v;
@@ -145,7 +147,7 @@ exports.saveCMSDataVersionFile = saveCMSDataVersionFile;
 async function execBuildData(buildFunc, version) {
     const [, entries, isUpdated] = await buildFunc();
     return [
-        isUpdated ? Date.now().toString(36) : version,
+        isUpdated ? Date.now().toString(36) : version ?? Date.now().toString(36),
         entries,
     ];
 }

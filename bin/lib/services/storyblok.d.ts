@@ -1,5 +1,5 @@
 import { ISODateString } from "../utils/global_interfaces";
-import StoryblokClient, { StoryblokResult } from 'storyblok-js-client';
+import StoryblokClient, { ISbResult } from 'storyblok-js-client';
 export declare type StoryVersion = 'published' | 'draft';
 export declare type StorySortString = 'created_at:desc' | 'created_at:asc' | 'first_published_at:asc' | 'first_published_at:desc' | 'content.category:asc' | 'content.category:desc' | 'content.timestamp:asc' | 'content.timestamp:desc';
 export declare type StoryCategoryTableBody = [
@@ -83,7 +83,7 @@ export interface CMSEntry extends PartialCMSEntry {
     readonly date: ISODateString;
 }
 declare type MockStoryBlokAPI = {
-    get: (slug: string, params: StoryOptions) => Promise<StoryblokResult>;
+    get: (slug: string, params: StoryOptions) => Promise<ISbResult>;
 };
 export declare type StoryblokAPI = MockStoryBlokAPI | StoryblokClient;
 export declare const storyBlokAPI: StoryblokClient;

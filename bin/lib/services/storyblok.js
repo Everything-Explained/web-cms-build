@@ -73,8 +73,6 @@ async function getRawStories(opt, api) {
         const sbResp = await api.get(url, apiOptions);
         currentStories = sbResp.data.stories;
     }
-    if (!totalStories.length)
-        throw Error(`Missing Stories From "${starts_with}"`);
     return totalStories;
 }
 function toCMSEntry(story) {
