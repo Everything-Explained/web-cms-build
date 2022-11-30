@@ -13,35 +13,35 @@ const partialBuildOptions = {
 };
 const buildPublicBlog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/blog',
+    starts_with: 'page-data/blog/',
     sort_by: 'created_at:desc',
     ...partialBuildOptions,
 });
 exports.buildPublicBlog = buildPublicBlog;
 const buildRed33mBlog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/blog/red33m',
+    starts_with: 'page-data/blog/red33m/',
     sort_by: 'created_at:desc',
     ...partialBuildOptions,
 });
 exports.buildRed33mBlog = buildRed33mBlog;
 const buildChangelog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/changelog',
+    starts_with: 'page-data/changelog/',
     sort_by: 'created_at:desc',
     ...partialBuildOptions,
 });
 exports.buildChangelog = buildChangelog;
 const buildPublicLit = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/literature/public',
+    starts_with: 'page-data/literature/public/',
     sort_by: 'first_published_at:asc',
     ...partialBuildOptions,
 });
 exports.buildPublicLit = buildPublicLit;
 const buildRed33mLit = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/literature/red33m',
+    starts_with: 'page-data/literature/red33m/',
     sort_by: 'first_published_at:asc',
     ...partialBuildOptions,
 });
@@ -49,7 +49,7 @@ exports.buildRed33mLit = buildRed33mLit;
 const buildPublicVideos = (buildPath) => (0, build_videos_1.buildVideos)({
     buildPath,
     fileName: 'public',
-    starts_with: 'page-data/videos/public',
+    starts_with: 'page-data/videos/public/',
     sort_by: 'content.timestamp:asc',
     catList_starts_with: 'utils/category-list',
     ...partialBuildOptions
@@ -58,7 +58,7 @@ exports.buildPublicVideos = buildPublicVideos;
 const buildRed33mVideos = (buildPath) => (0, build_videos_1.buildVideos)({
     buildPath,
     fileName: 'red33m',
-    starts_with: 'page-data/videos/red33m',
+    starts_with: 'page-data/videos/red33m/',
     sort_by: 'content.timestamp:asc',
     ...partialBuildOptions
 });
