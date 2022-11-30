@@ -13,7 +13,7 @@ const partialBuildOptions = {
 };
 const buildPublicBlog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
-    starts_with: 'page-data/blog/',
+    starts_with: 'page-data/blog/public/',
     sort_by: 'created_at:desc',
     ...partialBuildOptions,
 });
