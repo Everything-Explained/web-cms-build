@@ -25,7 +25,7 @@ const partialBuildOptions = {
 
 export const buildPublicBlog = (buildPath: string) => buildLiterature({
   buildPath,
-  starts_with: 'page-data/blog/',
+  starts_with: 'page-data/blog/public/',
   sort_by: 'created_at:desc',
   ...partialBuildOptions,
 });
