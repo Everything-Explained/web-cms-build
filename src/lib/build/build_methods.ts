@@ -26,14 +26,14 @@ const partialBuildOptions = {
 export const buildPublicBlog = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'page-data/blog/public/',
-  sort_by: 'created_at:desc',
+  sort_by: 'first_published_at:desc',
   ...partialBuildOptions,
 });
 
 export const buildRed33mBlog = (buildPath: string) => buildLiterature({
   buildPath,
   starts_with: 'page-data/blog/red33m/',
-  sort_by: 'created_at:desc',
+  sort_by: 'first_published_at:desc',
   ...partialBuildOptions,
 });
 
