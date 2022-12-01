@@ -1,5 +1,5 @@
 {
-  "name": "@ev_ex/web-cms-build",
+  "name": "@ev_ex/evex-build-cms",
   "version": "2.1.5",
   "description": "Everything Explained CMS builder",
   "main": "bin/main",
