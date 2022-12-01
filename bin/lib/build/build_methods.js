@@ -14,14 +14,14 @@ const partialBuildOptions = {
 const buildPublicBlog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
     starts_with: 'page-data/blog/public/',
-    sort_by: 'created_at:desc',
+    sort_by: 'first_published_at:desc',
     ...partialBuildOptions,
 });
 exports.buildPublicBlog = buildPublicBlog;
 const buildRed33mBlog = (buildPath) => (0, build_literature_1.buildLiterature)({
     buildPath,
     starts_with: 'page-data/blog/red33m/',
-    sort_by: 'created_at:desc',
+    sort_by: 'first_published_at:desc',
     ...partialBuildOptions,
 });
 exports.buildRed33mBlog = buildRed33mBlog;
