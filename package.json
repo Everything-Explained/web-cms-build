@@ -1,6 +1,6 @@
 {
   "name": "@ev_ex/evex-build-cms",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Everything Explained CMS builder",
   "main": "bin/main",
   "types": "bin/main",
