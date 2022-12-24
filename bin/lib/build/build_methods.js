@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildHomePage = exports.buildRed33mVideos = exports.buildPublicVideos = exports.buildRed33mLit = exports.buildPublicLit = exports.buildChangelog = exports.buildRed33mBlog = exports.buildPublicBlog = exports.storyBlokVersion = void 0;
+exports.buildHomePage = exports.buildRed33mArchive = exports.buildRed33mVideos = exports.buildPublicVideos = exports.buildRed33mLit = exports.buildPublicLit = exports.buildChangelog = exports.buildRed33mBlog = exports.buildPublicBlog = exports.storyBlokVersion = void 0;
 const storyblok_1 = require("../services/storyblok");
 const utilities_1 = require("../utils/utilities");
 const build_literature_1 = require("./build_literature");
@@ -63,6 +63,14 @@ const buildRed33mVideos = (buildPath) => (0, build_videos_1.buildVideos)({
     ...partialBuildOptions
 });
 exports.buildRed33mVideos = buildRed33mVideos;
+const buildRed33mArchive = (buildPath) => (0, build_videos_1.buildVideos)({
+    buildPath,
+    fileName: 'red33m',
+    starts_with: 'page-data/videos/red33m-archive/',
+    sort_by: 'content.timestamp:asc',
+    ...partialBuildOptions
+});
+exports.buildRed33mArchive = buildRed33mArchive;
 const buildHomePage = async (path) => {
     return (0, build_static_1.buildStaticPage)({
         folderPath: path,

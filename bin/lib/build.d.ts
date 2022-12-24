@@ -1,5 +1,5 @@
 import { ISODateString } from "./utils/global_interfaces";
-declare type VersionTypes = 'build' | 'pubBlog' | 'r3dBlog' | 'chglog' | 'home' | 'pubLit' | 'pubVid' | 'r3dLit' | 'r3dVid';
+declare type VersionTypes = 'build' | 'pubBlog' | 'r3dBlog' | 'chglog' | 'home' | 'pubLit' | 'pubVid' | 'r3dLit' | 'r3dVid' | 'r3dArch';
 declare type CMSDataVersions = Record<VersionTypes, {
     v: string;
     n: ISODateString;
