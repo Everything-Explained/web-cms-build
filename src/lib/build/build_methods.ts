@@ -77,7 +77,7 @@ export const buildRed33mVideos = (buildPath: string) => buildVideos({
 
 export const buildRed33mArchive = (buildPath: string) => buildVideos({
   buildPath,
-  fileName: 'red33m',
+  fileName: 'red33m-archive',
   starts_with: 'page-data/videos/red33m-archive/',
   sort_by: 'content.timestamp:asc',
   ...partialBuildOptions
