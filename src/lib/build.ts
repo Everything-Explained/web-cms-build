@@ -1,6 +1,6 @@
 
 
-import { buildChangelog, buildHomePage, buildPublicLit, buildPublicVideos, buildPublicBlog, buildRed33mBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion } from "./build/build_methods";
+import { buildChangelog, buildHomePage, buildPublicLit, buildPublicVideos, buildPublicBlog, buildRed33mBlog, buildRed33mLit, buildRed33mVideos, storyBlokVersion, buildRed33mArchive } from "./build/build_methods";
 import { mkDirs } from "./utils/utilities";
 import { mkdir, readFile } from "fs/promises";
 import { BuildResult } from "./build/build_manifest";
@@ -14,7 +14,7 @@ import { console_colors, lact, lnfo } from "./utils/logger";
 
 
 
-type VersionTypes    = 'build'|'pubBlog'|'r3dBlog'|'chglog'|'home'|'pubLit'|'pubVid'|'r3dLit'|'r3dVid'
+type VersionTypes    = 'build'|'pubBlog'|'r3dBlog'|'chglog'|'home'|'pubLit'|'pubVid'|'r3dLit'|'r3dVid'|'r3dArch'
 type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 
@@ -25,7 +25,7 @@ type CMSDataVersions = Record<VersionTypes, { v: string; n: ISODateString; }>;
 
 const cc = console_colors;
 const _versionsFileName = 'versions';
-const _versionNames: Array<VersionTypes> = [
+const _versionNames: VersionTypes[] = [
   'build',
   'pubBlog',
   'r3dBlog',
@@ -35,6 +35,7 @@ const _versionNames: Array<VersionTypes> = [
   'pubVid',
   'r3dLit',
   'r3dVid',
+  'r3dArch',
 ];
 
 type BuilderData = Array<{
@@ -82,6 +83,7 @@ async function createDirs(rootDir: string) {
     `${rootDir}/videos`,
     `${rootDir}/videos/public`,
     `${rootDir}/videos/red33m`,
+    `${rootDir}/videos/red33m-archive`,
     `${rootDir}/standalone`
   ]);
 }
@@ -129,6 +131,12 @@ function getBuilders(rootPath: string) {
       dataKey: 'r3dVid',
       order: 'asc',
       buildFn: (buildPath: string) => () => buildRed33mVideos(buildPath)
+    },
+    {
+      path: `${rootPath}/videos/red33m-archive`,
+      dataKey: 'r3dArch',
+      order: 'asc',
+      buildFn: (buildPath: string) => () => buildRed33mArchive(buildPath)
     },
   ];
   return builders;

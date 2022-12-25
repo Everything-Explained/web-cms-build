@@ -18,6 +18,7 @@ const _versionNames = [
     'pubVid',
     'r3dLit',
     'r3dVid',
+    'r3dArch',
 ];
 async function buildCMSData(rootDir, done) {
     (0, logger_1.lnfo)('build', `Building to ${cc.gn(rootDir)}`);
@@ -53,6 +54,7 @@ async function createDirs(rootDir) {
         `${rootDir}/videos`,
         `${rootDir}/videos/public`,
         `${rootDir}/videos/red33m`,
+        `${rootDir}/videos/red33m-archive`,
         `${rootDir}/standalone`
     ]);
 }
@@ -99,6 +101,12 @@ function getBuilders(rootPath) {
             dataKey: 'r3dVid',
             order: 'asc',
             buildFn: (buildPath) => () => (0, build_methods_1.buildRed33mVideos)(buildPath)
+        },
+        {
+            path: `${rootPath}/videos/red33m-archive`,
+            dataKey: 'r3dArch',
+            order: 'asc',
+            buildFn: (buildPath) => () => (0, build_methods_1.buildRed33mArchive)(buildPath)
         },
     ];
     return builders;
