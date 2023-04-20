@@ -27,7 +27,7 @@
     "markdown-it-deflist": "^2.1.0",
     "ramda": "^0.28.0",
     "source-map-support": "^0.5.20",
-    "storyblok-js-client": "^5.1.0"
+    "storyblok-js-client": "^5.10.2"
   },
   "devDependencies": {
     "@types/gulp": "^4.0.9",
